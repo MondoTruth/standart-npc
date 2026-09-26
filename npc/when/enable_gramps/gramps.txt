@@ -200,7 +200,7 @@ OnHandleQuest:
 alde_dun04	mapflag	cleanmap
 mag_dun02	mapflag	cleanmap
 dic_dun02	mapflag	cleanmap
-verus03		mapflag	cleanmap
+verus03	mapflag	cleanmap
 ein_dun03	mapflag	cleanmap
 nif_dun01	mapflag	cleanmap
 nif_dun02	mapflag	cleanmap
