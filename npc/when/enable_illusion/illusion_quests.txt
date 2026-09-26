@@ -141,31 +141,31 @@ OnHandleQuest:
 	}
 
 	if (Illusion_Kill1 >= .@req1 && Illusion_Kill2 >= .@req2 && Illusion_Kill3 >= .@req3) {
-        .@base_exp = callfunc("F_SNPC_BountyReward", "illusion", .@q_id, 0);
-        .@job_exp  = callfunc("F_SNPC_BountyReward", "illusion", .@q_id, 1);
+		.@base_exp = callfunc("F_SNPC_BountyReward", "illusion", .@q_id, 0);
+		.@job_exp  = callfunc("F_SNPC_BountyReward", "illusion", .@q_id, 1);
 
-        if (.@base_exp <= 0 || .@job_exp <= 0) {
-            mes "[Illusion Manager]";
-            mes "Reward table error -- please tell the server admin.";
-            close;
-        }
+		if (.@base_exp <= 0 || .@job_exp <= 0) {
+			mes "[Illusion Manager]";
+			mes "Reward table error -- please tell the server admin.";
+			close;
+		}
 
-        Illusion_Kill1 = 0;
-        Illusion_Kill2 = 0;
-        Illusion_Kill3 = 0;
-        Illusion_ActiveQuest = 0;
+		Illusion_Kill1 = 0;
+		Illusion_Kill2 = 0;
+		Illusion_Kill3 = 0;
+		Illusion_ActiveQuest = 0;
 
-        // Route through safe EXP chunking routine
-        callfunc("F_SNPC_GiveEXP", .@base_exp, .@job_exp);
-        specialeffect2 154;
+		// Route through safe EXP chunking routine
+		callfunc("F_SNPC_GiveEXP", .@base_exp, .@job_exp);
+		specialeffect2 154;
 
-        mes "[Illusion Manager]";
-        mes "Outstanding job! Here is your reward:";
-        mes "^0055FF+" + .@base_exp + " Base EXP^000000";
-        mes "^0055FF+" + .@job_exp + " Job EXP^000000";
-        mes "\n^777777(EXP rewards are multiplied by server rates)^000000";
-        close;
-    }
+		mes "[Illusion Manager]";
+		mes "Outstanding job! Here is your reward:";
+		mes "^0055FF+" + .@base_exp + " Base EXP^000000";
+		mes "^0055FF+" + .@job_exp + " Job EXP^000000";
+		mes "\n^777777(EXP rewards are multiplied by server rates)^000000";
+		close;
+	}
 
 	if (Illusion_ActiveQuest == .@q_id) {
 		mes "[Illusion Manager]";
