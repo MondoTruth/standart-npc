@@ -1,7 +1,7 @@
 //===== rAthena Script =======================================
 //= Lucky John
 //===== By: IceGlaive ========================================
-//= Description:
+//===== Description: =========================================
 //= Per-character daily Mercenary Guild area-purge contracts.
 //= Assigns 500 monster kills in a level-appropriate zone.
 //===== How to customize: ====================================
