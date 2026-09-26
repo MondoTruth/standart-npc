@@ -11,7 +11,7 @@ All-in-one NPC pack for [Ragnarok Offline](https://github.com/Flux159/ragnarokof
 
 ## What's included
 
-Buffer, Warper, Job Master, Reset Girl, Stylist, and Episode Valkyrie are always on. Everything else below has its own checkbox in Settings → Mods, on by default.
+Warper, Job Master, Reset Girl, Stylist, and Episode Valkyrie are always on. Everything else below has its own checkbox in Settings → Mods, on by default.
 
 | NPC | What it does | Location |
 |---|---|---|
@@ -25,7 +25,7 @@ Buffer, Warper, Job Master, Reset Girl, Stylist, and Episode Valkyrie are always
 | **Card Exchanger** | 10 cards → Old Card Album, 30 cards → Mystical Card Album. Also extracts a card out of equipped gear. | Prontera (151, 187) |
 | **Kafra Employee** | Save point, storage, and free identify-all. | Prontera (160, 187) |
 | **Smuggler** | Buy any item by ID, no restrictions. Detects the server era automatically: on Renewal the price depends on item type, on Pre-renewal every item costs its normal price x2. | Prontera (144, 174) |
-| **Gramps** | Level-bracketed hunting bounties, 7 brackets from Lv 70 up to 231+, scaling EXP rewards. Bounties can be abandoned; taking one above its level range keeps the payout at 75% unless you started it on-level and simply outleveled it mid-hunt. | Prontera (147, 172) |
+| **Gramps** | Level-bracketed hunting bounties, 7 brackets from Lv 70 up to 231+, scaling EXP rewards. Bounties can be abandoned. | Prontera (147, 172) |
 | **Lucky John** | Daily area-purge contracts — kill any 500 monsters on an assigned map. 9 level brackets from Lv 30 to 231+, one contract per day per character, can be abandoned. | Prontera (138, 172) |
 | **Illusion Manager** | Bounty quests across 9 Illusion dungeons, same style as Gramps. | Prontera (147, 166) |
 | **Cheffenia Gatekeeper** | Timed access to the Cheffenia MVP Dungeon, paid in Zeny or Cash Points. | Prontera (140, 180) |
@@ -44,7 +44,7 @@ Full version history: [`Patch Notes.txt`](./Patch%20Notes.txt).
 
 - **MondoTruth** — pack owner/maintainer, and the `npc/when/<setting>` support in the app itself (the PR that makes the checkboxes above work).
 - **Lil Art** — Safe Refiner, Costume Stone Enchanter, Gramps, Overlook Fisherman, the 231+ Gramps bracket, Cheffenia MVP Dungeon, Illusion Dungeon bounties, Weight Maxxer, Training Dummies, Episode Valkyrie, and the Tool Dealer's Blacksmith Blessing.
-- **IceGlaive** — Lucky John, Gramps per-character progress tracking, live kill notifications, the original 3 extended Gramps level brackets (with monster IDs verified live via `@mobinfo`), the bounty penalty/abandon system, the Gramps EXP rebalance, the reduced over-level penalty, and the 231+ bracket monster fix.
+- **IceGlaive** — Lucky John, Gramps per-character progress tracking, live kill notifications, the original 3 extended Gramps level brackets (with monster IDs verified live via `@mobinfo`), the bounty penalty/abandon system, the Gramps EXP rebalance, the reduced over-level penalty, the 231+ bracket monster fix, and the shared bounty rewards file with the EXP rebalance for Gramps, Lucky John, and Illusion Manager.
 - **Nokzin** — Master Nokzin (elemental weapon endows).
 - **The Ragnarok Offline community** — bug reports and testing.
 - **Claude** (Anthropic) — AI assistant used throughout development: writing and reviewing NPC scripts, diagnosing bugs, and packaging releases.
