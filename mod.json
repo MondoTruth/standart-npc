@@ -1,14 +1,21 @@
 {
   "name": "standart-npc",
-  "version": "4.5.0",
+  "version": "4.6.0",
   "author": "MondoTruth, Lil Art, IceGlaive, Nokzin, Claude, and the Ragnarok Offline community",
-  "description": "⚠ Some NPCs may need the Cash Shop for full functionality. Core (always on): Buffer, Warper, Job Master, Reset Girl, Episode Valkyrie and Stylist -- Prontera. Everything below is optional.",
+  "description": "⚠ Some NPCs may need the Cash Shop for full functionality. Core (always on): Warper, Job Master, Reset Girl, Episode Valkyrie and Stylist -- Prontera. Everything below is optional.",
   "default": "off",
   "requires": {
     "app": ">=1.3.2",
     "era": "any"
   },
   "settings": [
+    {
+      "key": "enable_buffer",
+      "type": "boolean",
+      "default": true,
+      "label": "Buffer",
+      "description": "Free instant heal + buffs on click. Every major town."
+    },
     {
       "key": "enable_tooldealer",
       "type": "boolean",

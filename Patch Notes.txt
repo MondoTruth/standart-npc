@@ -8,29 +8,29 @@ Initial release.
 - Added Reset Girl (skill reset, stat reset, or both).
 - Added Job Master (job changer).
 - Added Kafra Employee (save point and storage).
-- Added Card Exchanger (10 cards в†’ Old Card Album, 30 cards в†’ Mystical Card Album).
+- Added Card Exchanger (10 cards → Old Card Album, 30 cards → Mystical Card Album).
 
 ## 3.0.0
 - Added Tool Dealer NPC in Prontera (143, 178).
 
 ## 3.1.0
 - Job Master: now grants the appropriate equipment on job change.
-- Buffer: removed the dialog window вЂ” clicking the NPC now heals and buffs instantly.
+- Buffer: removed the dialog window — clicking the NPC now heals and buffs instantly.
 - Buffer: added sound effects/animations for the heal and each buff (Blessing, Agi Up, Assumptio, Kyrie Eleison, Magnificat).
 
 ## 3.1.1
-- Job Master: fixed Ranger job change not granting the Wolf Flute вЂ” the third-class reward switch had a Sniper Goggle line for Hunter-line characters but no Wolf Flute alongside it (item ID 6124, confirmed against the server's own item_db). 
+- Job Master: fixed Ranger job change not granting the Wolf Flute — the third-class reward switch had a Sniper Goggle line for Hunter-line characters but no Wolf Flute alongside it (item ID 6124, confirmed against the server's own item_db). 
 
 ## 3.2
-- Job Master: replaced the script with rAthena's upstream fix from pull request #9742 ( https://github.com/rathena/rathena/pull/9742 ), which properly resolves "can't change into 4th job using jobchanger" (issue #9733) plus related fixes for Kagerou/Oboro в†’ Shinkiro/Shiranui routing and mount/dragon/Mado Gear/Warg/homunculus checks. Location and sprite kept as prontera,157,195,5 / 866. The Wolf Flute reward (item 6124) for Ranger was re-applied on top, since the upstream file doesn't include it.
+- Job Master: replaced the script with rAthena's upstream fix from pull request #9742 ( https://github.com/rathena/rathena/pull/9742 ), which properly resolves "can't change into 4th job using jobchanger" (issue #9733) plus related fixes for Kagerou/Oboro → Shinkiro/Shiranui routing and mount/dragon/Mado Gear/Warg/homunculus checks. Location and sprite kept as prontera,157,195,5 / 866. The Wolf Flute reward (item 6124) for Ranger was re-applied on top, since the upstream file doesn't include it.
 
 ## 3.3
-- Buffer: added Soul Linker's Spirit (Soul Link) buff, matched to the player's class (falls back to SL_HIGH for classes without a dedicated spirit), plus Kaupe, Kaahi, and Kaizel. Fixed a real bug from the earlier attempt вЂ” BaseJob is a bare pseudo-variable in rAthena, not a function; "BaseJob(Class())" was invalid syntax and broke the whole script's compile, which is why nothing buffed at all. Sprite changed to 936 across the base NPC and all town duplicates.
-- All 8 NPCs: cleaned up script comments вЂ” replaced version-history notes with short "how to customize" instructions (what to edit for prices, assortment, buff duration, destinations, etc.).
+- Buffer: added Soul Linker's Spirit (Soul Link) buff, matched to the player's class (falls back to SL_HIGH for classes without a dedicated spirit), plus Kaupe, Kaahi, and Kaizel. Fixed a real bug from the earlier attempt — BaseJob is a bare pseudo-variable in rAthena, not a function; "BaseJob(Class())" was invalid syntax and broke the whole script's compile, which is why nothing buffed at all. Sprite changed to 936 across the base NPC and all town duplicates.
+- All 8 NPCs: cleaned up script comments — replaced version-history notes with short "how to customize" instructions (what to edit for prices, assortment, buff duration, destinations, etc.).
 
 ## 3.4
-- Kafra Employee: added a free Identify option вЂ” identifies every unidentified item in your inventory in one click.
-- Replaced Tool Dealer with Smuggler (same spot, prontera 143,178). "Regular goods" opens the same fixed shop as before. "Something special" lets the player type any item ID and buy it at a 2x markup, no restrictions вЂ” any item in item_db is purchasable this way. Items with no Buy price in item_db (a real item, just 0z listed) get a fixed 5000z fallback before the markup; a completely invalid ID is still refused.
+- Kafra Employee: added a free Identify option — identifies every unidentified item in your inventory in one click.
+- Replaced Tool Dealer with Smuggler (same spot, prontera 143,178). "Regular goods" opens the same fixed shop as before. "Something special" lets the player type any item ID and buy it at a 2x markup, no restrictions — any item in item_db is purchasable this way. Items with no Buy price in item_db (a real item, just 0z listed) get a fixed 5000z fallback before the markup; a completely invalid ID is still refused.
 
 ## 3.5
 - Split Tool Dealer and Smuggler back into two separate NPCs. Tool Dealer is a plain fixed shop again, same spot. Smuggler now only does buy-any-item-by-ID special orders, moved next to Tool Dealer (prontera 144,174).
@@ -51,7 +51,7 @@ Initial release.
 
 ## 3.8
 - Smuggler: special-order pricing now split by item type. Cards, gear, and consumables get a flat 10,000,000z. Everything else gets a 1000z fallback (for items with no listed Buy price) plus a x5 markup.
-- Card Exchanger: added a card extraction option вЂ” pick an equipped item slot and pull the first card out of it.
+- Card Exchanger: added a card extraction option — pick an equipped item slot and pull the first card out of it.
 - All 14 NPCs: cleaned up script comments into short "how to customize" notes.
 - Heads up: the app's new monster spawn-rate setting also scales Gramps' and Overlook's dungeon spawns, same as any other map spawn.
 
@@ -99,3 +99,11 @@ Initial release.
 - Added Lucky John (prontera 138,172) -- daily Mercenary Guild area-purge contracts: kill any 500 monsters on your assigned map. 9 level brackets from Lv 30 to 231+, one contract per day per character.
 - Smuggler: now detects the server era automatically. On Renewal, Healing items moved off the flat 10,000,000z price onto the normal item price x5. On Pre-renewal the flat price is gone entirely -- every item costs its normal price x2 (2,000z if the item has no price).
 - Thanks to IceGlaive for Lucky John.
+
+## 4.6.0
+- Buffer now has its own checkbox in Settings → Mods, so it can be turned off like the other NPCs. On by default.
+- Gramps, Lucky John and Illusion Manager now take their rewards from one shared file, so they can be balanced side by side.
+- EXP rewards rebalanced: late-game bounties (Gramps and Lucky John at Lv 201+, Illusion's Underwater 2F) now give many times more EXP, so they feel worth the time even on 1x rates. Early and mid-level bounties give less than before. Lucky John also pays more Zeny.
+- Gramps: no more 75% penalty for taking a bounty above your level -- you always get the full reward.
+- Gramps: fixed a formatting error that kept the Lv 151-175 map (verus03) from getting its map setting.
+- Thanks to IceGlaive for the shared rewards system and the EXP rebalance.
