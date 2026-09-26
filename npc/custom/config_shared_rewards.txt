@@ -1,12 +1,25 @@
 //===== rAthena Script =======================================
-//= Shared Bounty Rewards Engine
-//= Description:
-//= Central reward calculator for Gramps, Lucky John, and Illusion.
-//=   callfunc("F_SNPC_BountyReward", "<system>", <bracket>, <type>)
-//=   - type: 0 = Base EXP, 1 = Job EXP, 2 = Zeny
-//=
-//= Safe EXP Dispenser:
-//=   callfunc("F_SNPC_GiveEXP", <base_exp>, <job_exp>)
+//= Shared Bounty Rewards
+//===== By: IceGlaive ==========================================
+//===== Description: =========================================
+//= One place for the rewards of Gramps, Lucky John and Illusion
+//= Manager, so they can be balanced side by side. Two functions:
+//= - callfunc("F_SNPC_BountyReward", "<system>", <bracket>, <type>)
+//=   looks up a reward. type: 0 = Base EXP, 1 = Job EXP, 2 = Zeny.
+//= - callfunc("F_SNPC_GiveEXP", <base_exp>, <job_exp>)
+//=   hands the EXP out in chunks of 1 billion.
+//===== How to customize: ====================================
+//= - .@rate (top of F_SNPC_BountyReward): EXP multiplier in percent
+//=   for all three NPCs at once (100 = as listed, 150 = +50%).
+//=   Zeny is not affected by it.
+//= - Per-bracket values: the setarray lines in each NPC's block.
+//=   Every number is multiplied by .@base_unit / .@job_unit (10000)
+//=   for EXP and by .@zeny_unit (50000) for Zeny -- 450 = 4,500,000.
+//=   The first number (0) is unused, so bracket N = the Nth number
+//=   after it.
+//= - Keep this file in npc/custom/ (always loaded). Without it,
+//=   Gramps, Lucky John and Illusion Manager refuse to pay out.
+//= - Below: EXP needed per bracket, for reference when balancing.
 //============================================================
 //= Level Brackets & Cumulative Base EXP Needed (Renewal 1x Rate):
 //= --------------------------------------------------------------------------
@@ -54,7 +67,7 @@ function	script	F_SNPC_BountyReward	{
 	.@b    = getarg(1);
 	.@type = getarg(2); // 0 = Base EXP, 1 = Job EXP, 2 = Zeny
 
-    // ---------- 1. Gramps ----------
+	// ---------- 1. Gramps ----------
 	if (.@sys$ == "gramps") {
 		//                 -  70-100  101-125  126-150  151-175  176-200  201-230   231+
 		setarray .@b_mult, 0,    150,     450,    2000,    6000,   20000,  400000,  600000; // Boosted only 201+ brackets
