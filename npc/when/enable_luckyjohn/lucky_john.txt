@@ -1,20 +1,22 @@
 //===== rAthena Script =======================================
 //= Lucky John
 //===== By: IceGlaive ========================================
-//===== Description: =========================================
+//= Description:
 //= Per-character daily Mercenary Guild area-purge contracts.
 //= Assigns 500 monster kills in a level-appropriate zone.
 //===== How to customize: ====================================
-//= - Level brackets and maps: OnAssignRandomMap
-//= - Reward values (EXP/Zeny): switch statement in main block
-//= - Required kill count (default 500): change 500 checks & OnNPCKillEvent
+//= - Rewards: Base EXP, Job EXP, and Zeny rewards are managed in
+//=   config_shared_rewards.txt via the F_SNPC_BountyReward function.
+//= - Level brackets and map pools: adjust OnAssignRandomMap subroutine.
+//= - Kill requirements: change the 500 threshold across OnNPCKillEvent
+//=   and main script logic together.
 //============================================================
 
 prontera,138,172,5	script	Lucky John	733,{
     .@base_lv = BaseLevel;
     .@today = gettime(7)*10000 + gettime(6)*100 + gettime(5);
 
-    // Active Bounty Check (Per Character) - Skips intro dialog if contract is already active
+    // Active Bounty Check (Per Character)
     if (LuckyJohn_ActiveBracket != 0) {
         .@map_display_name$ = callsub(OnGetMapInfo, LuckyJohn_TargetMap$);
 
@@ -26,20 +28,19 @@ prontera,138,172,5	script	Lucky John	733,{
         next;
 
         if (LuckyJohn_Kill1 >= 500) {
-            // Calculate and assign rewards (1:1 Gramps Baseline)
-            switch(LuckyJohn_ActiveBracket) {
-                case 1: .@reward_base = 1800000;   .@reward_job = 1250000;   .@reward_zeny = 50000;    break;
-                case 2: .@reward_base = 5500000;   .@reward_job = 3650000;   .@reward_zeny = 125000;   break;
-                case 3: .@reward_base = 9250000;   .@reward_job = 6150000;   .@reward_zeny = 250000;   break;
-                case 4: .@reward_base = 16500000;  .@reward_job = 11000000;  .@reward_zeny = 500000;   break;
-                case 5: .@reward_base = 55000000;  .@reward_job = 36500000;  .@reward_zeny = 1000000;  break;
-                case 6: .@reward_base = 92500000;  .@reward_job = 50000000;  .@reward_zeny = 1750000;  break;
-                case 7: .@reward_base = 180000000; .@reward_job = 125000000; .@reward_zeny = 2500000;  break;
-                case 8: .@reward_base = 365000000; .@reward_job = 250000000; .@reward_zeny = 3750000;  break;
-                case 9: .@reward_base = 550000000; .@reward_job = 365000000; .@reward_zeny = 5000000;  break;
+            // Retrieve shared rewards via F_SNPC_BountyReward
+            .@reward_base = callfunc("F_SNPC_BountyReward", "lj", LuckyJohn_ActiveBracket, 0);
+            .@reward_job  = callfunc("F_SNPC_BountyReward", "lj", LuckyJohn_ActiveBracket, 1);
+            .@reward_zeny = callfunc("F_SNPC_BountyReward", "lj", LuckyJohn_ActiveBracket, 2);
+
+            if (.@reward_base <= 0 || .@reward_job <= 0) {
+                mes "[Lucky John]";
+                mes "Reward table error -- please report this to an Administrator.";
+                close;
             }
 
-            getexp .@reward_base, .@reward_job;
+            // Route through safe EXP chunking routine
+            callfunc("F_SNPC_GiveEXP", .@reward_base, .@reward_job);
             Zeny += .@reward_zeny;
             specialeffect2 154;
 
@@ -58,6 +59,7 @@ prontera,138,172,5	script	Lucky John	733,{
             mes "^0055FF+" + .@reward_base + " Base EXP^000000";
             mes "^0055FF+" + .@reward_job + " Job EXP^000000";
             mes "^0055FF+" + .@reward_zeny + " Zeny^000000";
+            mes "\n^777777(EXP rewards are multiplied by server rates)^000000";
             next;
 
             if (.@was_previous_day) {
@@ -97,7 +99,7 @@ prontera,138,172,5	script	Lucky John	733,{
     mes "Instead of hunting down specific targets, your objective is to purge any 500 monsters in your assigned zone to thin their swelling ranks.";
     next;
 
-    // Daily Completion Check (Per Character)
+    // Daily Completion Check
     if (LuckyJohn_LastDone == .@today) {
         mes "[Lucky John]";
         mes "You have already completed today's clearance contract on this character.";
@@ -274,7 +276,6 @@ OnGetMapInfo:
 OnNPCKillEvent:
     if (LuckyJohn_ActiveBracket == 0) end;
 
-    // Checks if current character is on their assigned map and under 500 kills
     if (strcharinfo(3) == LuckyJohn_TargetMap$ && LuckyJohn_Kill1 < 500) {
         LuckyJohn_Kill1 += 1;
         dispbottom "[Lucky John] Purge Progress: [" + LuckyJohn_Kill1 + "/500]";

@@ -1,0 +1,127 @@
+//===== rAthena Script =======================================
+//= Shared Bounty Rewards Engine
+//= Description:
+//= Central reward calculator for Gramps, Lucky John, and Illusion.
+//=   callfunc("F_SNPC_BountyReward", "<system>", <bracket>, <type>)
+//=   - type: 0 = Base EXP, 1 = Job EXP, 2 = Zeny
+//=
+//= Safe EXP Dispenser:
+//=   callfunc("F_SNPC_GiveEXP", <base_exp>, <job_exp>)
+//============================================================
+//= Level Brackets & Cumulative Base EXP Needed (Renewal 1x Rate):
+//= --------------------------------------------------------------------------
+//= Lucky John / General Brackets (EXP needed to level from START -> END of bracket):
+//=   Bracket 1 (Lv  30 -  55) : ~1,120,000 Base EXP
+//=   Bracket 2 (Lv  56 -  75) : ~5,200,000 Base EXP
+//=   Bracket 3 (Lv  76 - 100) : ~168,000,000 Base EXP
+//=   Bracket 4 (Lv 101 - 125) : ~430,000,000 Base EXP
+//=   Bracket 5 (Lv 126 - 150) : ~1,850,000,000 Base EXP
+//=   Bracket 6 (Lv 151 - 175) : ~7,400,000,000 Base EXP
+//=   Bracket 7 (Lv 176 - 200) : ~24,500,000,000 Base EXP
+//=   Bracket 8 (Lv 201 - 230) : ~115,000,000,000 Base EXP
+//=   Bracket 9 (Lv 231 - 260) : ~340,000,000,000 Base EXP
+//=
+//= Gramps Brackets:
+//=   Bracket 1 (Lv  70 - 100) : ~171,000,000 Base EXP
+//=   Bracket 2 (Lv 101 - 125) : ~430,000,000 Base EXP
+//=   Bracket 3 (Lv 126 - 150) : ~1,850,000,000 Base EXP
+//=   Bracket 4 (Lv 151 - 175) : ~7,400,000,000 Base EXP
+//=   Bracket 5 (Lv 176 - 200) : ~24,500,000,000 Base EXP
+//=   Bracket 6 (Lv 201 - 230) : ~115,000,000,000 Base EXP
+//=   Bracket 7 (Lv 231 - 260) : ~340,000,000,000 Base EXP
+//=
+//= Illusion Dungeons (Minimum Entry Level -> Next Tier Threshold):
+//=   Bracket 1 (Lv  99 entry) : ~85,000,000 Total EXP at Lv 99
+//=   Bracket 2 (Lv 120 entry) : ~35,000,000 Base EXP for Lv 120
+//=   Bracket 3 (Lv 130 entry) : ~62,000,000 Base EXP for Lv 130
+//=   Bracket 4 (Lv 145 entry) : ~210,000,000 Base EXP for Lv 145
+//=   Bracket 5 (Lv 160 entry) : ~490,000,000 Base EXP for Lv 160
+//=   Bracket 6 (Lv 175 entry) : ~1,100,000,000 Base EXP for Lv 175
+//=   Bracket 7 (Lv 180 entry) : ~1,600,000,000 Base EXP for Lv 180
+//=   Bracket 8 (Lv 185 entry) : ~2,400,000,000 Base EXP for Lv 185
+//=   Bracket 9 (Lv 190 entry) : ~3,600,000,000 Base EXP for Lv 190
+//============================================================
+
+function	script	F_SNPC_BountyReward	{
+	.@rate = 100; // Global EXP rate modifier percentage (100 = default)
+
+	// Baselines
+	.@base_unit = 10000;
+	.@job_unit  = 10000;
+	.@zeny_unit = 50000;
+
+	.@sys$ = getarg(0);
+	.@b    = getarg(1);
+	.@type = getarg(2); // 0 = Base EXP, 1 = Job EXP, 2 = Zeny
+
+    // ---------- 1. Gramps ----------
+	if (.@sys$ == "gramps") {
+		//                 -  70-100  101-125  126-150  151-175  176-200  201-230   231+
+		setarray .@b_mult, 0,    150,     450,    2000,    6000,   20000,  400000,  600000; // Boosted only 201+ brackets
+		setarray .@j_mult, 0,    100,     300,    1500,    4000,   14000,  300000,  400000;
+		setarray .@z_mult, 0,      0,       0,       0,       0,       0,       0,       0;
+	}
+
+	// ---------- 2. Lucky John ----------
+	else if (.@sys$ == "lj") {
+		//                 -  30-55   56-75    76-100  101-125  126-150  151-175  176-200  201-230   231+
+		setarray .@b_mult, 0,     12,     45,     150,     450,    2500,    6000,   20000,  400000,  650000; // Boosted only 201+ brackets
+		setarray .@j_mult, 0,      8,     30,     100,     300,    1800,    4000,   14000,  300000,  450000;
+		setarray .@z_mult, 0,      2,      5,      10,      20,      30,      50,      70,      90,     100;
+	}
+
+	// ---------- 3. Illusion Dungeons ----------
+	else if (.@sys$ == "illusion") {
+		//                 -  Lv 99   Lv 120  Lv 130  Lv 145  Lv 160  Lv 175  Lv 180  Lv 185  Lv 190
+		setarray .@b_mult, 0,    120,    350,   1500,   2500,   3500,   6000,  10000,  13000,  170000; // Boosted only Lv 190 bracket
+		setarray .@j_mult, 0,     80,    250,   1000,   1800,   2400,   4000,   7000,   9000,  120000;
+		setarray .@z_mult, 0,      0,      0,      0,      0,      0,      0,      0,      0,       0;
+	}
+
+
+	else {
+		debugmes "F_SNPC_BountyReward: unknown system '" + .@sys$ + "'";
+		return 0;
+	}
+
+	if (.@b < 1 || .@b >= getarraysize(.@b_mult)) {
+		debugmes "F_SNPC_BountyReward: " + .@sys$ + " has no bracket " + .@b;
+		return 0;
+	}
+
+	if (.@type == 0) {
+		.@val = .@b_mult[.@b] * .@base_unit;
+		return (.@val / 100) * .@rate;
+	} else if (.@type == 1) {
+		.@val = .@j_mult[.@b] * .@job_unit;
+		return (.@val / 100) * .@rate;
+	} else if (.@type == 2) {
+		return .@z_mult[.@b] * .@zeny_unit;
+	}
+
+	return 0;
+}
+
+// ============================================================
+// Subroutine: Safely Award Large EXP across rAthena 32-bit limits
+// Call usage in NPC scripts: callfunc("F_SNPC_GiveEXP", .@base, .@job);
+// ============================================================
+function	script	F_SNPC_GiveEXP	{
+	// Clamp negative inputs to 0 to prevent unexpected behavior
+	.@base = max(0, getarg(0));
+	.@job  = max(0, getarg(1));
+
+	// Chunk size safe under the 2.14B 32-bit integer limit
+	.@chunk = 1000000000; // 1 Billion per step
+
+	while (.@base > 0 || .@job > 0) {
+		.@b_add = (.@base > .@chunk) ? .@chunk : .@base;
+		.@j_add = (.@job > .@chunk)  ? .@chunk : .@job;
+
+		getexp .@b_add, .@j_add;
+
+		.@base -= .@b_add;
+		.@job  -= .@j_add;
+	}
+	return;
+}

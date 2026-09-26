@@ -1,23 +1,23 @@
 //===== rAthena Script =======================================
 //= Eden Group Gramps Turn-In NPC (Extended Brackets)
 //===== By: Lil Art ===========================================
+//===== Description: =========================================
+//= Co-ordinates level-bracketed hunting bounties and map deployment.
+//= Supports 7 level brackets with dynamic bounty tracking.
 //===== How to customize: ====================================
-//= - Per bracket (7 of them): the callsub OnHandleQuest line sets
-//=   min/max level range, monster IDs, kill counts needed, and EXP reward.
-//=   -- but the kill count (400) and monster IDs are ALSO checked
-//=   separately in OnTIKill below, so change both places together.
+//= - Per bracket (7 of them): EXP and Zeny rewards are managed in
+//=   config_shared_rewards.txt via the F_SNPC_BountyReward function.
+//= - Monster target IDs and kill counts (400) are set in the
+//=   callsub OnHandleQuest line AND checked separately in OnTIKill
+//=   below, so change both places together.
 //= - Level requirements: minimum levels appear twice per bracket --
 //=   once in the warp menu, once in OnHandleQuest -- keep both in sync.
 //= - Monster counts on the maps themselves: gramps_mobs.txt, not
 //=   here.
 //= - Warp destinations: the warp lines under "MAP WARP LOGIC".
 //= - Progress is tracked per CHARACTER (Gramps_Kill1/2,
-//=   Gramps_ActiveBracket, Gramps_PenaltyFlag -- no # prefix).
-//= - Players can take lower-tier bounties if above max level, but
-//=   accepting an over-level bounty flags Gramps_PenaltyFlag = 1,
-//=   reducing EXP payout to 75% (a 25% penalty). Taking a bounty ON-LEVEL and
-//=   leveling past max during the hunt keeps Gramps_PenaltyFlag = 0
-//=   and yields 100% full EXP reward.
+//=   Gramps_ActiveBracket -- no # prefix).
+//= - Players can take lower-tier bounties if above max level with full EXP!
 //= - Ongoing bounties can be abandoned via the dynamic main menu option
 //=   with target details explicitly highlighted in the confirmation menu.
 //============================================================
@@ -27,7 +27,7 @@ prontera,147,172,5	script	Gramps	843,{
 
     mes "[Gramps]";
     mes "Hello there, adventurer! The Eden Group keeps me busy coordinating hunting bounties for mercenaries.";
-    mes "I have level-bracketed Turn-In bounties available. You can even take lower-tier bounties if you prefer, though over-level bounties grant reduced EXP!";
+    mes "I have level-bracketed Turn-In bounties available. You can even take lower-tier bounties if you prefer!";
     next;
 
     // Build dynamic menu based on active bounty state
@@ -62,7 +62,6 @@ prontera,147,172,5	script	Gramps	843,{
             Gramps_ActiveBracket = 0;
             Gramps_Kill1 = 0;
             Gramps_Kill2 = 0;
-            Gramps_PenaltyFlag = 0;
             mes "[Gramps]";
             mes "Your active bounty for ^0055FF" + .@b_name$ + "^000000 has been abandoned. You are now free to take on a new contract whenever you're ready.";
             close;
@@ -92,64 +91,14 @@ prontera,147,172,5	script	Gramps	843,{
         .@warp_choice = select("Level 70+ Ground (alde_dun04):Level 101+ Ground (mag_dun02):Level 126+ Ground (dic_dun02):Level 151+ Ground (verus03):Level 176+ Ground (ein_dun03):Level 201+ Ground (nif_dun01):Level 231+ Ground (nif_dun02):Cancel");
 
         switch(.@warp_choice) {
-            case 1:
-                if (.@base_lv < 70) {
-                    mes "[Gramps]";
-                    mes "You're too weak for this ground! Minimum required level is 70.";
-                    close;
-                }
-                warp "alde_dun04", 103, 162;
-                end;
-            case 2:
-                if (.@base_lv < 101) {
-                    mes "[Gramps]";
-                    mes "You need to be at least Level 101 for this ground!";
-                    close;
-                }
-                warp "mag_dun02", 46, 49;
-                end;
-            case 3:
-                if (.@base_lv < 126) {
-                    mes "[Gramps]";
-                    mes "You need to be at least Level 126 for this ground!";
-                    close;
-                }
-                warp "dic_dun02", 100, 100;
-                end;
-            case 4:
-                if (.@base_lv < 151) {
-                    mes "[Gramps]";
-                    mes "You need to be at least Level 151 for this ground!";
-                    close;
-                }
-                warp "verus03", 100, 100;
-                end;
-            case 5:
-                if (.@base_lv < 176) {
-                    mes "[Gramps]";
-                    mes "You need to be at least Level 176 for this ground!";
-                    close;
-                }
-                warp "ein_dun03", 100, 100;
-                end;
-            case 6:
-                if (.@base_lv < 201) {
-                    mes "[Gramps]";
-                    mes "You need to be at least Level 201 for this ground!";
-                    close;
-                }
-                warp "nif_dun01", 100, 100;
-                end;
-            case 7:
-                if (.@base_lv < 231) {
-                    mes "[Gramps]";
-                    mes "You need to be at least Level 231 for this ground!";
-                    close;
-                }
-                warp "nif_dun02", 100, 100;
-                end;
-            case 8:
-                close;
+            case 1: if (.@base_lv < 70)  { mes "[Gramps]"; mes "You're too weak for this ground! Minimum required level is 70."; close; } warp "alde_dun04", 103, 162; end;
+            case 2: if (.@base_lv < 101) { mes "[Gramps]"; mes "You need to be at least Level 101 for this ground!"; close; } warp "mag_dun02", 46, 49; end;
+            case 3: if (.@base_lv < 126) { mes "[Gramps]"; mes "You need to be at least Level 126 for this ground!"; close; } warp "dic_dun02", 100, 100; end;
+            case 4: if (.@base_lv < 151) { mes "[Gramps]"; mes "You need to be at least Level 151 for this ground!"; close; } warp "verus03", 100, 100; end;
+            case 5: if (.@base_lv < 176) { mes "[Gramps]"; mes "You need to be at least Level 176 for this ground!"; close; } warp "ein_dun03", 100, 100; end;
+            case 6: if (.@base_lv < 201) { mes "[Gramps]"; mes "You need to be at least Level 201 for this ground!"; close; } warp "nif_dun01", 100, 100; end;
+            case 7: if (.@base_lv < 231) { mes "[Gramps]"; mes "You need to be at least Level 231 for this ground!"; close; } warp "nif_dun02", 100, 100; end;
+            case 8: close;
         }
     }
 
@@ -161,36 +110,21 @@ prontera,147,172,5	script	Gramps	843,{
     .@bracket = select("Level 70 - 100:Level 101 - 125:Level 126 - 150:Level 151 - 175:Level 176 - 200:Level 201 - 230:Level 231+:Cancel");
 
     switch(.@bracket) {
-        case 1: // Lv 70 - 100 Bracket (Clock & Anolian)
-            callsub OnHandleQuest, 1, 70, 100, 1269, 1206, 400, 400, 1500000, 1000000, "Clock", "Anolian";
-            break;
-
-        case 2: // Lv 101 - 125 Bracket (Nightmare Terror & Blazer)
-            callsub OnHandleQuest, 2, 101, 125, 1379, 1367, 400, 400, 4500000, 3000000, "Nightmare Terror", "Blazer";
-            break;
-
-        case 3: // Lv 126 - 150 Bracket (Horn Scaraba & Antler Scaraba)
-            callsub OnHandleQuest, 3, 126, 150, 2082, 2083, 400, 400, 45000000, 30000000, "Horn Scaraba", "Antler Scaraba";
-            break;
-
-        case 4: // Lv 151 - 175 Bracket (Corrupted Repair Robot & Corrupted Exploration Rover)
-            callsub OnHandleQuest, 4, 151, 175, 3248, 3249, 400, 400, 75000000, 40000000, "Corrupted Repair Robot", "Corrupted Exploration Rover";
-            break;
-
-        case 5: // Lv 176 - 200 Bracket (Corrupted Jewelry Ant & Corrupted Abyssman)
-            callsub OnHandleQuest, 5, 176, 200, 20598, 20603, 400, 400, 150000000, 100000000, "Corrupted Jewelry Ant", "Corrupted Abyssman";
-            break;
-
-        case 6: // Lv 201 - 230 Bracket (Corrupted Murderer & Corrupted Ghost Cube)
-            callsub OnHandleQuest, 6, 201, 230, 20937, 20938, 400, 400, 300000000, 200000000, "Corrupted Murderer", "Corrupted Ghost Cube";
-            break;
-
-        case 7: // Lv 231+ Bracket (Corrupted Grote & Corrupted Blue Moon Loli Ruri)
-            callsub OnHandleQuest, 7, 231, 999, 20941, 20940, 400, 400, 450000000, 300000000, "Corrupted Grote", "Corrupted Blue Moon Loli Ruri";
-            break;
-
-        case 8:
-            close;
+        // Lv 70 - 100 Bracket (Clock & Anolian)
+        case 1: callsub OnHandleQuest, 1, 70, 100, 1269, 1206, 400, 400, "Clock", "Anolian"; break;
+        // Lv 101 - 125 Bracket (Nightmare Terror & Blazer)
+        case 2: callsub OnHandleQuest, 2, 101, 125, 1379, 1367, 400, 400, "Nightmare Terror", "Blazer"; break;
+        // Lv 126 - 150 Bracket (Horn Scaraba & Antler Scaraba)
+        case 3: callsub OnHandleQuest, 3, 126, 150, 2082, 2083, 400, 400, "Horn Scaraba", "Antler Scaraba"; break;
+        // Lv 151 - 175 Bracket (Corrupted Repair Robot & Corrupted Exploration Rover)
+        case 4: callsub OnHandleQuest, 4, 151, 175, 3248, 3249, 400, 400, "Corrupted Repair Robot", "Corrupted Exploration Rover"; break;
+        // Lv 176 - 200 Bracket (Corrupted Jewelry Ant & Corrupted Abyssman)
+        case 5: callsub OnHandleQuest, 5, 176, 200, 20598, 20603, 400, 400, "Corrupted Jewelry Ant", "Corrupted Abyssman"; break;
+        // Lv 201 - 230 Bracket (Corrupted Murderer & Corrupted Ghost Cube)
+        case 6: callsub OnHandleQuest, 6, 201, 230, 20937, 20938, 400, 400, "Corrupted Murderer", "Corrupted Ghost Cube"; break;
+        // Lv 231+ Bracket (Corrupted Grote & Corrupted Blue Moon Loli Ruri)
+        case 7: callsub OnHandleQuest, 7, 231, 999, 20941, 20940, 400, 400, "Corrupted Grote", "Corrupted Blue Moon Loli Ruri"; break;
+        case 8: close;
     }
     end;
 
@@ -201,8 +135,7 @@ OnHandleQuest:
     .@max_lv     = getarg(2);
     .@m1         = getarg(3); .@m2 = getarg(4);
     .@req1       = getarg(5); .@req2 = getarg(6);
-    .@base_exp   = getarg(7); .@job_exp = getarg(8);
-    .@mob1_name$ = getarg(9); .@mob2_name$ = getarg(10);
+    .@mob1_name$ = getarg(7); .@mob2_name$ = getarg(8);
 
     // Minimum Level Check
     if (BaseLevel < .@min_lv) {
@@ -219,27 +152,28 @@ OnHandleQuest:
 
     // REWARD TURN-IN CHECK
     if (Gramps_Kill1 >= .@req1 && Gramps_Kill2 >= .@req2) {
+        .@base_exp = callfunc("F_SNPC_BountyReward", "gramps", .@bracket_id, 0);
+        .@job_exp  = callfunc("F_SNPC_BountyReward", "gramps", .@bracket_id, 1);
 
-        // Calculate penalty if bounty was TAKEN when player was higher than max_lv (75% EXP payout)
-        if (Gramps_PenaltyFlag == 1) {
-            .@base_exp = ( .@base_exp * 3 ) / 4;
-            .@job_exp  = ( .@job_exp * 3 ) / 4;
-            .@penalty_note$ = " ^FF0000(Reduced EXP: Over-level Bounty - 75% Payout)^000000";
-        } else {
-            .@penalty_note$ = "";
+        if (.@base_exp <= 0 || .@job_exp <= 0) {
+            mes "[Gramps]";
+            mes "Reward table error -- please tell the server admin.";
+            close;
         }
 
         Gramps_Kill1 = 0;
         Gramps_Kill2 = 0;
         Gramps_ActiveBracket = 0;
-        Gramps_PenaltyFlag = 0;
 
-        getexp .@base_exp, .@job_exp;
+        // Route through safe EXP chunking routine
+        callfunc("F_SNPC_GiveEXP", .@base_exp, .@job_exp);
         specialeffect2 154;
+
         mes "[Gramps]";
-        mes "Outstanding job! Here is your reward" + .@penalty_note$ + ":";
+        mes "Outstanding job! Here is your reward:";
         mes "^0055FF+" + .@base_exp + " Base EXP^000000";
         mes "^0055FF+" + .@job_exp + " Job EXP^000000";
+        mes "\n^777777(EXP rewards are multiplied by server rates)^000000";
         close;
     }
 
@@ -249,9 +183,6 @@ OnHandleQuest:
         mes "You still have active bounties for this bracket! Current progress:";
         mes "- " + .@mob1_name$ + ": ^0055FF" + Gramps_Kill1 + "^000000 / " + .@req1;
         mes "- " + .@mob2_name$ + ": ^0055FF" + Gramps_Kill2 + "^000000 / " + .@req2;
-        if (Gramps_PenaltyFlag == 1) {
-            mes "^FF0000* Note: This bounty was accepted above the recommended level range and will reward 75% EXP.^000000";
-        }
         close;
     }
 
@@ -260,17 +191,8 @@ OnHandleQuest:
     Gramps_Kill1 = 0;
     Gramps_Kill2 = 0;
 
-    // Set penalty flag ONLY if accepted while ALREADY higher than the upper bracket limit
-    if (BaseLevel > .@max_lv) {
-        Gramps_PenaltyFlag = 1;
-        .@warning$ = "\n\n^FF0000Warning: Because your level is above Level " + .@max_lv + ", this bounty will reward 75% EXP upon turn-in.^000000";
-    } else {
-        Gramps_PenaltyFlag = 0;
-        .@warning$ = "";
-    }
-
     mes "[Gramps]";
-    mes "Bounty accepted! Defeat " + .@req1 + "x ^0055FF" + .@mob1_name$ + "^000000 and " + .@req2 + "x ^0055FF" + .@mob2_name$ + "^000000, then return to me for your EXP reward." + .@warning$;
+    mes "Bounty accepted! Defeat " + .@req1 + "x ^0055FF" + .@mob1_name$ + "^000000 and " + .@req2 + "x ^0055FF" + .@mob2_name$ + "^000000, then return to me for your EXP reward.";
     close;
 }
 
@@ -299,74 +221,32 @@ OnTIKill:
     .@killed_id = killedrid;
 
     if (Gramps_ActiveBracket == 1) {
-        if (.@killed_id == 1269 && Gramps_Kill1 < 400) {
-            Gramps_Kill1 += 1;
-            dispbottom "[Gramps Bounty] Clock: [" + Gramps_Kill1 + "/400]";
-        }
-        if (.@killed_id == 1206 && Gramps_Kill2 < 400) {
-            Gramps_Kill2 += 1;
-            dispbottom "[Gramps Bounty] Anolian: [" + Gramps_Kill2 + "/400]";
-        }
+        if (.@killed_id == 1269 && Gramps_Kill1 < 400) { Gramps_Kill1 += 1; dispbottom "[Gramps Bounty] Clock: [" + Gramps_Kill1 + "/400]"; }
+        if (.@killed_id == 1206 && Gramps_Kill2 < 400) { Gramps_Kill2 += 1; dispbottom "[Gramps Bounty] Anolian: [" + Gramps_Kill2 + "/400]"; }
     }
     else if (Gramps_ActiveBracket == 2) {
-        if (.@killed_id == 1379 && Gramps_Kill1 < 400) {
-            Gramps_Kill1 += 1;
-            dispbottom "[Gramps Bounty] Nightmare Terror: [" + Gramps_Kill1 + "/400]";
-        }
-        if (.@killed_id == 1367 && Gramps_Kill2 < 400) {
-            Gramps_Kill2 += 1;
-            dispbottom "[Gramps Bounty] Blazer: [" + Gramps_Kill2 + "/400]";
-        }
+        if (.@killed_id == 1379 && Gramps_Kill1 < 400) { Gramps_Kill1 += 1; dispbottom "[Gramps Bounty] Nightmare Terror: [" + Gramps_Kill1 + "/400]"; }
+        if (.@killed_id == 1367 && Gramps_Kill2 < 400) { Gramps_Kill2 += 1; dispbottom "[Gramps Bounty] Blazer: [" + Gramps_Kill2 + "/400]"; }
     }
     else if (Gramps_ActiveBracket == 3) {
-        if (.@killed_id == 2082 && Gramps_Kill1 < 400) {
-            Gramps_Kill1 += 1;
-            dispbottom "[Gramps Bounty] Horn Scaraba: [" + Gramps_Kill1 + "/400]";
-        }
-        if (.@killed_id == 2083 && Gramps_Kill2 < 400) {
-            Gramps_Kill2 += 1;
-            dispbottom "[Gramps Bounty] Antler Scaraba: [" + Gramps_Kill2 + "/400]";
-        }
+        if (.@killed_id == 2082 && Gramps_Kill1 < 400) { Gramps_Kill1 += 1; dispbottom "[Gramps Bounty] Horn Scaraba: [" + Gramps_Kill1 + "/400]"; }
+        if (.@killed_id == 2083 && Gramps_Kill2 < 400) { Gramps_Kill2 += 1; dispbottom "[Gramps Bounty] Antler Scaraba: [" + Gramps_Kill2 + "/400]"; }
     }
     else if (Gramps_ActiveBracket == 4) {
-        if (.@killed_id == 3248 && Gramps_Kill1 < 400) {
-            Gramps_Kill1 += 1;
-            dispbottom "[Gramps Bounty] Corrupted Repair Robot: [" + Gramps_Kill1 + "/400]";
-        }
-        if (.@killed_id == 3249 && Gramps_Kill2 < 400) {
-            Gramps_Kill2 += 1;
-            dispbottom "[Gramps Bounty] Corrupted Exploration Rover: [" + Gramps_Kill2 + "/400]";
-        }
+        if (.@killed_id == 3248 && Gramps_Kill1 < 400) { Gramps_Kill1 += 1; dispbottom "[Gramps Bounty] Corrupted Repair Robot: [" + Gramps_Kill1 + "/400]"; }
+        if (.@killed_id == 3249 && Gramps_Kill2 < 400) { Gramps_Kill2 += 1; dispbottom "[Gramps Bounty] Corrupted Exploration Rover: [" + Gramps_Kill2 + "/400]"; }
     }
     else if (Gramps_ActiveBracket == 5) {
-        if (.@killed_id == 20598 && Gramps_Kill1 < 400) {
-            Gramps_Kill1 += 1;
-            dispbottom "[Gramps Bounty] Corrupted Jewelry Ant: [" + Gramps_Kill1 + "/400]";
-        }
-        if (.@killed_id == 20603 && Gramps_Kill2 < 400) {
-            Gramps_Kill2 += 1;
-            dispbottom "[Gramps Bounty] Corrupted Abyssman: [" + Gramps_Kill2 + "/400]";
-        }
+        if (.@killed_id == 20598 && Gramps_Kill1 < 400) { Gramps_Kill1 += 1; dispbottom "[Gramps Bounty] Corrupted Jewelry Ant: [" + Gramps_Kill1 + "/400]"; }
+        if (.@killed_id == 20603 && Gramps_Kill2 < 400) { Gramps_Kill2 += 1; dispbottom "[Gramps Bounty] Corrupted Abyssman: [" + Gramps_Kill2 + "/400]"; }
     }
     else if (Gramps_ActiveBracket == 6) {
-        if (.@killed_id == 20937 && Gramps_Kill1 < 400) {
-            Gramps_Kill1 += 1;
-            dispbottom "[Gramps Bounty] Corrupted Murderer: [" + Gramps_Kill1 + "/400]";
-        }
-        if (.@killed_id == 20938 && Gramps_Kill2 < 400) {
-            Gramps_Kill2 += 1;
-            dispbottom "[Gramps Bounty] Corrupted Ghost Cube: [" + Gramps_Kill2 + "/400]";
-        }
+        if (.@killed_id == 20937 && Gramps_Kill1 < 400) { Gramps_Kill1 += 1; dispbottom "[Gramps Bounty] Corrupted Murderer: [" + Gramps_Kill1 + "/400]"; }
+        if (.@killed_id == 20938 && Gramps_Kill2 < 400) { Gramps_Kill2 += 1; dispbottom "[Gramps Bounty] Corrupted Ghost Cube: [" + Gramps_Kill2 + "/400]"; }
     }
     else if (Gramps_ActiveBracket == 7) {
-        if (.@killed_id == 20941 && Gramps_Kill1 < 400) {
-            Gramps_Kill1 += 1;
-            dispbottom "[Gramps Bounty] Corrupted Grote: [" + Gramps_Kill1 + "/400]";
-        }
-        if (.@killed_id == 20940 && Gramps_Kill2 < 400) {
-            Gramps_Kill2 += 1;
-            dispbottom "[Gramps Bounty] Corrupted Blue Moon Loli Ruri: [" + Gramps_Kill2 + "/400]";
-        }
+        if (.@killed_id == 20941 && Gramps_Kill1 < 400) { Gramps_Kill1 += 1; dispbottom "[Gramps Bounty] Corrupted Grote: [" + Gramps_Kill1 + "/400]"; }
+        if (.@killed_id == 20940 && Gramps_Kill2 < 400) { Gramps_Kill2 += 1; dispbottom "[Gramps Bounty] Corrupted Blue Moon Loli Ruri: [" + Gramps_Kill2 + "/400]"; }
     }
     end;
 }

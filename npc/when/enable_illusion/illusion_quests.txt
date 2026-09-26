@@ -5,10 +5,13 @@
 //= Same bounty pattern as gramps.txt/overlook.txt: per-character
 //= progress (no # prefix), Abandon option, live kill notifications.
 //===== How to customize: ====================================
-//= - Per dungeon (9 of them): the callsub OnHandleQuest line sets
-//=   minimum level, monster IDs, kill counts, and EXP reward --
-//=   but the kill count (150) and monster IDs are ALSO checked
-//=   separately in OnIllusionKill below, so change both together.
+//= - Per dungeon (9 of them): EXP and Zeny rewards are managed in
+//=   config_shared_rewards.txt via the F_SNPC_BountyReward function.
+//= - Monster target IDs and kill counts (150) are set in the
+//=   callsub OnHandleQuest line AND checked separately in OnIllusionKill
+//=   below, so change both together.
+//= - Level requirements: minimum levels appear twice per dungeon --
+//=   once in the warp menu, once in OnHandleQuest -- keep both in sync.
 //= - Monster counts on the maps themselves: illusion_mobs.txt, not
 //=   here -- each spawn line there must keep its
 //=   Illusion_KillTracker::OnIllusionKill event field, or kills
@@ -17,215 +20,226 @@
 //============================================================
 
 prontera,147,166,6	script	Illusion Side Quests	10032,{
-    .@base_lv = BaseLevel;
+	.@base_lv = BaseLevel;
 
-    mes "[Illusion Manager]";
-    mes "Greetings, adventurer! I manage entry and hunting bounties for the ^0055FFIllusion Dungeons^000000.";
-    mes "Defeat the requested targets across the Illusion realms to claim large EXP rewards!";
-    next;
+	mes "[Illusion Manager]";
+	mes "Greetings, adventurer! I manage entry and hunting bounties for the ^0055FFIllusion Dungeons^000000.";
+	mes "Defeat the requested targets across the Illusion realms to claim large EXP rewards!";
+	next;
 
-    if (Illusion_ActiveQuest != 0) {
-        .@quest_option$ = "Check / Turn-In Bounty:Abandon Ongoing Bounty";
-    } else {
-        .@quest_option$ = "Check / Take Bounties";
-    }
+	if (Illusion_ActiveQuest != 0) {
+		.@quest_option$ = "Check / Turn-In Bounty:Abandon Ongoing Bounty";
+	} else {
+		.@quest_option$ = "Check / Take Bounties";
+	}
 
-    .@menu = select(.@quest_option$ + ":Warp to Illusion Dungeon:Cancel");
+	.@menu = select(.@quest_option$ + ":Warp to Illusion Dungeon:Cancel");
 
-    // ABANDON BOUNTY LOGIC
-    if (Illusion_ActiveQuest != 0 && .@menu == 2) {
-        switch(Illusion_ActiveQuest) {
-            case 1: .@b_name$ = "Illusion of Moonlight"; .@m1$ = "Angry Nine Tail"; .@m2$ = "Nightmare Bongun"; .@m3$ = "Nightmare Munak"; break;
-            case 2: .@b_name$ = "Illusion of Vampire"; .@m1$ = "Sweet Nightmare"; .@m2$ = "Matte Drainliar"; .@m3$ = "Restless Dead"; break;
-            case 3: .@b_name$ = "Illusion of Frozen"; .@m1$ = "Angry Gazeti"; .@m2$ = "Angry Ice Titan"; .@m3$ = "Angry Snowier"; break;
-            case 4: .@b_name$ = "Illusion of Turtle Island"; .@m1$ = "Ominous Permeter"; .@m2$ = "Ominous Solider Turtle"; .@m3$ = "Ominous Freezer"; break;
-            case 5: .@b_name$ = "Illusion of Teddy Bear"; .@m1$ = "Red Teddy Bear"; .@m2$ = "Yellow Teddy Bear"; .@m3$ = "Green Teddy Bear"; break;
-            case 6: .@b_name$ = "Illusion of Luanda"; .@m1$ = "Ancient Megalith"; .@m2$ = "Ancient Tri Joint"; .@m3$ = "Ancient Stone Shooter"; break;
-            case 7: .@b_name$ = "Illusion of Labyrinth"; .@m1$ = "Chaos Baphomet Jr."; .@m2$ = "Chaos Ghostring"; .@m3$ = "Chaos Stem Worm"; break;
-            case 8: .@b_name$ = "Illusion of Underwater 1F"; .@m1$ = "Deep Sea Merman"; .@m2$ = "Deep Sea Obeaune"; .@m3$ = "Deep Sea Marse"; break;
-            case 9: .@b_name$ = "Illusion of Underwater 2F"; .@m1$ = "Deep Sea Phen"; .@m2$ = "Deep Sea Sedora"; .@m3$ = "Deep Sea Swordfish"; break;
-        }
+	// ABANDON BOUNTY LOGIC
+	if (Illusion_ActiveQuest != 0 && .@menu == 2) {
+		switch(Illusion_ActiveQuest) {
+			case 1: .@b_name$ = "Illusion of Moonlight"; .@m1$ = "Angry Nine Tail"; .@m2$ = "Nightmare Bongun"; .@m3$ = "Nightmare Munak"; break;
+			case 2: .@b_name$ = "Illusion of Vampire"; .@m1$ = "Sweet Nightmare"; .@m2$ = "Matte Drainliar"; .@m3$ = "Restless Dead"; break;
+			case 3: .@b_name$ = "Illusion of Frozen"; .@m1$ = "Angry Gazeti"; .@m2$ = "Angry Ice Titan"; .@m3$ = "Angry Snowier"; break;
+			case 4: .@b_name$ = "Illusion of Turtle Island"; .@m1$ = "Ominous Permeter"; .@m2$ = "Ominous Solider Turtle"; .@m3$ = "Ominous Freezer"; break;
+			case 5: .@b_name$ = "Illusion of Teddy Bear"; .@m1$ = "Red Teddy Bear"; .@m2$ = "Yellow Teddy Bear"; .@m3$ = "Green Teddy Bear"; break;
+			case 6: .@b_name$ = "Illusion of Luanda"; .@m1$ = "Ancient Megalith"; .@m2$ = "Ancient Tri Joint"; .@m3$ = "Ancient Stone Shooter"; break;
+			case 7: .@b_name$ = "Illusion of Labyrinth"; .@m1$ = "Chaos Baphomet Jr."; .@m2$ = "Chaos Ghostring"; .@m3$ = "Chaos Stem Worm"; break;
+			case 8: .@b_name$ = "Illusion of Underwater 1F"; .@m1$ = "Deep Sea Merman"; .@m2$ = "Deep Sea Obeaune"; .@m3$ = "Deep Sea Marse"; break;
+			case 9: .@b_name$ = "Illusion of Underwater 2F"; .@m1$ = "Deep Sea Phen"; .@m2$ = "Deep Sea Sedora"; .@m3$ = "Deep Sea Swordfish"; break;
+		}
 
-        mes "[Illusion Manager]";
-        mes "Are you sure you want to give up on your current active bounty?";
-        mes "Bounty: ^0055FF" + .@b_name$ + "^000000";
-        mes "Progress: " + .@m1$ + " (" + Illusion_Kill1 + "/150), " + .@m2$ + " (" + Illusion_Kill2 + "/150), " + .@m3$ + " (" + Illusion_Kill3 + "/150)";
-        mes "\n^FF0000All progress on this bounty will be permanently lost!^000000";
-        next;
-        if (select("No, keep bounty:Yes, abandon bounty") == 2) {
-            Illusion_ActiveQuest = 0;
-            Illusion_Kill1 = 0;
-            Illusion_Kill2 = 0;
-            Illusion_Kill3 = 0;
-            mes "[Illusion Manager]";
-            mes "Your active bounty for ^0055FF" + .@b_name$ + "^000000 has been abandoned.";
-            close;
-        }
-        mes "[Illusion Manager]";
-        mes "Good focus! Get back out there and finish the hunt.";
-        close;
-    }
+		mes "[Illusion Manager]";
+		mes "Are you sure you want to give up on your current active bounty?";
+		mes "Bounty: ^0055FF" + .@b_name$ + "^000000";
+		mes "Progress: " + .@m1$ + " (" + Illusion_Kill1 + "/150), " + .@m2$ + " (" + Illusion_Kill2 + "/150), " + .@m3$ + " (" + Illusion_Kill3 + "/150)";
+		mes "\n^FF0000All progress on this bounty will be permanently lost!^000000";
+		next;
+		if (select("No, keep bounty:Yes, abandon bounty") == 2) {
+			Illusion_ActiveQuest = 0;
+			Illusion_Kill1 = 0;
+			Illusion_Kill2 = 0;
+			Illusion_Kill3 = 0;
+			mes "[Illusion Manager]";
+			mes "Your active bounty for ^0055FF" + .@b_name$ + "^000000 has been abandoned.";
+			close;
+		}
+		mes "[Illusion Manager]";
+		mes "Good focus! Get back out there and finish the hunt.";
+		close;
+	}
 
-    if (Illusion_ActiveQuest != 0 && .@menu > 2) {
-        .@menu -= 1;
-    }
+	if (Illusion_ActiveQuest != 0 && .@menu > 2) {
+		.@menu -= 1;
+	}
 
-    if (.@menu == 3) {
-        mes "[Illusion Manager]";
-        mes "Stay safe in the realm of illusions!";
-        close;
-    }
+	if (.@menu == 3) {
+		mes "[Illusion Manager]";
+		mes "Stay safe in the realm of illusions!";
+		close;
+	}
 
-    // WARP LOGIC
-    if (.@menu == 2) {
-        mes "[Illusion Manager]";
-        mes "Which Illusion Dungeon would you like to enter?";
-        next;
-        .@warp_choice = select("Illusion of Moonlight (Lv 99+):Illusion of Vampire (Lv 120+):Illusion of Frozen (Lv 130+):Illusion of Turtle Island (Lv 145+):Illusion of Teddy Bear (Lv 160+):Illusion of Luanda (Lv 175+):Illusion of Labyrinth (Lv 180+):Illusion of Underwater 1F (Lv 185+):Illusion of Underwater 2F (Lv 190+):Cancel");
+	// WARP LOGIC
+	if (.@menu == 2) {
+		mes "[Illusion Manager]";
+		mes "Which Illusion Dungeon would you like to enter?";
+		next;
+		.@warp_choice = select("Illusion of Moonlight (Lv 99+):Illusion of Vampire (Lv 120+):Illusion of Frozen (Lv 130+):Illusion of Turtle Island (Lv 145+):Illusion of Teddy Bear (Lv 160+):Illusion of Luanda (Lv 175+):Illusion of Labyrinth (Lv 180+):Illusion of Underwater 1F (Lv 185+):Illusion of Underwater 2F (Lv 190+):Cancel");
 
-        switch(.@warp_choice) {
-            case 1: if (.@base_lv < 99) { mes "[Illusion Manager]"; mes "Minimum required level is 99!"; close; } warp "pay_d03_i", 150, 150; end;
-            case 2: if (.@base_lv < 120) { mes "[Illusion Manager]"; mes "Minimum required level is 120!"; close; } warp "gef_d01_i", 155, 155; end;
-            case 3: if (.@base_lv < 130) { mes "[Illusion Manager]"; mes "Minimum required level is 130!"; close; } warp "ice_d03_i", 144, 117; end;
-            case 4: if (.@base_lv < 145) { mes "[Illusion Manager]"; mes "Minimum required level is 145!"; close; } warp "tur_d03_i", 150, 150; end;
-            case 5: if (.@base_lv < 160) { mes "[Illusion Manager]"; mes "Minimum required level is 160!"; close; } warp "ein_d02_i", 33, 56; end;
-            case 6: if (.@base_lv < 175) { mes "[Illusion Manager]"; mes "Minimum required level is 175!"; close; } warp "com_d02_i", 16, 185; end;
-            case 7: if (.@base_lv < 180) { mes "[Illusion Manager]"; mes "Minimum required level is 180!"; close; } warp "prt_mz03_i", 150, 150; end;
-            case 8: if (.@base_lv < 185) { mes "[Illusion Manager]"; mes "Minimum required level is 185!"; close; } warp "iz_d04_i", 150, 150; end;
-            case 9: if (.@base_lv < 190) { mes "[Illusion Manager]"; mes "Minimum required level is 190!"; close; } warp "iz_d05_i", 150, 150; end;
-            case 10: close;
-        }
-    }
+		switch(.@warp_choice) {
+			case 1: if (.@base_lv < 99)  { mes "[Illusion Manager]"; mes "Minimum required level is 99!"; close; } warp "pay_d03_i", 150, 150; end;
+			case 2: if (.@base_lv < 120) { mes "[Illusion Manager]"; mes "Minimum required level is 120!"; close; } warp "gef_d01_i", 155, 155; end;
+			case 3: if (.@base_lv < 130) { mes "[Illusion Manager]"; mes "Minimum required level is 130!"; close; } warp "ice_d03_i", 144, 117; end;
+			case 4: if (.@base_lv < 145) { mes "[Illusion Manager]"; mes "Minimum required level is 145!"; close; } warp "tur_d03_i", 150, 150; end;
+			case 5: if (.@base_lv < 160) { mes "[Illusion Manager]"; mes "Minimum required level is 160!"; close; } warp "ein_d02_i", 33, 56; end;
+			case 6: if (.@base_lv < 175) { mes "[Illusion Manager]"; mes "Minimum required level is 175!"; close; } warp "com_d02_i", 16, 185; end;
+			case 7: if (.@base_lv < 180) { mes "[Illusion Manager]"; mes "Minimum required level is 180!"; close; } warp "prt_mz03_i", 150, 150; end;
+			case 8: if (.@base_lv < 185) { mes "[Illusion Manager]"; mes "Minimum required level is 185!"; close; } warp "iz_d04_i", 150, 150; end;
+			case 9: if (.@base_lv < 190) { mes "[Illusion Manager]"; mes "Minimum required level is 190!"; close; } warp "iz_d05_i", 150, 150; end;
+			case 10: close;
+		}
+	}
 
-    // BOUNTY SELECTION & TURN-IN
-    mes "[Illusion Manager]";
-    mes "Select a bounty suitable for your level:";
-    next;
+	// BOUNTY SELECTION & TURN-IN
+	mes "[Illusion Manager]";
+	mes "Select a bounty suitable for your level:";
+	next;
 
-    .@quest_choice = select("Illusion of Moonlight (Lv 99+):Illusion of Vampire (Lv 120+):Illusion of Frozen (Lv 130+):Illusion of Turtle Island (Lv 145+):Illusion of Teddy Bear (Lv 160+):Illusion of Luanda (Lv 175+):Illusion of Labyrinth (Lv 180+):Illusion of Underwater 1F (Lv 185+):Illusion of Underwater 2F (Lv 190+):Cancel");
+	.@quest_choice = select("Illusion of Moonlight (Lv 99+):Illusion of Vampire (Lv 120+):Illusion of Frozen (Lv 130+):Illusion of Turtle Island (Lv 145+):Illusion of Teddy Bear (Lv 160+):Illusion of Luanda (Lv 175+):Illusion of Labyrinth (Lv 180+):Illusion of Underwater 1F (Lv 185+):Illusion of Underwater 2F (Lv 190+):Cancel");
 
-    switch(.@quest_choice) {
-        case 1: callsub OnHandleQuest, 1, 99, 3759, 3761, 3760, 150, 150, 150, 5000000, 3000000, "Angry Nine Tail", "Nightmare Bongun", "Nightmare Munak"; break;
-        case 2: callsub OnHandleQuest, 2, 120, 3754, 3750, 3753, 150, 150, 150, 15000000, 10000000, "Sweet Nightmare", "Matte Drainliar", "Restless Dead"; break;
-        case 3: callsub OnHandleQuest, 3, 130, 3792, 3794, 3793, 150, 150, 150, 30000000, 20000000, "Angry Gazeti", "Angry Ice Titan", "Angry Snowier"; break;
-        case 4: callsub OnHandleQuest, 4, 145, 3800, 3802, 3801, 150, 150, 150, 45000000, 30000000, "Ominous Permeter", "Ominous Solider Turtle", "Ominous Freezer"; break;
-        case 5: callsub OnHandleQuest, 5, 160, 20255, 20256, 20257, 150, 150, 150, 60000000, 40000000, "Red Teddy Bear", "Yellow Teddy Bear", "Green Teddy Bear"; break;
-        case 6: callsub OnHandleQuest, 6, 175, 20272, 20270, 20274, 150, 150, 150, 60000000, 40000000, "Ancient Megalith", "Ancient Tri Joint", "Ancient Stone Shooter"; break;
-        case 7: callsub OnHandleQuest, 7, 180, 20525, 20529, 20532, 150, 150, 150, 90000000, 60000000, "Chaos Baphomet Jr.", "Chaos Ghostring", "Chaos Stem Worm"; break;
-        case 8: callsub OnHandleQuest, 8, 185, 20805, 20802, 20804, 150, 150, 150, 120000000, 80000000, "Deep Sea Merman", "Deep Sea Obeaune", "Deep Sea Marse"; break;
-        case 9: callsub OnHandleQuest, 9, 190, 20809, 20806, 20807, 150, 150, 150, 150000000, 100000000, "Deep Sea Phen", "Deep Sea Sedora", "Deep Sea Swordfish"; break;
-        case 10: close;
-    }
-    end;
+	switch(.@quest_choice) {
+		case 1: callsub OnHandleQuest, 1,  99, 3759, 3761, 3760, 150, 150, 150, "Angry Nine Tail", "Nightmare Bongun", "Nightmare Munak"; break;
+		case 2: callsub OnHandleQuest, 2, 120, 3754, 3750, 3753, 150, 150, 150, "Sweet Nightmare", "Matte Drainliar", "Restless Dead"; break;
+		case 3: callsub OnHandleQuest, 3, 130, 3792, 3794, 3793, 150, 150, 150, "Angry Gazeti", "Angry Ice Titan", "Angry Snowier"; break;
+		case 4: callsub OnHandleQuest, 4, 145, 3800, 3802, 3801, 150, 150, 150, "Ominous Permeter", "Ominous Solider Turtle", "Ominous Freezer"; break;
+		case 5: callsub OnHandleQuest, 5, 160, 20255, 20256, 20257, 150, 150, 150, "Red Teddy Bear", "Yellow Teddy Bear", "Green Teddy Bear"; break;
+		case 6: callsub OnHandleQuest, 6, 175, 20272, 20270, 20274, 150, 150, 150, "Ancient Megalith", "Ancient Tri Joint", "Ancient Stone Shooter"; break;
+		case 7: callsub OnHandleQuest, 7, 180, 20525, 20529, 20532, 150, 150, 150, "Chaos Baphomet Jr.", "Chaos Ghostring", "Chaos Stem Worm"; break;
+		case 8: callsub OnHandleQuest, 8, 185, 20805, 20802, 20804, 150, 150, 150, "Deep Sea Merman", "Deep Sea Obeaune", "Deep Sea Marse"; break;
+		case 9: callsub OnHandleQuest, 9, 190, 20809, 20806, 20807, 150, 150, 150, "Deep Sea Phen", "Deep Sea Sedora", "Deep Sea Swordfish"; break;
+		case 10: close;
+	}
+	end;
 
 OnHandleQuest:
-    .@q_id       = getarg(0);
-    .@min_lv     = getarg(1);
-    .@m1         = getarg(2); .@m2 = getarg(3); .@m3 = getarg(4);
-    .@req1       = getarg(5); .@req2 = getarg(6); .@req3 = getarg(7);
-    .@base_exp   = getarg(8); .@job_exp = getarg(9);
-    .@mob1_name$ = getarg(10); .@mob2_name$ = getarg(11); .@mob3_name$ = getarg(12);
+	.@q_id        = getarg(0);
+	.@min_lv      = getarg(1);
+	.@m1          = getarg(2); .@m2 = getarg(3); .@m3 = getarg(4);
+	.@req1        = getarg(5); .@req2 = getarg(6); .@req3 = getarg(7);
+	.@mob1_name$  = getarg(8); .@mob2_name$ = getarg(9); .@mob3_name$ = getarg(10);
 
-    if (BaseLevel < .@min_lv) {
-        mes "[Illusion Manager]";
-        mes "Your level (" + BaseLevel + ") is below the minimum Level " + .@min_lv + " required!";
-        close;
-    }
+	if (BaseLevel < .@min_lv) {
+		mes "[Illusion Manager]";
+		mes "Your level (" + BaseLevel + ") is below the minimum Level " + .@min_lv + " required!";
+		close;
+	}
 
-    if (Illusion_ActiveQuest != 0 && Illusion_ActiveQuest != .@q_id) {
-        mes "[Illusion Manager]";
-        mes "You already have an active bounty! Finish or abandon it first.";
-        close;
-    }
+	if (Illusion_ActiveQuest != 0 && Illusion_ActiveQuest != .@q_id) {
+		mes "[Illusion Manager]";
+		mes "You already have an active bounty! Finish or abandon it first.";
+		close;
+	}
 
-    if (Illusion_Kill1 >= .@req1 && Illusion_Kill2 >= .@req2 && Illusion_Kill3 >= .@req3) {
+	if (Illusion_Kill1 >= .@req1 && Illusion_Kill2 >= .@req2 && Illusion_Kill3 >= .@req3) {
+        .@base_exp = callfunc("F_SNPC_BountyReward", "illusion", .@q_id, 0);
+        .@job_exp  = callfunc("F_SNPC_BountyReward", "illusion", .@q_id, 1);
+
+        if (.@base_exp <= 0 || .@job_exp <= 0) {
+            mes "[Illusion Manager]";
+            mes "Reward table error -- please tell the server admin.";
+            close;
+        }
+
         Illusion_Kill1 = 0;
         Illusion_Kill2 = 0;
         Illusion_Kill3 = 0;
         Illusion_ActiveQuest = 0;
 
-        getexp .@base_exp, .@job_exp;
+        // Route through safe EXP chunking routine
+        callfunc("F_SNPC_GiveEXP", .@base_exp, .@job_exp);
         specialeffect2 154;
+
         mes "[Illusion Manager]";
         mes "Outstanding job! Here is your reward:";
         mes "^0055FF+" + .@base_exp + " Base EXP^000000";
         mes "^0055FF+" + .@job_exp + " Job EXP^000000";
+        mes "\n^777777(EXP rewards are multiplied by server rates)^000000";
         close;
     }
 
-    if (Illusion_ActiveQuest == .@q_id) {
-        mes "[Illusion Manager]";
-        mes "Current progress for this bounty:";
-        mes "- " + .@mob1_name$ + ": ^0055FF" + Illusion_Kill1 + "^000000 / " + .@req1;
-        mes "- " + .@mob2_name$ + ": ^0055FF" + Illusion_Kill2 + "^000000 / " + .@req2;
-        mes "- " + .@mob3_name$ + ": ^0055FF" + Illusion_Kill3 + "^000000 / " + .@req3;
-        close;
-    }
+	if (Illusion_ActiveQuest == .@q_id) {
+		mes "[Illusion Manager]";
+		mes "Current progress for this bounty:";
+		mes "- " + .@mob1_name$ + ": ^0055FF" + Illusion_Kill1 + "^000000 / " + .@req1;
+		mes "- " + .@mob2_name$ + ": ^0055FF" + Illusion_Kill2 + "^000000 / " + .@req2;
+		mes "- " + .@mob3_name$ + ": ^0055FF" + Illusion_Kill3 + "^000000 / " + .@req3;
+		close;
+	}
 
-    Illusion_ActiveQuest = .@q_id;
-    Illusion_Kill1 = 0;
-    Illusion_Kill2 = 0;
-    Illusion_Kill3 = 0;
+	Illusion_ActiveQuest = .@q_id;
+	Illusion_Kill1 = 0;
+	Illusion_Kill2 = 0;
+	Illusion_Kill3 = 0;
 
-    mes "[Illusion Manager]";
-    mes "Bounty accepted! Defeat " + .@req1 + "x ^0055FF" + .@mob1_name$ + "^000000, " + .@req2 + "x ^0055FF" + .@mob2_name$ + "^000000, and " + .@req3 + "x ^0055FF" + .@mob3_name$ + "^000000, then return to me.";
-    close;
+	mes "[Illusion Manager]";
+	mes "Bounty accepted! Defeat " + .@req1 + "x ^0055FF" + .@mob1_name$ + "^000000, " + .@req2 + "x ^0055FF" + .@mob2_name$ + "^000000, and " + .@req3 + "x ^0055FF" + .@mob3_name$ + "^000000, then return to me.";
+	close;
 }
 
 // Kill Event Trigger -- fired directly by the event field on each
 // spawn line in illusion_mobs.txt, same pattern as Gramps/Overlook
 -	script	Illusion_KillTracker	-1,{
 OnIllusionKill:
-    if (Illusion_ActiveQuest == 0) end;
+	if (Illusion_ActiveQuest == 0) end;
 
-    .@k = killedrid;
+	.@k = killedrid;
 
-    switch(Illusion_ActiveQuest) {
-        case 1:
-            if (.@k == 3759 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Angry Nine Tail: [" + Illusion_Kill1 + "/150]"; }
-            else if (.@k == 3761 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Nightmare Bongun: [" + Illusion_Kill2 + "/150]"; }
-            else if (.@k == 3760 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Nightmare Munak: [" + Illusion_Kill3 + "/150]"; }
-            break;
-        case 2:
-            if (.@k == 3754 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Sweet Nightmare: [" + Illusion_Kill1 + "/150]"; }
-            else if (.@k == 3750 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Matte Drainliar: [" + Illusion_Kill2 + "/150]"; }
-            else if (.@k == 3753 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Restless Dead: [" + Illusion_Kill3 + "/150]"; }
-            break;
-        case 3:
-            if (.@k == 3792 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Angry Gazeti: [" + Illusion_Kill1 + "/150]"; }
-            else if (.@k == 3794 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Angry Ice Titan: [" + Illusion_Kill2 + "/150]"; }
-            else if (.@k == 3793 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Angry Snowier: [" + Illusion_Kill3 + "/150]"; }
-            break;
-        case 4:
-            if (.@k == 3800 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Ominous Permeter: [" + Illusion_Kill1 + "/150]"; }
-            else if (.@k == 3802 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Ominous Solider Turtle: [" + Illusion_Kill2 + "/150]"; }
-            else if (.@k == 3801 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Ominous Freezer: [" + Illusion_Kill3 + "/150]"; }
-            break;
-        case 5:
-            if (.@k == 20255 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Red Teddy Bear: [" + Illusion_Kill1 + "/150]"; }
-            else if (.@k == 20256 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Yellow Teddy Bear: [" + Illusion_Kill2 + "/150]"; }
-            else if (.@k == 20257 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Green Teddy Bear: [" + Illusion_Kill3 + "/150]"; }
-            break;
-        case 6:
-            if (.@k == 20272 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Ancient Megalith: [" + Illusion_Kill1 + "/150]"; }
-            else if (.@k == 20270 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Ancient Tri Joint: [" + Illusion_Kill2 + "/150]"; }
-            else if (.@k == 20274 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Ancient Stone Shooter: [" + Illusion_Kill3 + "/150]"; }
-            break;
-        case 7:
-            if (.@k == 20525 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Chaos Baphomet Jr.: [" + Illusion_Kill1 + "/150]"; }
-            else if (.@k == 20529 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Chaos Ghostring: [" + Illusion_Kill2 + "/150]"; }
-            else if (.@k == 20532 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Chaos Stem Worm: [" + Illusion_Kill3 + "/150]"; }
-            break;
-        case 8:
-            if (.@k == 20805 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Deep Sea Merman: [" + Illusion_Kill1 + "/150]"; }
-            else if (.@k == 20802 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Deep Sea Obeaune: [" + Illusion_Kill2 + "/150]"; }
-            else if (.@k == 20804 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Deep Sea Marse: [" + Illusion_Kill3 + "/150]"; }
-            break;
-        case 9:
-            if (.@k == 20809 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Deep Sea Phen: [" + Illusion_Kill1 + "/150]"; }
-            else if (.@k == 20806 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Deep Sea Sedora: [" + Illusion_Kill2 + "/150]"; }
-            else if (.@k == 20807 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Deep Sea Swordfish: [" + Illusion_Kill3 + "/150]"; }
-            break;
-    }
-    end;
+	switch(Illusion_ActiveQuest) {
+		case 1:
+			if (.@k == 3759 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Angry Nine Tail: [" + Illusion_Kill1 + "/150]"; }
+			else if (.@k == 3761 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Nightmare Bongun: [" + Illusion_Kill2 + "/150]"; }
+			else if (.@k == 3760 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Nightmare Munak: [" + Illusion_Kill3 + "/150]"; }
+			break;
+		case 2:
+			if (.@k == 3754 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Sweet Nightmare: [" + Illusion_Kill1 + "/150]"; }
+			else if (.@k == 3750 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Matte Drainliar: [" + Illusion_Kill2 + "/150]"; }
+			else if (.@k == 3753 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Restless Dead: [" + Illusion_Kill3 + "/150]"; }
+			break;
+		case 3:
+			if (.@k == 3792 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Angry Gazeti: [" + Illusion_Kill1 + "/150]"; }
+			else if (.@k == 3794 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Angry Ice Titan: [" + Illusion_Kill2 + "/150]"; }
+			else if (.@k == 3793 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Angry Snowier: [" + Illusion_Kill3 + "/150]"; }
+			break;
+		case 4:
+			if (.@k == 3800 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Ominous Permeter: [" + Illusion_Kill1 + "/150]"; }
+			else if (.@k == 3802 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Ominous Solider Turtle: [" + Illusion_Kill2 + "/150]"; }
+			else if (.@k == 3801 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Ominous Freezer: [" + Illusion_Kill3 + "/150]"; }
+			break;
+		case 5:
+			if (.@k == 20255 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Red Teddy Bear: [" + Illusion_Kill1 + "/150]"; }
+			else if (.@k == 20256 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Yellow Teddy Bear: [" + Illusion_Kill2 + "/150]"; }
+			else if (.@k == 20257 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Green Teddy Bear: [" + Illusion_Kill3 + "/150]"; }
+			break;
+		case 6:
+			if (.@k == 20272 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Ancient Megalith: [" + Illusion_Kill1 + "/150]"; }
+			else if (.@k == 20270 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Ancient Tri Joint: [" + Illusion_Kill2 + "/150]"; }
+			else if (.@k == 20274 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Ancient Stone Shooter: [" + Illusion_Kill3 + "/150]"; }
+			break;
+		case 7:
+			if (.@k == 20525 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Chaos Baphomet Jr.: [" + Illusion_Kill1 + "/150]"; }
+			else if (.@k == 20529 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Chaos Ghostring: [" + Illusion_Kill2 + "/150]"; }
+			else if (.@k == 20532 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Chaos Stem Worm: [" + Illusion_Kill3 + "/150]"; }
+			break;
+		case 8:
+			if (.@k == 20805 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Deep Sea Merman: [" + Illusion_Kill1 + "/150]"; }
+			else if (.@k == 20802 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Deep Sea Obeaune: [" + Illusion_Kill2 + "/150]"; }
+			else if (.@k == 20804 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Deep Sea Marse: [" + Illusion_Kill3 + "/150]"; }
+			break;
+		case 9:
+			if (.@k == 20809 && Illusion_Kill1 < 150) { Illusion_Kill1++; dispbottom "[Illusion Bounty] Deep Sea Phen: [" + Illusion_Kill1 + "/150]"; }
+			else if (.@k == 20806 && Illusion_Kill2 < 150) { Illusion_Kill2++; dispbottom "[Illusion Bounty] Deep Sea Sedora: [" + Illusion_Kill2 + "/150]"; }
+			else if (.@k == 20807 && Illusion_Kill3 < 150) { Illusion_Kill3++; dispbottom "[Illusion Bounty] Deep Sea Swordfish: [" + Illusion_Kill3 + "/150]"; }
+			break;
+	}
+	end;
 }
