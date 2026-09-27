@@ -2,8 +2,6 @@
 //= Cheffenia Hourly Map Resetter Controller
 //============================================================
 
-bossnia_01	mapflag	cleanmap
-
 -	script	CheffeniaResetter	-1,{
 // Hourly Map Reset Trigger
 OnMinute00:
