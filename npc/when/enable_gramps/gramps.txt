@@ -196,25 +196,10 @@ OnHandleQuest:
     close;
 }
 
-// Clean & Cohesive Spawn Controller for TI Maps
-alde_dun04	mapflag	cleanmap
-mag_dun02	mapflag	cleanmap
-dic_dun02	mapflag	cleanmap
-verus03	mapflag	cleanmap
-ein_dun03	mapflag	cleanmap
-nif_dun01	mapflag	cleanmap
-nif_dun02	mapflag	cleanmap
-
+// Kill tracker for TI maps. Spawns live in gramps_mobs.txt (plain map
+// spawn lines, governed by dynamic_mobs); each line points its kill
+// event here, so keep this NPC name as TI_MobManager.
 -	script	TI_MobManager	-1,{
-OnInit:
-OnReloadTISpawns:
-    cleanmap "alde_dun04"; cleanmap "mag_dun02"; cleanmap "dic_dun02";
-    cleanmap "verus03"; cleanmap "ein_dun03"; cleanmap "nif_dun01"; cleanmap "nif_dun02";
-    // Spawns moved to gramps_mobs.txt (plain map spawn lines, governed
-    // by dynamic_mobs) so they only exist while a player is on the map.
-    end;
-
-// Kill Event Trigger
 OnTIKill:
     if (Gramps_ActiveBracket == 0) end;
 
