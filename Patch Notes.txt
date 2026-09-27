@@ -107,3 +107,8 @@ Initial release.
 - Gramps: no more 75% penalty for taking a bounty above your level -- you always get the full reward.
 - Gramps: fixed a formatting error that kept the Lv 151-175 map (verus03) from getting its map setting.
 - Thanks to IceGlaive for the shared rewards system and the EXP rebalance.
+
+## 4.6.1
+- Gramps, Overlook and MVP Dungeon: removed invalid `cleanmap` mapflag lines that caused errors on server start. Also removed Gramps' and Overlook's leftover startup cleanup code, which did nothing since the spawns moved to their own files. Kill tracking is unchanged.
+- Illusion Dungeons and MVP Dungeon: set monster respawn time to 5 seconds explicitly. It was 0, which the server replaced with 5 seconds anyway and logged a warning for every spawn line. No gameplay change.
+- Thanks to IceGlaive for reporting.

@@ -1,6 +1,6 @@
 {
   "name": "standart-npc",
-  "version": "4.6.0",
+  "version": "4.6.1",
   "author": "MondoTruth, Lil Art, IceGlaive, Nokzin, Claude, and the Ragnarok Offline community",
   "description": "⚠ Some NPCs may need the Cash Shop for full functionality. Core (always on): Warper, Job Master, Reset Girl, Episode Valkyrie and Stylist -- Prontera. Everything below is optional.",
   "default": "off",
