@@ -193,22 +193,11 @@ OnHandleOWDQuest:
     close;
 }
 
-// --- Overlook Dungeon Mob Spawns & Kill Tracker ---
-iz_dun00	mapflag	cleanmap
-iz_dun01	mapflag	cleanmap
-iz_dun02	mapflag	cleanmap
-iz_dun03	mapflag	cleanmap
-
+// --- Overlook Dungeon Kill Tracker ---
+// Spawns live in overlook_mobs.txt (plain map spawn lines, governed
+// by dynamic_mobs); each line points its kill event here, so keep
+// this NPC name as OWD_MobManager.
 -	script	OWD_MobManager	-1,{
-OnInit:
-OnReloadOWDSpawns:
-    cleanmap "iz_dun00"; cleanmap "iz_dun01";
-    cleanmap "iz_dun02"; cleanmap "iz_dun03";
-    // Spawns moved to overlook_mobs.txt (plain map spawn lines,
-    // governed by dynamic_mobs) so they only exist while a player
-    // is on the map.
-    end;
-
 OnOWDKill:
     if (OWD_ActiveQuest == 0) end;
 
