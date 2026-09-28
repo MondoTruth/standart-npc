@@ -28,7 +28,7 @@
 3. **Settings → Mods** → tick **standart-npc** → **Apply**.
 
 > [!IMPORTANT]
-> Requires app version **1.3.4 or newer**. Older versions don't support the individual on/off checkboxes below, and toggling them will silently do nothing.
+> Requires app version **1.3.2 or newer**. Older versions don't support the individual on/off checkboxes below, and toggling them will silently do nothing.
 
 ---
 
