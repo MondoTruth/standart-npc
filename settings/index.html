@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>standart-npc</title>
+<!--
+  standart-npc settings window.
+
+  Opened by Ragnarok Offline 1.3.4+ from Settings -> Mods -> Settings...
+  Older apps ignore "settingsPage" and show the same options as plain
+  checkboxes in the Mods tab, so nothing here is required for the mod to work.
+
+  To add an NPC: give it a setting in mod.json as usual, then add its key to
+  one of the groups below. A key that is in no group still appears, under
+  "Other", so forgetting this step never hides an option.
+-->
+<style>
+  :root { color-scheme: light dark; --dim: #8a8a8a; --line: #8884; --accent: #4a8fe7; --warn: #d08a2a; }
+  * { box-sizing: border-box; }
+  body { font: 14px/1.4 system-ui, sans-serif; margin: 0; padding: 18px 20px 90px; }
+  header h1 { font-size: 18px; margin: 0; }
+  header p { color: var(--dim); margin: 2px 0 14px; font-size: 12px; }
+  .off { color: var(--warn); }
+  .tools { display: flex; gap: 8px; margin-bottom: 12px; }
+  .tools button { font-size: 12px; padding: 3px 10px; }
+  details { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; }
+  summary { cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; list-style: none; user-select: none; }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "▶"; width: 1em; font-size: 11px; color: var(--dim); }
+  details[open] > summary::before { content: "▼"; }
+  summary .count { margin-left: auto; font-weight: 400; color: var(--dim); font-size: 12px; }
+  label.row { display: flex; gap: 8px; align-items: flex-start; margin: 8px 0 0 26px; cursor: pointer; }
+  label.row small { display: block; color: var(--dim); }
+  input[type=checkbox] { accent-color: var(--accent); margin-top: 3px; }
+  footer { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px 20px; display: flex; gap: 8px; align-items: center;
+           background: Canvas; border-top: 1px solid var(--line); }
+  footer button { padding: 6px 14px; }
+  #status { color: var(--dim); font-size: 12px; margin-left: 6px; }
+  #status.dirty { color: var(--warn); }
+</style>
+</head>
+<body>
+<header>
+  <h1>standart-npc</h1>
+  <p id="about">Loading…</p>
+</header>
+<div class="tools">
+  <button id="expand">Expand all</button>
+  <button id="collapse">Collapse all</button>
+</div>
+<main id="groups"></main>
+<footer>
+  <button id="save">Save</button>
+  <button id="apply">Save and restart server</button>
+  <span id="status"></span>
+</footer>
+
+<script>
+// Groups, in the order they are shown. Keys are the setting keys in mod.json.
+const GROUPS = [
+  { title: 'Hunting quests',     keys: ['enable_gramps', 'enable_illusion', 'enable_luckyjohn'] },
+  { title: 'Dungeons',           keys: ['enable_mvp', 'enable_overlook'] },
+  { title: 'Shops and services', keys: ['enable_buffer', 'enable_kafra', 'enable_tooldealer', 'enable_smuggler', 'enable_cardexchanger', 'enable_weightmax'] },
+  { title: 'Equipment',          keys: ['enable_refiner', 'enable_enchanter', 'enable_nokzin'] },
+  { title: 'Training',           keys: ['enable_dummies'] },
+];
+
+const $ = id => document.getElementById(id);
+const inputs = {};   // key -> checkbox
+let saved = {};      // key -> value as last saved
+
+function status(text, dirty = false) {
+  $('status').textContent = text;
+  $('status').className = dirty ? 'dirty' : '';
+}
+function values() {
+  return Object.fromEntries(Object.entries(inputs).map(([k, box]) => [k, box.checked]));
+}
+function markDirty() {
+  const changed = Object.entries(values()).some(([k, v]) => saved[k] !== v);
+  status(changed ? 'Unsaved changes' : '', changed);
+}
+
+// The group's own checkbox is worked out from its NPCs: ticked when all are
+// on, half-ticked when some are, and clicking it switches them all.
+function syncGroup(group) {
+  const on = group.boxes.filter(b => b.checked).length;
+  group.all.checked = on === group.boxes.length;
+  group.all.indeterminate = on > 0 && on < group.boxes.length;
+  group.count.textContent = `${on} of ${group.boxes.length} on`;
+}
+
+function drawGroup(title, settings) {
+  const details = document.createElement('details');
+  const summary = document.createElement('summary');
+  const all = document.createElement('input');
+  all.type = 'checkbox';
+  const name = document.createElement('span');
+  name.textContent = title;
+  const count = document.createElement('span');
+  count.className = 'count';
+  summary.append(all, name, count);
+  details.append(summary);
+  const group = { all, count, boxes: [] };
+
+  for (const s of settings) {
+    const label = document.createElement('label');
+    label.className = 'row';
+    const box = document.createElement('input');
+    box.type = 'checkbox';
+    box.checked = s.value === true;
+    const text = document.createElement('span');
+    text.textContent = s.label || s.key;
+    if (s.description) {
+      const hint = document.createElement('small');
+      hint.textContent = s.description;
+      text.append(hint);
+    }
+    box.onchange = () => { syncGroup(group); markDirty(); };
+    label.append(box, text);
+    details.append(label);
+    inputs[s.key] = box;
+    group.boxes.push(box);
+  }
+
+  // Clicking the group checkbox must not also fold the group.
+  all.onclick = e => e.stopPropagation();
+  all.onchange = () => {
+    for (const box of group.boxes) box.checked = all.checked;
+    syncGroup(group);
+    markDirty();
+  };
+  let folded = false;
+  try { folded = localStorage.getItem('folded:' + title) === '1'; } catch {}
+  details.open = !folded;
+  details.ontoggle = () => {
+    try { localStorage.setItem('folded:' + title, details.open ? '0' : '1'); } catch {}
+  };
+  syncGroup(group);
+  $('groups').append(details);
+}
+
+async function run(button, work) {
+  for (const b of document.querySelectorAll('footer button')) b.disabled = true;
+  try { await work(); }
+  catch (e) { status('Error: ' + (e && e.message || e), true); }
+  for (const b of document.querySelectorAll('footer button')) b.disabled = false;
+}
+
+async function save() {
+  const v = values();
+  await window.modSettings.set(v);
+  saved = v;
+}
+
+(async () => {
+  try {
+    const mod = await window.modSettings.get();
+    $('about').textContent = `version ${mod.version} · ${mod.context.era} · app ${mod.context.appVersion}`;
+    if (!mod.enabled) {
+      const off = document.createElement('span');
+      off.className = 'off';
+      off.textContent = ' · switched off in the Mods tab';
+      $('about').append(off);
+    }
+    const byKey = new Map(mod.settings.filter(s => s.type === 'boolean').map(s => [s.key, s]));
+    for (const g of GROUPS) {
+      const list = g.keys.filter(k => byKey.has(k)).map(k => byKey.get(k));
+      g.keys.forEach(k => byKey.delete(k));
+      if (list.length) drawGroup(g.title, list);
+    }
+    if (byKey.size) drawGroup('Other', [...byKey.values()]);
+    saved = values();
+  } catch (e) {
+    status('Could not read the settings: ' + (e && e.message || e), true);
+  }
+})();
+
+$('expand').onclick = () => document.querySelectorAll('details').forEach(d => { d.open = true; });
+$('collapse').onclick = () => document.querySelectorAll('details').forEach(d => { d.open = false; });
+
+$('save').onclick = () => run($('save'), async () => {
+  await save();
+  status('Saved. Changes take effect when the server restarts.');
+});
+$('apply').onclick = () => run($('apply'), async () => {
+  await save();
+  status('Restarting the server…');
+  await window.modSettings.apply();
+  status('Saved and applied.');
+});
+</script>
+</body>
+</html>
