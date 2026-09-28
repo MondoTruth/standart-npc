@@ -112,3 +112,10 @@ Initial release.
 - Gramps, Overlook and MVP Dungeon: removed invalid `cleanmap` mapflag lines that caused errors on server start. Also removed Gramps' and Overlook's leftover startup cleanup code, which did nothing since the spawns moved to their own files. Kill tracking is unchanged.
 - Illusion Dungeons and MVP Dungeon: set monster respawn time to 5 seconds explicitly. It was 0, which the server replaced with 5 seconds anyway and logged a warning for every spawn line. No gameplay change.
 - Thanks to IceGlaive for reporting.
+
+## 4.6.2
+- New settings window (Ragnarok Offline 1.3.4 or newer): Settings -> Mods -> standart-npc -> Settings...
+  NPCs are grouped (Hunting quests, Dungeons, Shops and services, Equipment, Training), each group
+  can be folded or switched on and off at once, and the server can be restarted right from the window.
+- On older app versions nothing changes: the same options stay as checkboxes in the Mods tab.
+- No NPC changes in this version.
