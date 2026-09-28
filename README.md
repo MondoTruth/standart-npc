@@ -28,7 +28,15 @@
 3. **Settings → Mods** → tick **standart-npc** → **Apply**.
 
 > [!IMPORTANT]
-> Requires app version **1.3.2 or newer**. Older versions don't support the individual on/off checkboxes below, and toggling them will silently do nothing.
+> Requires app version **1.3.4 or newer**. Older versions don't support the individual on/off checkboxes below, and toggling them will silently do nothing.
+
+---
+
+## Settings
+
+On Ragnarok Offline 1.3.4 or newer, open **Settings → Mods → standart-npc → Settings…** to switch NPCs
+on and off by group and restart the server from the same window. On older versions the same options
+are checkboxes in the Mods tab.
 
 ---
 
