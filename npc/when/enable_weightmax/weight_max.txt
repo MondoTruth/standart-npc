@@ -1,0 +1,74 @@
+//===== rAthena Script =======================================
+//= Weight Maxxer (official Gym Pass NPC, relocated)
+//===== By: Lil Art ===========================================
+//===== Description: =========================================
+//= Standard rAthena Gym Pass NPC. Trades a Gym Pass (item 7776)
+//= for +1 permanent carry capacity (ALL_INCCARRY), up to 10 times.
+//= "my workouts wore off" restores the capacity for free if it
+//= was somehow lost (e.g. after a skill reset).
+//===== How to customize: ====================================
+//= - Max uses / capacity per use: the two 10s (cap check and menu
+//=   text) and the skill "ALL_INCCARRY", .@add_carry line.
+//= - Location/sprite: the first line below.
+//============================================================
+
+prontera,164,166,4	script	Weight Maxxer#prontera	4_M_MONK,{
+	mes "[Maxxer]";
+	mes "Hey, there. People aren't as physically active as they used to be.";
+	mes "Train with me, and I can guarantee that you'll be able to lift and carry more gear.";
+	mes "Just gimme your ^FF0000Gym Pass^000000 each time, and we'll be good to go.";
+	next;
+	mes "[Maxxer]";
+	mes "I'd say that it'd be safe for you to seriously train with me and increase your item carrying capacity ^FF000010 times^000000.";
+	mes "So... Are you ready to sweat?";
+	next;
+	switch(select("Yes:No:Um, my workouts wore off.")) {
+	case 1:
+		if (gympassmemory < 10) {
+			.@add_carry = gympassmemory + 1;
+			.@remain_carry = 10 - .@add_carry;
+			if (countitem(7776) > 0) {
+				mes "[Maxxer]";
+				mes "Oh, awesome, I see you brought your Gym Pass.";
+				mes "Alright, try to feel the burn!";
+				next;
+				specialeffect2 EF_EARTHSPIKE;
+				specialeffect2 EF_COIN;
+				mes "[Maxxer]";
+				mes "There, you should be able to carry more stuff with you.";
+				mes "We can increase your capacity ^FF0000" + .@remain_carry + "^000000 more times.";
+				delitem 7776, 1;
+				gympassmemory = .@add_carry;
+				skill "ALL_INCCARRY", .@add_carry, SKILL_PERM_GRANT;
+				close;
+			} else {
+				mes "[Maxxer]";
+				mes "Dude, bring me your ^FF0000Gym Pass^000000 if you wanna work out!";
+				close;
+			}
+		} else {
+			mes "[Maxxer]";
+			mes "Dude, we can't build up your carrying muscles anymore than that.";
+			close;
+		}
+	case 2:
+		mes "[Maxxer]";
+		mes "Aw, that's too bad. Come back if you change your mind.";
+		close;
+	case 3:
+		if (gympassmemory > 0) {
+			mes "[Maxxer]";
+			mes "Lost your skills after rebirthing? Let's get that muscle memory back!";
+			next;
+			specialeffect2 EF_COIN;
+			mes "[Maxxer]";
+			mes "How about that? Your carrying capacity is back!";
+			skill "ALL_INCCARRY", gympassmemory, SKILL_PERM_GRANT;
+			close;
+		} else {
+			mes "[Maxxer]";
+			mes "Uhh... We didn't work out together before.";
+			close;
+		}
+	}
+}

@@ -1,0 +1,164 @@
+//===== rAthena Script =======================================
+//= Buffer
+//===== By: MondoTruth, Claude =================================
+//===== Description: =========================================
+//= Free instant buffs + full heal on click, no dialog window.
+//= Which buffs he casts is picked in the mod's settings window
+//= (Settings -> Mods -> standart-npc -> Settings... -> Buffer ->
+//= Choose buffs). Out of the box: Blessing, Increase AGI,
+//= Kyrie Eleison, Magnificat. The heal always comes last.
+//===== How to customize: ====================================
+//= - Chosen buffs: the "buffer_set" setting, a comma-separated
+//=   list of the codes below (the settings window writes it).
+//=   .default_set$ is used when the setting is missing.
+//= - Duration: .dur (600000 ms = 10 min); Kaupe and Kaizel use
+//=   .dur_short (360000 = 6 min).
+//= - Buff strength: the number right after .dur in each line.
+//= - Adding a buff: a new "if (compare(.@set$, ",code,"))" block
+//=   here, and the same code in the BUFFS list of
+//=   settings/index.html so it gets a checkbox.
+//= - percentheal must stay LAST, after every sc_start, so it heals
+//=   to max HP after any buff that raises max HP, not before.
+//= - Some buffs cancel each other in rAthena, so the settings
+//=   window lets only one of these on at a time: Assumptio/Kaite,
+//=   the two Gentle Touches, Soul Link/the four Soul Reaper souls.
+//= - Soul Link: switch(BaseJob) picks the spirit skill ID for the
+//=   clicking player's class. BaseJob has NO parentheses/argument.
+//=   SL_HIGH applies only to the High/trans version of the 6
+//=   first-class archetypes (eaclass()&EAJL_UPPER); 2nd class and up
+//=   get their own matching spirit; everyone else is skipped.
+//= - Sprite/name here only affects the (disabled) template; each
+//=   duplicate() line below sets its own sprite and can be changed
+//=   independently.
+//============================================================
+-	script	Buffer	-1,{
+	.@set$ = "," + callfunc("F_ModSetting", "standart-npc", "buffer_set", .default_set$) + ",";
+
+	// ---- Acolyte / Priest -------------------------------------------
+	if (compare(.@set$, ",bless,"))   { specialeffect2 EF_BLESSING;    sc_start SC_BLESSING,.dur,10;     .@b$[getarraysize(.@b$)] = "Blessing"; }
+	if (compare(.@set$, ",agi,"))     { specialeffect2 EF_INCAGILITY;  sc_start SC_INCREASEAGI,.dur,10;  .@b$[getarraysize(.@b$)] = "Increase AGI"; }
+	if (compare(.@set$, ",kyrie,"))   { specialeffect2 EF_KYRIE;       sc_start SC_KYRIE,.dur,5;         .@b$[getarraysize(.@b$)] = "Kyrie Eleison"; }
+	if (compare(.@set$, ",magni,"))   { specialeffect2 EF_MAGNIFICAT;  sc_start SC_MAGNIFICAT,.dur,5;    .@b$[getarraysize(.@b$)] = "Magnificat"; }
+	if (compare(.@set$, ",gloria,"))  { specialeffect2 EF_GLORIA;      sc_start SC_GLORIA,.dur,5;        .@b$[getarraysize(.@b$)] = "Gloria"; }
+	if (compare(.@set$, ",angelus,")) { specialeffect2 EF_ANGELUS;     sc_start SC_ANGELUS,.dur,10;      .@b$[getarraysize(.@b$)] = "Angelus"; }
+	if (compare(.@set$, ",impo,"))    { specialeffect2 EF_IMPOSITIO;   sc_start SC_IMPOSITIO,.dur,5;     .@b$[getarraysize(.@b$)] = "Impositio Manus"; }
+	if (compare(.@set$, ",suffra,"))  { specialeffect2 EF_SUFFRAGIUM;  sc_start SC_SUFFRAGIUM,.dur,3;    .@b$[getarraysize(.@b$)] = "Suffragium"; }
+	if (compare(.@set$, ",assu,"))    { specialeffect2 EF_ASSUMPTIO;   sc_start SC_ASSUMPTIO,.dur,5;     .@b$[getarraysize(.@b$)] = "Assumptio"; }
+
+	// ---- Crusader, Blacksmith ----------------------------------------
+	if (compare(.@set$, ",provi,"))   { specialeffect2 EF_PROVIDENCE;  sc_start SC_PROVIDENCE,.dur,5;    .@b$[getarraysize(.@b$)] = "Providence"; }
+	if (compare(.@set$, ",wp,"))                                    { sc_start SC_WEAPONPERFECTION,.dur,10; .@b$[getarraysize(.@b$)] = "Weapon Perfection"; }
+	if (compare(.@set$, ",ot,"))      { specialeffect2 EF_OVERTHRUST;  sc_start SC_OVERTHRUST,.dur,5;    .@b$[getarraysize(.@b$)] = "Over Thrust"; }	// party version: +5..15% ATK
+
+	// ---- Bard ----------------------------------------------------------
+	if (compare(.@set$, ",bragi,"))   { sc_start4 SC_POEMBRAGI,.dur,10,BA_POEMBRAGI,0,0;               .@b$[getarraysize(.@b$)] = "Poem of Bragi"; }	// faster variable cast time
+
+	// ---- Soul Linker ---------------------------------------------------
+	if (compare(.@set$, ",link,")) {
+		.@link = 0; // 0 = no matching spirit, skip
+		switch(BaseJob) {
+			case Job_Swordman:
+			case Job_Mage:
+			case Job_Acolyte:
+			case Job_Merchant:
+			case Job_Archer:
+			case Job_Thief:          if (eaclass()&EAJL_UPPER) .@link = 494; break; // SL_HIGH, trans only
+			case Job_Knight:         .@link = 452; break; // SL_KNIGHT
+			case Job_Priest:         .@link = 454; break; // SL_PRIEST
+			case Job_Wizard:         .@link = 453; break; // SL_WIZARD
+			case Job_Blacksmith:     .@link = 458; break; // SL_BLACKSMITH
+			case Job_Hunter:         .@link = 460; break; // SL_HUNTER
+			case Job_Assassin:       .@link = 457; break; // SL_ASSASIN
+			case Job_Crusader:       .@link = 450; break; // SL_CRUSADER
+			case Job_Monk:           .@link = 447; break; // SL_MONK
+			case Job_Sage:           .@link = 449; break; // SL_SAGE
+			case Job_Rogue:          .@link = 456; break; // SL_ROGUE
+			case Job_Alchemist:      .@link = 445; break; // SL_ALCHEMIST
+			case Job_Bard:
+			case Job_Dancer:         .@link = 455; break; // SL_BARDDANCER
+			case Job_Star_Gladiator: .@link = 448; break; // SL_STAR
+			case Job_Soul_Linker:    .@link = 461; break; // SL_SOULLINKER
+			case Job_Super_Novice:   .@link = 451; break; // SL_SUPERNOVICE
+		}
+		if (.@link) {
+			specialeffect2 EF_SOULLINK;
+			sc_start4 SC_SPIRIT,.dur,5,.@link,0,0; // val1=level, val2=spirit ID
+			.@b$[getarraysize(.@b$)] = "Soul Link";
+		}
+	}
+	if (compare(.@set$, ",kaupe,"))                                  { sc_start SC_KAUPE,.dur_short,3;    .@b$[getarraysize(.@b$)] = "Kaupe"; }	// dodge chance on next few hits
+	if (compare(.@set$, ",kaizel,"))  { specialeffect2 EF_KAIZEL;     sc_start SC_KAIZEL,.dur_short,7;   .@b$[getarraysize(.@b$)] = "Kaizel"; }	// auto-revive with partial HP on death
+	if (compare(.@set$, ",kaahi,"))   { specialeffect2 EF_KAAHI;      sc_start SC_KAAHI,.dur,7;          .@b$[getarraysize(.@b$)] = "Kaahi"; }	// heals on every hit taken, costs SP
+	if (compare(.@set$, ",kaite,"))                                  { sc_start SC_KAITE,.dur,7;          .@b$[getarraysize(.@b$)] = "Kaite"; }	// reflects magic back
+
+	// ---- Arch Bishop ---------------------------------------------------
+	if (compare(.@set$, ",expia,"))                                  { sc_start SC_EXPIATIO,.dur,5;       .@b$[getarraysize(.@b$)] = "Expiatio"; }	// ignores part of the target's DEF
+	if (compare(.@set$, ",secra,"))                                  { sc_start SC_SECRAMENT,.dur,5;      .@b$[getarraysize(.@b$)] = "Sacrament"; }	// shorter fixed cast time
+	if (compare(.@set$, ",renov,"))                                  { sc_start SC_RENOVATIO,.dur,1;      .@b$[getarraysize(.@b$)] = "Renovatio"; }	// heals 5% max HP every 5 seconds
+
+	// ---- Sura ----------------------------------------------------------
+	if (compare(.@set$, ",gtrev,"))                                  { sc_start SC_GT_REVITALIZE,.dur,5;  .@b$[getarraysize(.@b$)] = "Gentle Touch - Revitalize"; }
+	if (compare(.@set$, ",gtchg,"))                                  { sc_start SC_GT_CHANGE,.dur,5;      .@b$[getarraysize(.@b$)] = "Gentle Touch - Change"; }
+
+	// ---- Soul Reaper (only one soul at a time, not with Soul Link) ----
+	if (compare(.@set$, ",sshadow,"))                                { sc_start SC_SOULSHADOW,.dur,5;     .@b$[getarraysize(.@b$)] = "Shadow Soul"; }
+	if (compare(.@set$, ",sfalcon,"))                                { sc_start SC_SOULFALCON,.dur,5;     .@b$[getarraysize(.@b$)] = "Falcon Soul"; }
+	if (compare(.@set$, ",sfairy,"))                                 { sc_start SC_SOULFAIRY,.dur,5;      .@b$[getarraysize(.@b$)] = "Fairy Soul"; }
+	if (compare(.@set$, ",sgolem,"))                                 { sc_start SC_SOULGOLEM,.dur,5;      .@b$[getarraysize(.@b$)] = "Golem Soul"; }
+
+	// ---- Heal: always last -------------------------------------------
+	specialeffect2 EF_HEAL2;
+	percentheal 100,100;
+
+	// One chat line holds ~250 characters, so a long list goes over several lines.
+	.@line$ = "Fully healed!";
+	.@sep$ = " Buffs: ";
+	for (.@i = 0; .@i < getarraysize(.@b$); .@i++) {
+		if (getstrlen(.@line$) + getstrlen(.@b$[.@i]) > 180) {
+			dispbottom .@line$ + ",";
+			.@line$ = "";
+			.@sep$ = "";
+		}
+		.@line$ += .@sep$ + .@b$[.@i];
+		.@sep$ = ", ";
+	}
+	dispbottom .@line$ + (getarraysize(.@b$) ? "." : "");
+	end;
+
+OnInit:
+	.dur = 600000;
+	.dur_short = 360000;
+	.default_set$ = "bless,agi,kyrie,magni";
+	end;
+}
+
+//============================================================
+//= Duplicates in every major town -- add/remove towns or change
+//= the sprite (last column) per town here.
+//============================================================
+prontera,163,192,4	duplicate(Buffer)	Buffer#prt	936
+morocc,160,100,5	duplicate(Buffer)	Buffer#mor	936
+geffen,120,110,5	duplicate(Buffer)	Buffer#gef	936
+payon,175,108,5	duplicate(Buffer)	Buffer#pay	936
+alberta,115,60,5	duplicate(Buffer)	Buffer#alb	936
+aldebaran,140,120,5	duplicate(Buffer)	Buffer#alde	936
+izlude,122,149,5	duplicate(Buffer)	Buffer#izl	936
+yuno,152,187,5	duplicate(Buffer)	Buffer#yun	936
+lighthalzen,158,130,5	duplicate(Buffer)	Buffer#lhz	936
+einbroch,242,203,5	duplicate(Buffer)	Buffer#ein	936
+rachel,130,135,5	duplicate(Buffer)	Buffer#rach	936
+comodo,195,151,5	duplicate(Buffer)	Buffer#com	936
+xmas,146,135,5	duplicate(Buffer)	Buffer#xmas	936
+amatsu,115,157,5	duplicate(Buffer)	Buffer#ama	936
+gonryun,153,129,5	duplicate(Buffer)	Buffer#gon	936
+umbala,114,143,5	duplicate(Buffer)	Buffer#umb	936
+niflheim,205,128,5	duplicate(Buffer)	Buffer#nif	936
+louyang,215,111,5	duplicate(Buffer)	Buffer#lou	936
+jawaii,112,164,5	duplicate(Buffer)	Buffer#jaw	936
+ayothaya,239,129,5	duplicate(Buffer)	Buffer#ayo	936
+moscovia,202,159,5	duplicate(Buffer)	Buffer#mos	936
+veins,211,108,5	duplicate(Buffer)	Buffer#veins	936
+dewata,185,130,5	duplicate(Buffer)	Buffer#dew	936
+manuk,244,92,5	duplicate(Buffer)	Buffer#manuk	936
+splendide,200,152,5	duplicate(Buffer)	Buffer#splendide	936
+eclage,221,183,5	duplicate(Buffer)	Buffer#eclage	936

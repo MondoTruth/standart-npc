@@ -1,0 +1,75 @@
+//===== rAthena Script =======================================
+//= Bounty Hunter -- contract table
+//===== By: MondoTruth, Claude (data from Lil Art, IceGlaive) ===
+//===== Description: =========================================
+//= Every contract the Bounty Hunter offers, one line each.
+//= Replaces config_shared_rewards.txt: the reward now sits on
+//= the same line as the monsters it is paid for.
+//= bounty_board.txt reads this once at server start.
+//===== How to customize: ====================================
+//= One line = one contract:
+//=   "type|min lv|max lv|map|warp x,y|monster IDs|kills|base|job|zeny"
+//= - type: 1 = Target Hunt (was Gramps), 2 = Overlook Water
+//=   Dungeon, 3 = Illusion Dungeons, 4 = Daily Area Purge (was
+//=   Lucky John).
+//= - max lv 999 = no upper limit. The minimum is enforced; above
+//=   the maximum the player may still take it. Overlook (type 2)
+//=   ignores these and uses one range for the whole dungeon
+//=   (.owd_min_lv/.owd_max_lv in bounty_board.txt); its 4 lines
+//=   must stay in floor order.
+//= - map: for types 1-3 the hunting map; for type 4 a
+//=   comma-separated pool, one is picked at random.
+//= - warp x,y: where the "go there" option drops the player
+//=   (0,0 = no warp, as for type 4).
+//= - monster IDs: up to 3, comma-separated (type 4: 0 = any
+//=   monster on the map). Only monsters from bounty_mobs.txt
+//=   count for types 1-3, so add their spawn lines there too.
+//= - kills: needed per monster (type 4: in total).
+//= - base / job: EXP in units of 10,000 (450 = 4,500,000), then
+//=   scaled by the bounty EXP rate. zeny: units of 50,000.
+//= - Several maps for the same levels: just add another line.
+//= - Order matters only for moving over old progress from the
+//=   Gramps/Overlook/Illusion/Lucky John NPCs: keep the first
+//=   lines of each type in their old order.
+//============================================================
+
+function	script	F_Bounty_Contract	{
+	// ---- 1. Target Hunt (was Gramps) -------------------------------------
+	setarray .@t$[getarraysize(.@t$)], "1|70|100|alde_dun04|103,162|1269,1206|400|150|100|0";
+	setarray .@t$[getarraysize(.@t$)], "1|101|125|mag_dun02|46,49|1379,1367|400|450|300|0";
+	setarray .@t$[getarraysize(.@t$)], "1|126|150|dic_dun02|100,100|2082,2083|400|2000|1500|0";
+	setarray .@t$[getarraysize(.@t$)], "1|151|175|verus03|100,100|3248,3249|400|6000|4000|0";
+	setarray .@t$[getarraysize(.@t$)], "1|176|200|ein_dun03|100,100|20598,20603|400|20000|14000|0";
+	setarray .@t$[getarraysize(.@t$)], "1|201|230|nif_dun01|100,100|20937,20938|400|400000|300000|0";
+	setarray .@t$[getarraysize(.@t$)], "1|231|999|nif_dun02|100,100|20941,20940|400|600000|400000|0";
+	// ---- 2. Overlook Water Dungeon ---------------------------------------
+	setarray .@t$[getarraysize(.@t$)], "2|30|45|iz_dun00|168,168|1068,1070|50|25|15|0";
+	setarray .@t$[getarraysize(.@t$)], "2|45|60|iz_dun01|145,145|1069,1141|75|60|40|0";
+	setarray .@t$[getarraysize(.@t$)], "2|60|75|iz_dun02|230,200|1067,1044|100|120|80|0";
+	setarray .@t$[getarraysize(.@t$)], "2|75|85|iz_dun03|30,65|1045,1264|100|250|150|0";
+	// ---- 3. Illusion Dungeons --------------------------------------------
+	setarray .@t$[getarraysize(.@t$)], "3|99|999|pay_d03_i|150,150|3759,3761,3760|150|120|80|0";
+	setarray .@t$[getarraysize(.@t$)], "3|120|999|gef_d01_i|155,155|3754,3750,3753|150|350|250|0";
+	setarray .@t$[getarraysize(.@t$)], "3|130|999|ice_d03_i|144,117|3792,3794,3793|150|1500|1000|0";
+	setarray .@t$[getarraysize(.@t$)], "3|145|999|tur_d03_i|150,150|3800,3802,3801|150|2500|1800|0";
+	setarray .@t$[getarraysize(.@t$)], "3|160|999|ein_d02_i|33,56|20255,20256,20257|150|3500|2400|0";
+	setarray .@t$[getarraysize(.@t$)], "3|175|999|com_d02_i|16,185|20272,20270,20274|150|6000|4000|0";
+	setarray .@t$[getarraysize(.@t$)], "3|180|999|prt_mz03_i|150,150|20525,20529,20532|150|10000|7000|0";
+	setarray .@t$[getarraysize(.@t$)], "3|185|999|iz_d04_i|150,150|20805,20802,20804|150|13000|9000|0";
+	setarray .@t$[getarraysize(.@t$)], "3|190|999|iz_d05_i|150,150|20809,20806,20807|150|170000|120000|0";
+	// ---- 4. Daily Area Purge (was Lucky John) ----------------------------
+	setarray .@t$[getarraysize(.@t$)], "4|30|55|orcsdun01,pay_dun01,xmas_dun01,xmas_dun02|0,0|0|500|12|8|2";
+	setarray .@t$[getarraysize(.@t$)], "4|56|75|pay_dun03,cmd_fild03,mosk_fild02,gon_fild01,bra_fild01,mjolnir_04,um_fild01|0,0|0|500|45|30|5";
+	setarray .@t$[getarraysize(.@t$)], "4|76|100|ice_dun01,gl_church,yuno_fild08,ra_fild12,mosk_dun02,gef_fild06,gef_fild08|0,0|0|500|150|100|10";
+	setarray .@t$[getarraysize(.@t$)], "4|101|125|ra_fild01,beach_dun2,gl_kaval01,ma_fild02|0,0|0|500|450|300|20";
+	setarray .@t$[getarraysize(.@t$)], "4|126|150|ecl_fild01,dic_fild01,moc_fild22,gl_cas02_|0,0|0|500|2500|1800|30";
+	setarray .@t$[getarraysize(.@t$)], "4|151|175|ra_fild11,ba_lost,rockmi1,verus02|0,0|0|500|6000|4000|50";
+	setarray .@t$[getarraysize(.@t$)], "4|176|200|gw_fild01,gw_fild02,ba_2whs01,ba_2whs02,gl_cas01_,mag_dun03,sp_rudus3,oz_dun01,oz_dun02|0,0|0|500|20000|14000|70";
+	setarray .@t$[getarraysize(.@t$)], "4|201|230|sp_rudus4|0,0|0|500|400000|300000|90";
+	setarray .@t$[getarraysize(.@t$)], "4|231|999|amicitia1,amicitia2|0,0|0|500|650000|450000|100";
+
+	// Line N of the table, or "" past the end.
+	.@i = getarg(0);
+	if (.@i < 0 || .@i >= getarraysize(.@t$)) return "";
+	return .@t$[.@i];
+}

@@ -1,0 +1,22 @@
+//===== rAthena Script =======================================
+//= standart-npc: switches for the always-loaded NPCs
+//===== By: MondoTruth, Claude =================================
+//===== Description: =========================================
+//= Warper, Job Master, Reset Girl, Stylist and Episode Valkyrie
+//= live directly in npc/, so they are always loaded. Each of them
+//= asks this function at start-up whether it was switched off in
+//= the mod's settings window, and hides itself if so.
+//=   callfunc("F_SNPC_Off", "<name>")  -> 1 = switched off
+//= The answer comes from the "npc_off" setting: a comma-separated
+//= list of names (warper, jobmaster, reset, stylist, epvalk).
+//= Empty = everything on.
+//===== How to customize: ====================================
+//= - Nothing to edit here: tick/untick the NPCs in
+//=   Settings -> Mods -> standart-npc -> Settings...
+//= - Needs Ragnarok Offline 1.3.4+ (it provides F_ModSetting).
+//============================================================
+
+function	script	F_SNPC_Off	{
+	.@off$ = "," + callfunc("F_ModSetting", "standart-npc", "npc_off", "") + ",";
+	return compare(.@off$, "," + getarg(0) + ",");
+}

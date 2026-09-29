@@ -1,0 +1,508 @@
+//===== rAthena Script =======================================
+//= Bounty Hunter (script name BountyBoard)
+//===== By: MondoTruth, Claude -- built on Gramps, Overlook and
+//=         Illusion Manager by Lil Art and Lucky John by IceGlaive
+//===== Description: =========================================
+//= One NPC for every hunting contract in standart-npc:
+//=   1. Target Hunt        (was Gramps)       Lv 70+
+//=   2. Overlook Dungeon   (was Overlook)     Lv 30+
+//=   3. Illusion Dungeons  (was Illusion)     Lv 99+
+//=   4. Daily Area Purge   (was Lucky John)   Lv 30+, once a day
+//= The player can hold one contract of each type at the same
+//= time. Each type keeps its own rules:
+//=   Target Hunt -- any map at or below your level, repeatable,
+//=     pays EXP.
+//=   Overlook -- Lv 30-85, 4 floors in order, each once; all 4
+//=     cleared = one card of your choice, once per character.
+//=   Illusion -- any dungeon at or below your level, repeatable.
+//=   Area Purge -- random area for your level, once a day.
+//= Kills for types 1-3 come from the spawn lines in
+//= bounty_mobs.txt (OnHuntKill). Only type 4 listens to every
+//= kill on the server (OnNPCKillEvent).
+//===== How to customize: ====================================
+//= - Contracts, maps, monsters, kill counts, rewards:
+//=   bounty_contracts.txt -- nothing to change here.
+//= - Overlook: level range .owd_min_lv/.owd_max_lv, final card
+//=   choices .owd_cards (item IDs).
+//= - Menu names of the four types: .type_name$.
+//= - EXP rate for all contracts: BB_Reward reads the mod setting
+//=   "bounty_exp_rate" (100 = as in the table). mod.json does not
+//=   declare it yet, so it is always 100 for now.
+//= - Location/sprite: the duplicate line at the bottom.
+//= - Player progress: BB_Row_<type>, BB_K<type>_<1..3>,
+//=   BB_PurgeMap$, BB_PurgeDay, BB_PurgeDone -- per character.
+//=   Overlook keeps its old OWD_Floor1-4_Done / OWD_ClearedAll,
+//=   so floors already cleared stay cleared.
+//============================================================
+
+-	script	BountyBoard	-1,{
+	function BB_Title; function BB_Reward; function BB_Progress; function BB_IsDone;
+	function BB_Pay; function BB_Clear; function BB_MapName;
+	function BB_Label; function BB_RowOf; function BB_Migrate; function BB_Floor; function BB_OwdAllDone;
+
+	BB_Migrate();
+
+	mes .n$;
+	mes "Hunters wanted, all levels! What kind of work?";
+	next;
+	.@menu$ = "";
+	for (.@c = 1; .@c <= 4; .@c++) {
+		.@menu$ += .type_name$[.@c] + (getd("BB_Row_" + .@c) ? " [active]" : "") + ":";
+	}
+	.@c = select(.@menu$ + "Cancel");
+	if (.@c == 5) close;
+	if (.@c == 4) callsub S_Purge;
+	callsub S_Hunt, .@c;
+	end;
+
+//------------------------------------------------------------
+// Types 1-3: pick a map, hunt its monsters, come back.
+//------------------------------------------------------------
+S_Hunt:
+	.@c = getarg(0);
+	.@lv = BaseLevel;	// callsub starts a fresh .@ scope
+	.@r = getd("BB_Row_" + .@c) - 1;
+
+	if (.@r >= 0) {
+		mes .n$;
+		mes "^0055FF" + BB_Title(.@r) + "^000000";
+		BB_Progress(.@r, .@c);
+		next;
+		if (BB_IsDone(.@r, .@c)) {
+			BB_Pay(.@r, .@c);
+			if (.@c == 2) {
+				.@f = BB_Floor(.@r);
+				setd "OWD_Floor" + .@f + "_Done", 1;
+				if (BB_OwdAllDone()) {
+					next;
+					mes .n$;
+					mes "^0055FFAll four Overlook floors cleared!^000000";
+					mes "Ask me for the final card reward under Overlook.";
+				}
+			}
+			close;
+		}
+		switch (select("Take me there:Abandon contract:Cancel")) {	// warp works even past Lv 85 while a contract is open
+		case 1:
+			close2;	// shut the dialog, then go
+			warp .map$[.@r], .wx[.@r], .wy[.@r];
+			end;
+		case 2:
+			mes .n$;
+			mes "Tear up this contract? All progress on it is lost.";
+			next;
+			if (select("Keep it:Abandon") == 2) {
+				BB_Clear(.@c);
+				mes .n$;
+				mes "Done. Pick a new one whenever you like.";
+			}
+			close;
+		}
+		close;
+	}
+
+	if (.@c == 2 && (.@lv < .owd_min_lv || .@lv > .owd_max_lv) && !(BB_OwdAllDone() && !OWD_ClearedAll)) {
+		mes .n$;
+		mes "The Overlook Water Dungeon is for Base Level " + .owd_min_lv + " to " + .owd_max_lv + ".";
+		close;
+	}
+	// Only this type's contracts; .@row[] maps a menu answer back to its line.
+	.@menu$ = "";
+	.@n = 0;
+	for (.@i = 0; .@i < .rows; .@i++) {
+		if (.type[.@i] != .@c) continue;
+		.@row[.@n] = .@i;
+		.@n++;
+		.@menu$ += BB_Label(.@i);
+		if (.@c == 2 && getd("OWD_Floor" + BB_Floor(.@i) + "_Done")) .@menu$ += " [cleared]";
+		.@menu$ += ":";
+	}
+	// Overlook only: the one-time card for clearing all four floors.
+	.@card_opt = (.@c == 2 && BB_OwdAllDone() && !OWD_ClearedAll);
+	if (.@card_opt) .@menu$ += "Final card reward:";
+	mes .n$;
+	mes .@c == 2 ? "Which floor?" : "Which one?";
+	next;
+	.@pick = select(.@menu$ + "Cancel") - 1;
+	if (.@pick == .@n + .@card_opt) close;
+	if (.@pick == .@n) callsub S_OwdCard;
+	.@r = .@row[.@pick];
+
+	if (.@c == 2) {
+		.@f = BB_Floor(.@r);
+		if (getd("OWD_Floor" + .@f + "_Done")) {
+			mes .n$;
+			mes "You've already cleared Floor " + .@f + ".";
+			close;
+		}
+		if (.@f > 1 && !getd("OWD_Floor" + (.@f - 1) + "_Done")) {
+			mes .n$;
+			mes "Clear Floor " + (.@f - 1) + " first!";
+			close;
+		}
+	}
+
+	mes .n$;
+	mes "^0055FF" + BB_Title(.@r) + "^000000";
+	mes "Map: " + .map$[.@r];
+	for (.@n = 0; .@n < 3; .@n++)
+		if (.mob[.@r * 3 + .@n])
+			mes "- " + .cnt[.@r] + " x " + getmonsterinfo(.mob[.@r * 3 + .@n], MOB_NAME);
+	mes "Pay: " + BB_Reward(.@r, 0) + " Base / " + BB_Reward(.@r, 1) + " Job EXP";
+	if (.@c != 2 && .@lv < .min[.@r]) {	// Overlook: only the 30-85 range above
+		mes "^FF0000Needs Base Level " + .min[.@r] + ".^000000";
+		close;
+	}
+	next;
+	.@go = select("Accept and take me there:Accept:Cancel");
+	if (.@go == 3) close;
+	BB_Clear(.@c);
+	setd "BB_Row_" + .@c, .@r + 1;
+	if (.@go == 1) {
+		close2;	// shut the dialog, then go
+		warp .map$[.@r], .wx[.@r], .wy[.@r];
+		end;
+	}
+	mes .n$;
+	mes "Contract signed. Good hunting!";
+	close;
+
+//------------------------------------------------------------
+// Overlook: one card of your choice for clearing all 4 floors.
+//------------------------------------------------------------
+S_OwdCard:
+	mes .n$;
+	mes "All four floors cleared -- pick your card:";
+	next;
+	.@menu$ = "";
+	for (.@i = 0; .@i < getarraysize(.owd_cards); .@i++)
+		.@menu$ += getitemname(.owd_cards[.@i]) + ":";
+	.@card = .owd_cards[select(.@menu$) - 1];
+	if (!checkweight(.@card, 1)) {
+		mes .n$;
+		mes "You can't carry it right now. Make some room and come back.";
+		close;
+	}
+	OWD_ClearedAll = 1;
+	getitem .@card, 1;
+	specialeffect2 154;
+	mes .n$;
+	mes "Here you go. Use it well!";
+	close;
+
+//------------------------------------------------------------
+// Type 4: a random area for your level, any 500 kills, daily.
+//------------------------------------------------------------
+S_Purge:
+	.@lv = BaseLevel;	// callsub starts a fresh .@ scope
+	.@today = gettime(7) * 10000 + gettime(6) * 100 + gettime(5);
+	.@r = BB_Row_4 - 1;
+
+	if (.@r >= 0) {
+		mes .n$;
+		mes "Area: ^0055FF" + BB_MapName(BB_PurgeMap$) + "^000000 (" + BB_PurgeMap$ + ")";
+		BB_Progress(.@r, 4);
+		next;
+		if (BB_IsDone(.@r, 4)) {
+			.@late = (BB_PurgeDay < .@today);	// taken on an earlier day
+			BB_Pay(.@r, 4);
+			if (!.@late) BB_PurgeDone = .@today;
+			next;
+			mes .n$;
+			mes .@late ? "That settles yesterday's contract -- today's is still open for you."
+			           : "That's all for today. See you tomorrow!";
+			close;
+		}
+		if (select("Abandon contract:Cancel") == 1) {
+			mes .n$;
+			mes "Abandon it? " + BB_K4_1 + " kills will be lost.";
+			next;
+			if (select("Keep it:Abandon") == 2) {
+				BB_Clear(4);
+				mes .n$;
+				mes "Contract terminated.";
+			}
+		}
+		close;
+	}
+
+	if (BB_PurgeDone == .@today) {
+		mes .n$;
+		mes "You've done today's area purge on this character. Come back tomorrow!";
+		close;
+	}
+	// The last line that starts at or below your level.
+	.@r = -1;
+	for (.@i = 0; .@i < .rows; .@i++)
+		if (.type[.@i] == 4 && .@lv >= .min[.@i]) .@r = .@i;
+	if (.@r < 0) {
+		mes .n$;
+		mes "You're a bit green for purge work. Come back a little stronger!";
+		close;
+	}
+	mes .n$;
+	mes "Clear any " + .cnt[.@r] + " monsters in an area I pick for your level.";
+	mes "Pay: " + BB_Reward(.@r, 0) + " Base / " + BB_Reward(.@r, 1) + " Job EXP, " + BB_Reward(.@r, 2) + " Zeny.";
+	next;
+	if (select("Accept:Not now") == 2) close;
+	explode(.@pool$, .map$[.@r], ",");
+	BB_PurgeMap$ = .@pool$[rand(getarraysize(.@pool$))];
+	BB_PurgeDay = .@today;
+	BB_Row_4 = .@r + 1;
+	mes .n$;
+	mes "Your area: ^0055FF" + BB_MapName(BB_PurgeMap$) + "^000000 (" + BB_PurgeMap$ + ").";
+	mes "Any regular monster there counts.";
+	close;
+
+//------------------------------------------------------------
+// Helpers
+//------------------------------------------------------------
+
+// Short menu entry: "Lv 70-100 (alde_dun04)", Overlook "Floor 2 (Lv 45-60)".
+function BB_Label {
+	.@r = getarg(0);
+	.@lv$ = "Lv " + .min[.@r] + (.max[.@r] >= 999 ? "+" : "-" + .max[.@r]);
+	if (.type[.@r] == 2) return "Floor " + BB_Floor(.@r) + " (" + .@lv$ + ")";
+	return .@lv$ + " (" + .map$[.@r] + ")";
+}
+
+// "Lv 70-100: Clock, Anolian" -- names straight from the mob db.
+function BB_Title {
+	.@r = getarg(0);
+	.@t$ = "Lv " + .min[.@r] + (.max[.@r] >= 999 ? "+" : "-" + .max[.@r]);
+	if (.type[.@r] == 4) return .@t$ + ": area purge";
+	.@sep$ = ": ";
+	for (.@n = 0; .@n < 3; .@n++) {
+		.@id = .mob[.@r * 3 + .@n];
+		if (!.@id) continue;
+		.@t$ += .@sep$ + getmonsterinfo(.@id, MOB_NAME);
+		.@sep$ = ", ";
+	}
+	return .@t$;
+}
+
+// BB_Reward(row, 0 base / 1 job / 2 zeny), EXP scaled by the setting.
+function BB_Reward {
+	.@r = getarg(0);
+	if (getarg(1) == 2) return .zeny[.@r] * .zeny_unit;
+	.@rate = callfunc("F_ModSetting", "standart-npc", "bounty_exp_rate", 100);
+	.@units = getarg(1) ? .jexp[.@r] : .bexp[.@r];
+	return .@units * .exp_unit / 100 * .@rate;
+}
+
+function BB_Progress {
+	.@r = getarg(0); .@c = getarg(1);
+	if (.@c == 4) {
+		mes "Kills: ^0055FF" + BB_K4_1 + "^000000 / " + .cnt[.@r];
+		return;
+	}
+	for (.@n = 0; .@n < 3; .@n++) {
+		.@id = .mob[.@r * 3 + .@n];
+		if (.@id)
+			mes "- " + getmonsterinfo(.@id, MOB_NAME) + ": ^0055FF" + getd("BB_K" + .@c + "_" + (.@n + 1)) + "^000000 / " + .cnt[.@r];
+	}
+	return;
+}
+
+function BB_IsDone {
+	.@r = getarg(0); .@c = getarg(1);
+	if (.@c == 4) return BB_K4_1 >= .cnt[.@r];
+	for (.@n = 0; .@n < 3; .@n++)
+		if (.mob[.@r * 3 + .@n] && getd("BB_K" + .@c + "_" + (.@n + 1)) < .cnt[.@r])
+			return 0;
+	return 1;
+}
+
+// Pays out and closes the contract.
+function BB_Pay {
+	.@r = getarg(0); .@c = getarg(1);
+	.@base = BB_Reward(.@r, 0);
+	.@job  = BB_Reward(.@r, 1);
+	.@zeny = BB_Reward(.@r, 2);
+	BB_Clear(.@c);	// before paying, so nothing can be claimed twice
+	callfunc "F_Bounty_GiveEXP", .@base, .@job;
+	if (.@zeny) Zeny += .@zeny;
+	specialeffect2 154;
+	mes .n$;
+	mes "Contract complete!";
+	mes "^0055FF+" + .@base + " Base EXP^000000";
+	mes "^0055FF+" + .@job + " Job EXP^000000";
+	if (.@zeny) mes "^0055FF+" + .@zeny + " Zeny^000000";
+	return;
+}
+
+function BB_Clear {
+	.@c = getarg(0);
+	setd "BB_Row_" + .@c, 0;
+	for (.@n = 1; .@n <= 3; .@n++) setd "BB_K" + .@c + "_" + .@n, 0;
+	if (.@c == 4) { BB_PurgeMap$ = ""; BB_PurgeDay = 0; }
+	return;
+}
+
+function BB_MapName {
+	.@i = inarray(.map_code$, getarg(0));
+	return .@i < 0 ? getarg(0) : .map_title$[.@i];
+}
+
+// Overlook floor number (1-4) of a table line.
+function BB_Floor {
+	.@f = 0;
+	for (.@i = 0; .@i <= getarg(0); .@i++)
+		if (.type[.@i] == 2) .@f++;
+	return .@f;
+}
+
+function BB_OwdAllDone {
+	return OWD_Floor1_Done && OWD_Floor2_Done && OWD_Floor3_Done && OWD_Floor4_Done;
+}
+
+// Index of the Nth (1-based) line of a type, -1 if none.
+function BB_RowOf {
+	.@c = getarg(0); .@left = getarg(1);
+	for (.@i = 0; .@i < .rows; .@i++) {
+		if (.type[.@i] != .@c) continue;
+		.@left--;
+		if (.@left == 0) return .@i;
+	}
+	return -1;
+}
+
+// One-time move of a contract taken at the old Gramps, Overlook,
+// Illusion Manager or Lucky John. The old NPCs must be switched off.
+function BB_Migrate {
+	if (Gramps_ActiveBracket && !BB_Row_1) {
+		BB_Row_1 = BB_RowOf(1, Gramps_ActiveBracket) + 1;
+		BB_K1_1 = Gramps_Kill1; BB_K1_2 = Gramps_Kill2;
+		Gramps_ActiveBracket = 0; Gramps_Kill1 = 0; Gramps_Kill2 = 0;
+	}
+	if (OWD_ActiveQuest && !BB_Row_2) {
+		BB_Row_2 = BB_RowOf(2, OWD_ActiveQuest) + 1;
+		BB_K2_1 = OWD_Kill1; BB_K2_2 = OWD_Kill2;
+		OWD_ActiveQuest = 0; OWD_Kill1 = 0; OWD_Kill2 = 0;
+	}
+	if (Illusion_ActiveQuest && !BB_Row_3) {
+		BB_Row_3 = BB_RowOf(3, Illusion_ActiveQuest) + 1;
+		BB_K3_1 = Illusion_Kill1; BB_K3_2 = Illusion_Kill2; BB_K3_3 = Illusion_Kill3;
+		Illusion_ActiveQuest = 0; Illusion_Kill1 = 0; Illusion_Kill2 = 0; Illusion_Kill3 = 0;
+	}
+	if (LuckyJohn_ActiveBracket && !BB_Row_4) {
+		BB_Row_4 = BB_RowOf(4, LuckyJohn_ActiveBracket) + 1;
+		BB_PurgeMap$ = LuckyJohn_TargetMap$;
+		BB_K4_1 = LuckyJohn_Kill1;
+		BB_PurgeDay = LuckyJohn_AcceptDay;
+		LuckyJohn_ActiveBracket = 0; LuckyJohn_TargetMap$ = ""; LuckyJohn_Kill1 = 0; LuckyJohn_AcceptDay = 0;
+	}
+	if (LuckyJohn_LastDone) {
+		BB_PurgeDone = LuckyJohn_LastDone;
+		LuckyJohn_LastDone = 0;
+	}
+	return;
+}
+
+//------------------------------------------------------------
+// Kill counting
+//------------------------------------------------------------
+
+// Types 1-3: fired by the spawn lines in bounty_mobs.txt.
+OnHuntKill:
+	.@k = killedrid;
+	.@m$ = strcharinfo(3);
+	for (.@c = 1; .@c <= 3; .@c++) {
+		.@r = getd("BB_Row_" + .@c) - 1;
+		if (.@r < 0) continue;	// separate check: || does not stop at the first true side
+		if (.map$[.@r] != .@m$) continue;
+		for (.@n = 0; .@n < 3; .@n++) {
+			if (.mob[.@r * 3 + .@n] != .@k) continue;
+			.@v$ = "BB_K" + .@c + "_" + (.@n + 1);
+			if (getd(.@v$) >= .cnt[.@r]) continue;
+			setd .@v$, getd(.@v$) + 1;
+			dispbottom "[Bounty] " + getmonsterinfo(.@k, MOB_NAME) + ": " + getd(.@v$) + "/" + .cnt[.@r];
+		}
+	}
+	end;
+
+// Type 4 only: any kill on the purge map. Every copy of this NPC
+// gets the event, so only the hidden original counts it.
+OnNPCKillEvent:
+	if (strnpcinfo(0) != "BountyBoard") end;
+	if (!BB_Row_4 || strcharinfo(3) != BB_PurgeMap$) end;
+	.@r = BB_Row_4 - 1;
+	if (BB_K4_1 >= .cnt[.@r]) end;
+	BB_K4_1++;
+	dispbottom "[Area Purge] " + BB_K4_1 + "/" + .cnt[.@r];
+	end;
+
+//------------------------------------------------------------
+// Settings and the contract table
+//------------------------------------------------------------
+OnInit:
+	.n$ = "[Bounty Hunter]";
+	.exp_unit  = 10000;
+	.zeny_unit = 50000;
+	setarray .type_name$[1], "Target Hunt (Lv 70+)", "Overlook Water Dungeon (Lv 30+)", "Illusion Dungeons (Lv 99+)", "Daily Area Purge (Lv 30+)";
+	.owd_min_lv = 30;	// Overlook: Base Level range to take a floor
+	.owd_max_lv = 85;
+	setarray .owd_cards, 4035, 4049, 4055, 4093, 4105, 4199;	// Overlook final reward: Hydra, Vadon, Marina, Obeaune, Marc, Merman cards
+
+	// Area names shown for purge maps; anything not here shows its map code.
+	setarray .map_code$,
+		"orcsdun01", "pay_dun01", "xmas_dun01", "xmas_dun02", "pay_dun03", "cmd_fild03",
+		"mosk_fild02", "gon_fild01", "bra_fild01", "mjolnir_04", "um_fild01", "ice_dun01",
+		"gl_church", "yuno_fild08", "ra_fild12", "mosk_dun02", "gef_fild06", "gef_fild08",
+		"ra_fild01", "beach_dun2", "gl_kaval01", "ma_fild02", "ecl_fild01", "dic_fild01",
+		"moc_fild22", "gl_cas02_", "ra_fild11", "ba_lost", "rockmi1", "verus02",
+		"gw_fild01", "gw_fild02", "ba_2whs01", "ba_2whs02", "gl_cas01_", "mag_dun03",
+		"sp_rudus3", "oz_dun01", "oz_dun02", "sp_rudus4", "amicitia1", "amicitia2";
+	setarray .map_title$,
+		"Orc Dungeon Level 1", "Payon Cave Level 2", "Toy Factory Warehouse", "Toy Factory Level 2", "Payon Cave Level 4", "Zenhai Marsh",
+		"Okrestnosti of Moscovia", "Gonryun Field", "Brasilis Field", "Mt. Mjolnir 04", "Luluka Forest", "Ice Cave Level 1",
+		"Glast Heim Abbey", "Elmes Plateau", "The Plain of Ida", "Temny Forest", "Geffen Field 06", "Geffen Field 08",
+		"Audhumla Grassland", "West Cave Karu", "Glast Heim Chivalry 1", "Dewata Forest", "Blooming Flower Land", "Kamidal Mountain Outskirts",
+		"Dimensional Gorge", "Glast Heim 2nd Hall", "The Plain of Ida", "Lost Farm Valley", "Rock Ridge Mine", "Verus Research Building - WISH",
+		"Gray Wolf Forest 1", "Gray Wolf Forest 2", "Tartaros Storage Upper Floor", "Tartaros Storage Lower Floor", "Glast Heim Abyss 1F", "Nogg Road Dungeon 3F",
+		"Rudus 3F (Waste Disposal Plant)", "Oz Labyrinth 1F", "Oz Labyrinth 2F", "Rudus 4F (Waste Disposal Plant)", "Abandoned Lab Amicitia 1F", "Abandoned Lab Amicitia 2F";
+
+	// Read bounty_contracts.txt into parallel arrays, one index per line.
+	.rows = 0;
+	while (1) {
+		.@line$ = callfunc("F_Bounty_Contract", .rows);
+		if (.@line$ == "") break;
+		deletearray .@f$;  explode(.@f$, .@line$, "|");
+		deletearray .@xy$; explode(.@xy$, .@f$[4], ",");
+		deletearray .@m$;  explode(.@m$, .@f$[5], ",");
+		.@i = .rows;
+		.type[.@i] = atoi(.@f$[0]);
+		.min[.@i]  = atoi(.@f$[1]);
+		.max[.@i]  = atoi(.@f$[2]);
+		.map$[.@i] = .@f$[3];
+		.wx[.@i]   = atoi(.@xy$[0]);
+		.wy[.@i]   = atoi(.@xy$[1]);
+		for (.@n = 0; .@n < 3; .@n++) .mob[.@i * 3 + .@n] = atoi(.@m$[.@n]);
+		.cnt[.@i]  = atoi(.@f$[6]);
+		.bexp[.@i] = atoi(.@f$[7]);
+		.jexp[.@i] = atoi(.@f$[8]);
+		.zeny[.@i] = atoi(.@f$[9]);
+		.rows++;
+	}
+	if (strnpcinfo(0) == "BountyBoard") debugmes "Bounty Hunter: " + .rows + " contracts loaded.";
+	end;
+}
+
+// Hands out EXP in 1-billion steps, so huge late-game rewards
+// stay inside what getexp accepts in one call.
+function	script	F_Bounty_GiveEXP	{
+	.@base = max(0, getarg(0));
+	.@job  = max(0, getarg(1));
+	.@chunk = 1000000000;
+	while (.@base > 0 || .@job > 0) {
+		.@b = min(.@base, .@chunk);
+		.@j = min(.@job, .@chunk);
+		getexp .@b, .@j;
+		.@base -= .@b;
+		.@job  -= .@j;
+	}
+	return;
+}
+
+// The Bounty Hunter -- stands where Gramps used to.
+prontera,147,172,5	duplicate(BountyBoard)	Bounty Hunter#bb	733

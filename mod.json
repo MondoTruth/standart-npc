@@ -1,21 +1,37 @@
 {
   "name": "standart-npc",
-  "version": "4.6.2",
+  "version": "4.7.0",
   "author": "MondoTruth, Lil Art, IceGlaive, Nokzin, Claude, and the Ragnarok Offline community",
-  "description": "⚠ Some NPCs may need the Cash Shop for full functionality. Core (always on): Warper, Job Master, Reset Girl, Episode Valkyrie and Stylist -- Prontera. Everything else is optional: checkboxes below, or the Settings… window on app 1.3.4 and newer.",
+  "description": "⚠ Some NPCs may need the Cash Shop for full functionality. Turning the mod on turns on every NPC; switch single ones off with Settings… (Warper, Job Master, Reset Girl, Stylist, Episode Valkyrie and all the others).",
   "settingsPage": "settings/index.html",
   "default": "off",
   "requires": {
-    "app": ">=1.3.2",
+    "app": ">=1.3.4",
     "era": "any"
   },
   "settings": [
+    {
+      "key": "npc_off",
+      "type": "string",
+      "default": "",
+      "max_length": 200,
+      "label": "Switched-off NPCs",
+      "description": "Filled in by the Settings… window: the always-loaded NPCs (Warper, Job Master, Reset Girl, Stylist, Episode Valkyrie) that are unticked there. Empty = all on."
+    },
     {
       "key": "enable_buffer",
       "type": "boolean",
       "default": true,
       "label": "Buffer",
-      "description": "Free instant heal + buffs on click. Every major town."
+      "description": "Free instant buffs + full heal on click. Every major town. Buffs are chosen in the Settings… window."
+    },
+    {
+      "key": "buffer_set",
+      "type": "string",
+      "default": "bless,agi,kyrie,magni",
+      "max_length": 200,
+      "label": "Buffer: buffs",
+      "description": "Filled in by the Settings… window (Buffer → Choose buffs): the buffs the Buffer casts, as a comma-separated list of codes."
     },
     {
       "key": "enable_tooldealer",
@@ -46,25 +62,11 @@
       "description": "Buy any item by ID. Prontera (144,174)."
     },
     {
-      "key": "enable_gramps",
+      "key": "enable_bounties",
       "type": "boolean",
       "default": true,
-      "label": "Gramps",
-      "description": "Hunting bounties, 7 level brackets from 70 to 231+. Prontera (147,172)."
-    },
-    {
-      "key": "enable_luckyjohn",
-      "type": "boolean",
-      "default": true,
-      "label": "Lucky John",
-      "description": "Area purge bounties, 9 level brackets from 30 to 231+. Prontera (138,172)."
-    },
-    {
-      "key": "enable_illusion",
-      "type": "boolean",
-      "default": true,
-      "label": "Illusion Manager",
-      "description": "Bounties across 9 Illusion dungeons. Prontera (147,166)."
+      "label": "Bounty Hunter",
+      "description": "Hunting contracts in one NPC, the Bounty Hunter, Prontera (147,172); one contract per board at a time. Target Hunt (was Gramps): pick a map, Lv 70 to 231+, EXP. Overlook Water Dungeon: Lv 30-85, 4 floors in order, each once; all 4 = a card of your choice. Illusion Dungeons: 9 dungeons from Lv 99, EXP. Daily Area Purge (was Lucky John): once a day, any 500 monsters in a random area, EXP and Zeny."
     },
     {
       "key": "enable_mvp",
@@ -72,13 +74,6 @@
       "default": true,
       "label": "Cheffenia MVP Dungeon",
       "description": "Timed MVP dungeon access, paid in Zeny or Cash Points. Prontera (140,180)."
-    },
-    {
-      "key": "enable_overlook",
-      "type": "boolean",
-      "default": true,
-      "label": "Overlook Fisherman",
-      "description": "4-floor dungeon ending in a card reward. Prontera (147,169)."
     },
     {
       "key": "enable_refiner",

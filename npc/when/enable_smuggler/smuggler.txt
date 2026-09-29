@@ -1,0 +1,97 @@
+//===== rAthena Script =======================================
+//= Smuggler
+//===== By: MondoTruth ======================================
+//===== Description: =========================================
+//= Free-form buy: type any item ID, get it at a markup. No
+//= restrictions (private server) -- means ANY item in item_db
+//= can be bought this way, event/GM/quest items included.
+//= Pricing depends on the server era, detected automatically
+//= with checkre(0):
+//=   Renewal     -- fixed-price types below cost a flat price
+//=                  (tuned for use together with another mod),
+//=                  everything else uses item_db price x5.
+//=   Pre-renewal -- no flat price at all; EVERY item uses the
+//=                  item_db price x2.
+//===== How to customize: ====================================
+//= - Which item types get the flat high price on Renewal:
+//=   .@fixed_types below, values from getiteminfo(id,
+//=   ITEMINFO_TYPE) -- currently 2 Usable, 4 Armor, 5 Weapon,
+//=   6 Card, 7 Pet Egg, 8 Pet Armor, 10 Ammo, 11 Delay-consume,
+//=   12 Shadow Gear, 18 Cash.
+//= - Flat price for those types: .@fixed_price below (10,000,000).
+//= - Everything else (on Renewal: types 0, 1, 3, 9 -- Healing,
+//=   Unknown, Etc/quest items, Unknown2 -- plus anything not in
+//=   the list above; on Pre-renewal: every item): .@fallback
+//=   (1000z) when item_db's own Buy price is 0, then the markup
+//=   on top -- .@markup_re (x5) or .@markup_pre (x2).
+//= - Quantity: asked after the price. Empty or 0 = 1 piece, so a
+//=   single item is still just OK. .@max_amount caps one order
+//=   (30000); an order is also capped so the total stays under
+//=   .@max_total (2,000,000,000z, the Zeny limit).
+//= - Location/sprite: the first line below.
+//============================================================
+
+prontera,144,174,4	script	Smuggler	494,{
+	mes "[Smuggler]";
+	mes "For the right price, I can get you anything... if I have a supplier for it.";
+	mes "Item ID?";
+	next;
+	input .@id;
+	.@price = getiteminfo(.@id,ITEMINFO_BUY);
+	if (.@price < 0) {
+		mes "[Smuggler]";
+		mes "Never heard of it. No deal.";
+		close;
+	}
+	.@type = getiteminfo(.@id,ITEMINFO_TYPE);
+	setarray .@fixed_types[0], 2,4,5,6,7,8,10,11,12,18;
+	.@is_renewal = checkre(0);
+	if (.@is_renewal && inarray(.@fixed_types, .@type) != -1) {
+		.@fixed_price = 10000000;
+		.@price = .@fixed_price;
+	} else {
+		if (.@price == 0) {
+			.@fallback = 1000;
+			.@price = .@fallback;
+		}
+		.@markup_re = 5;
+		.@markup_pre = 2;
+		.@price = .@price * (.@is_renewal ? .@markup_re : .@markup_pre);
+	}
+	// How many. Empty/0 counts as 1, so buying one piece stays a single OK.
+	.@max_amount = 30000;
+	.@max_total = 2000000000;
+	if (.@max_amount > .@max_total / .@price)
+		.@max_amount = .@max_total / .@price;
+	mes "[Smuggler]";
+	mes "^0000FF"+getitemname(.@id)+"^000000 -- "+.@price+"z apiece.";
+	mes "How many? Leave it empty for one.";
+	mes "(up to "+.@max_amount+")";
+	input .@amount;	// no next: the box opens right under the price
+	if (.@amount < 1) .@amount = 1;
+	if (.@amount > .@max_amount) {
+		mes "[Smuggler]";
+		mes "Whoa, I can't move that many at once. "+.@max_amount+" at most.";
+		close;
+	}
+	.@total = .@price * .@amount;
+	mes "[Smuggler]";
+	mes .@amount+" x ^0000FF"+getitemname(.@id)+"^000000 -- "+.@total+"z. Deal?";
+	next;
+	if (select("Deal:Never mind") == 2) close;
+	if (Zeny < .@total) {
+		mes "[Smuggler]";
+		mes "Come back with more money.";
+		close;
+	}
+	if (!checkweight(.@id,.@amount)) {
+		mes "[Smuggler]";
+		mes "You can't carry that many right now.";
+		close;
+	}
+	Zeny -= .@total;
+	getitem .@id,.@amount;
+	mes "[Smuggler]";
+	mes "Pleasure doing business.";
+	close;
+}

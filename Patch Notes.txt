@@ -119,3 +119,20 @@ Initial release.
   can be folded or switched on and off at once, and the server can be restarted right from the window.
 - On older app versions nothing changes: the same options stay as checkboxes in the Mods tab.
 - No NPC changes in this version.
+
+## 4.7.0
+- New NPC: Bounty Hunter, Prontera (147,172). Gramps, Overlook Fisherman, Illusion Manager and Lucky John are now one NPC with four kinds of work. Each keeps its own rules and maps:
+  - Target Hunt (was Gramps): pick a map from Lv 70 to 231+, hunt its 2 monsters, get EXP.
+  - Overlook Water Dungeon: Lv 30-85, 4 floors in order, each once; clear all 4 for one card of your choice.
+  - Illusion Dungeons: pick one of 9 dungeons from Lv 99, hunt its 3 monsters, get EXP.
+  - Daily Area Purge (was Lucky John): once a day, any 500 monsters in a random area for your level; EXP and Zeny.
+  You can hold one contract of each kind at the same time. Contracts already taken at the old NPCs carry over, and cleared Overlook floors stay cleared. All contracts, maps and rewards now live in one table, npc/when/enable_bounties/bounty_contracts.txt (it replaces config_shared_rewards.txt).
+- Overlook Water Dungeon: Floor 4 now hunts Marc and Merman, who live on that floor (it was Clock and Anolian by mistake). The final card reward now really gives the card you pick -- before, the item IDs pointed at other cards (Rocker, Eggyra, Goblin, and so on).
+- Buffer: choose which buffs he casts in the settings window (Buffer -> Choose buffs), grouped by class, each with a short description. New buffs: Gloria, Angelus, Impositio Manus, Suffragium, Providence, Weapon Perfection, Over Thrust, Kaahi, Kaite, and 3rd-class buffs -- Expiatio, Sacrament, Renovatio, both Gentle Touches, and the four Soul Reaper souls. On by default: Blessing, Increase AGI, Kyrie Eleison, Magnificat. The full heal always comes last.
+- Buffer in Izlude moved to (122,149).
+- Smuggler: buy several pieces at once. After the price he asks how many -- leave it empty for one piece, so a single purchase takes no extra clicks.
+- Every NPC can now be switched off, including Warper, Job Master, Reset Girl, Stylist and Episode Valkyrie. Turning the mod on still turns everything on; untick single NPCs in the settings window.
+- Settings window: new groups -- Travel and services, Character, Shops, Hunting quests, Dungeons, Equipment, Training.
+- Cheffenia MVP Dungeon: 16 MVPs whose IDs this server does not have (they only caused errors on server start) were replaced with existing ones: Ancient Tao Gunka, Ancient Wootan Defender, Awakened Ktullanux, R48-85-Bestia, Rigid Muspellskoll, Corrupted Spider Queen, Corrupted Dark Lord, Chaos Baphomet, Jewel Ungoliant, Boss Meow, Deep Sea Kraken, Deep Sea Witch, R001-Bestia, Death Witch, Burning Fang, Silent Maya.
+- Now needs Ragnarok Offline 1.3.4 or newer.
+- Thanks to Lil Art (Gramps, Overlook, Illusion Manager, MVP Dungeon) and IceGlaive (Lucky John, shared rewards) -- the Bounty Hunter is built on their work.

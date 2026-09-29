@@ -13,6 +13,17 @@
   To add an NPC: give it a setting in mod.json as usual, then add its key to
   one of the groups below. A key that is in no group still appears, under
   "Other", so forgetting this step never hides an option.
+
+  Warper, Job Master, Reset Girl, Stylist and Episode Valkyrie are always
+  loaded (npc/, not npc/when/) because a mod may declare only 20 settings.
+  Here they look like any other NPC; their ticks are stored together in the
+  one string setting "npc_off" (names of the unticked ones), which the NPCs
+  read at start-up through F_SNPC_Off (npc/custom/snpc_settings.txt).
+
+  The Buffer's buffs: "Choose buffs" next to the Buffer opens a second page
+  (a settings page may not open windows). It writes the "buffer_set" string:
+  the codes of the ticked buffs, which npc/when/enable_buffer/buffer.txt
+  checks one by one. A new buff needs a line in BUFFS here and a block there.
 -->
 <style>
   :root { color-scheme: light dark; --dim: #8a8a8a; --line: #8884; --accent: #4a8fe7; --warn: #d08a2a; }
@@ -37,6 +48,11 @@
   footer button { padding: 6px 14px; }
   #status { color: var(--dim); font-size: 12px; margin-left: 6px; }
   #status.dirty { color: var(--warn); }
+  label.row button { margin-left: 8px; font-size: 12px; padding: 1px 8px; }
+  #buffs[hidden], #groups[hidden], .tools[hidden] { display: none; }
+  #buffs h2 { font-size: 16px; margin: 0 0 4px; }
+  #buffs > p { color: var(--dim); font-size: 12px; margin: 0 0 12px; }
+  .excl { color: var(--warn); }
 </style>
 </head>
 <body>
@@ -49,6 +65,15 @@
   <button id="collapse">Collapse all</button>
 </div>
 <main id="groups"></main>
+<main id="buffs" hidden>
+  <div class="tools">
+    <button id="buffs-back">← Back</button>
+    <button id="buffs-default">Default set</button>
+  </div>
+  <h2>Buffer — choose buffs</h2>
+  <p>Everything ticked is cast on click; the full heal always comes last. Buffs marked ⚠ cancel each other in the game, so only one of them can be on.</p>
+  <div id="buff-groups"></div>
+</main>
 <footer>
   <button id="save">Save</button>
   <button id="apply">Save and restart server</button>
@@ -57,24 +82,104 @@
 
 <script>
 // Groups, in the order they are shown. Keys are the setting keys in mod.json.
+// "npc:<name>" keys are the always-loaded NPCs from ALWAYS_LOADED below.
 const GROUPS = [
-  { title: 'Hunting quests',     keys: ['enable_gramps', 'enable_illusion', 'enable_luckyjohn'] },
-  { title: 'Dungeons',           keys: ['enable_mvp', 'enable_overlook'] },
-  { title: 'Shops and services', keys: ['enable_buffer', 'enable_kafra', 'enable_tooldealer', 'enable_smuggler', 'enable_cardexchanger', 'enable_weightmax'] },
-  { title: 'Equipment',          keys: ['enable_refiner', 'enable_enchanter', 'enable_nokzin'] },
-  { title: 'Training',           keys: ['enable_dummies'] },
+  { title: 'Travel and services', keys: ['npc:warper', 'enable_buffer', 'enable_kafra', 'enable_weightmax'] },
+  { title: 'Character',           keys: ['npc:jobmaster', 'npc:reset', 'npc:stylist', 'npc:epvalk'] },
+  { title: 'Shops',               keys: ['enable_tooldealer', 'enable_smuggler', 'enable_cardexchanger'] },
+  { title: 'Hunting quests',      keys: ['enable_bounties'] },
+  { title: 'Dungeons',            keys: ['enable_mvp'] },
+  { title: 'Equipment',           keys: ['enable_refiner', 'enable_enchanter', 'enable_nokzin'] },
+  { title: 'Training',            keys: ['enable_dummies'] },
 ];
 
+// NPCs without a setting of their own. The name after "npc:" is what goes
+// into "npc_off" and what the NPC passes to F_SNPC_Off.
+const OFF_KEY = 'npc_off';
+const ALWAYS_LOADED = {
+  'npc:warper':    { label: 'Warper',            description: 'Teleports to towns, fields and dungeons. Every major town, Prontera (160,192).' },
+  'npc:jobmaster': { label: 'Job Master',        description: 'Job changes up to 4th class, with job equipment. Prontera (157,195).' },
+  'npc:reset':     { label: 'Reset Girl',        description: 'Resets skills, stats, or both. Prontera (154,195).' },
+  'npc:stylist':   { label: 'Stylist',           description: 'Hair style, hair color and cloth color. Prontera (169,180).' },
+  'npc:epvalk':    { label: 'Episode Valkyrie',  description: 'Redeems Episode Clear Tickets from the Cash Shop. Prontera (128,193).' },
+};
+
+// The Buffer's buffs, in casting order. code = what buffer.txt checks.
+// excl: buffs with the same excl cancel each other; ticking one unticks the rest.
+const BUFF_KEY = 'buffer_set';
+const BUFF_DEFAULT = ['bless', 'agi', 'kyrie', 'magni'];
+const BUFFS = [
+  { job: 'Acolyte / Priest', list: [
+    { code: 'bless',   label: 'Blessing',        text: 'Raises STR, DEX and INT.' },
+    { code: 'agi',     label: 'Increase AGI',    text: 'Raises AGI and movement speed.' },
+    { code: 'kyrie',   label: 'Kyrie Eleison',   text: 'A barrier that blocks several hits.' },
+    { code: 'magni',   label: 'Magnificat',      text: 'Doubles natural SP recovery.' },
+    { code: 'gloria',  label: 'Gloria',          text: '+30 LUK.' },
+    { code: 'angelus', label: 'Angelus',         text: 'Raises VIT-based DEF.' },
+    { code: 'impo',    label: 'Impositio Manus', text: '+25 weapon ATK (and MATK in Renewal).' },
+    { code: 'suffra',  label: 'Suffragium',      text: 'Shorter cast time for your next spell.' },
+    { code: 'assu',    label: 'Assumptio',       text: 'Greatly reduces damage taken.', excl: 'assu' },
+  ]},
+  { job: 'Crusader', list: [
+    { code: 'provi',   label: 'Providence',      text: '+25% resistance to Holy damage and to Demon monsters.' },
+  ]},
+  { job: 'Blacksmith', list: [
+    { code: 'wp',      label: 'Weapon Perfection', text: 'Full weapon damage against every monster size.' },
+    { code: 'ot',      label: 'Over Thrust',       text: 'Raises weapon damage.' },
+  ]},
+  { job: 'Bard', list: [
+    { code: 'bragi',   label: 'Poem of Bragi',   text: 'Shorter cast time and skill delay.' },
+  ]},
+  { job: 'Soul Linker', list: [
+    { code: 'link',    label: 'Soul Link',       text: 'The spirit of your own class (2nd classes, and 1st classes after rebirth).', excl: 'soul' },
+    { code: 'kaupe',   label: 'Kaupe',           text: 'Dodges the next few hits. 6 minutes.' },
+    { code: 'kaizel',  label: 'Kaizel',          text: 'Revive on the spot with part of your HP after dying. 6 minutes.' },
+    { code: 'kaahi',   label: 'Kaahi',           text: 'Heals you on every hit taken, for a little SP.' },
+    { code: 'kaite',   label: 'Kaite',           text: 'Reflects spells back at the caster.', excl: 'assu' },
+  ]},
+  { job: 'Arch Bishop', list: [
+    { code: 'expia',   label: 'Expiatio',        text: 'Your attacks ignore 25% of the target\'s DEF.' },
+    { code: 'secra',   label: 'Sacrament',       text: 'Shorter fixed cast time.' },
+    { code: 'renov',   label: 'Renovatio',       text: 'Heals 5% of max HP every 5 seconds.' },
+  ]},
+  { job: 'Sura', list: [
+    { code: 'gtrev',   label: 'Gentle Touch – Revitalize', text: '+10% max HP and faster HP recovery.', excl: 'gt' },
+    { code: 'gtchg',   label: 'Gentle Touch – Change',     text: '+40 ATK and faster attacks (more with high AGI).', excl: 'gt' },
+  ]},
+  { job: 'Soul Reaper', list: [
+    { code: 'sshadow', label: 'Shadow Soul',     text: 'Faster attacks and +20 CRIT.', excl: 'soul' },
+    { code: 'sfalcon', label: 'Falcon Soul',     text: '+50 weapon ATK and more HIT.', excl: 'soul' },
+    { code: 'sfairy',  label: 'Fairy Soul',      text: '+50 MATK and shorter cast time.', excl: 'soul' },
+    { code: 'sgolem',  label: 'Golem Soul',      text: '+300 DEF and +40 MDEF.', excl: 'soul' },
+  ]},
+];
+const EXCL_NOTE = { assu: 'one of Assumptio / Kaite', gt: 'one Gentle Touch', soul: 'one of Soul Link / the Soul Reaper souls' };
+
 const $ = id => document.getElementById(id);
-const inputs = {};   // key -> checkbox
-let saved = {};      // key -> value as last saved
+const inputs = {};   // key -> checkbox ("npc:*" keys included)
+let saved = {};      // what values() gave when last saved
+let offExtra = [];   // names in npc_off this page does not know; kept as they are
+let hasOffKey = false;
+const buffBoxes = {}; // buff code -> checkbox
+let buffExtra = [];  // codes in buffer_set this page does not know; kept as they are
+let hasBuffKey = false;
 
 function status(text, dirty = false) {
   $('status').textContent = text;
   $('status').className = dirty ? 'dirty' : '';
 }
+// What gets saved: the real boolean settings as they are, and the unticked
+// always-loaded NPCs folded into the one "npc_off" string.
 function values() {
-  return Object.fromEntries(Object.entries(inputs).map(([k, box]) => [k, box.checked]));
+  const out = {};
+  const off = [];
+  for (const [k, box] of Object.entries(inputs)) {
+    if (k.startsWith('npc:')) { if (!box.checked) off.push(k.slice(4)); }
+    else out[k] = box.checked;
+  }
+  if (hasOffKey) out[OFF_KEY] = [...off, ...offExtra].join(',');
+  if (hasBuffKey) out[BUFF_KEY] = [...Object.keys(buffBoxes).filter(c => buffBoxes[c].checked), ...buffExtra].join(',');
+  return out;
 }
 function markDirty() {
   const changed = Object.entries(values()).some(([k, v]) => saved[k] !== v);
@@ -118,6 +223,12 @@ function drawGroup(title, settings) {
     }
     box.onchange = () => { syncGroup(group); markDirty(); };
     label.append(box, text);
+    if (s.key === 'enable_buffer' && hasBuffKey) {
+      const open = document.createElement('button');
+      open.textContent = 'Choose buffs…';
+      open.onclick = e => { e.preventDefault(); showBuffs(true); };
+      text.append(open);
+    }
     details.append(label);
     inputs[s.key] = box;
     group.boxes.push(box);
@@ -139,6 +250,64 @@ function drawGroup(title, settings) {
   syncGroup(group);
   $('groups').append(details);
 }
+
+// ---- Buffer page --------------------------------------------------------
+function showBuffs(on) {
+  $('buffs').hidden = !on;
+  $('groups').hidden = on;
+  document.querySelector('body > .tools').hidden = on;
+  window.scrollTo(0, 0);
+}
+function buffCount() {
+  const on = Object.values(buffBoxes).filter(b => b.checked).length;
+  const btn = document.querySelector('label.row button');
+  if (btn) btn.textContent = `Choose buffs… (${on})`;
+}
+function drawBuffs(chosen) {
+  for (const g of BUFFS) {
+    const details = document.createElement('details');
+    details.open = true;
+    const summary = document.createElement('summary');
+    summary.textContent = g.job;
+    details.append(summary);
+    for (const b of g.list) {
+      const label = document.createElement('label');
+      label.className = 'row';
+      const box = document.createElement('input');
+      box.type = 'checkbox';
+      box.checked = chosen.includes(b.code);
+      const text = document.createElement('span');
+      text.textContent = b.label;
+      const hint = document.createElement('small');
+      hint.textContent = b.text;
+      if (b.excl) {
+        const w = document.createElement('span');
+        w.className = 'excl';
+        w.textContent = ' ⚠ ' + EXCL_NOTE[b.excl];
+        hint.append(w);
+      }
+      text.append(hint);
+      box.onchange = () => {
+        if (box.checked && b.excl)
+          for (const g2 of BUFFS) for (const o of g2.list)
+            if (o.excl === b.excl && o.code !== b.code) buffBoxes[o.code].checked = false;
+        buffCount();
+        markDirty();
+      };
+      label.append(box, text);
+      details.append(label);
+      buffBoxes[b.code] = box;
+    }
+    $('buff-groups').append(details);
+  }
+  buffCount();
+}
+$('buffs-back').onclick = () => showBuffs(false);
+$('buffs-default').onclick = () => {
+  for (const [code, box] of Object.entries(buffBoxes)) box.checked = BUFF_DEFAULT.includes(code);
+  buffCount();
+  markDirty();
+};
 
 async function run(button, work) {
   for (const b of document.querySelectorAll('footer button')) b.disabled = true;
@@ -164,12 +333,29 @@ async function save() {
       $('about').append(off);
     }
     const byKey = new Map(mod.settings.filter(s => s.type === 'boolean').map(s => [s.key, s]));
+    const offSetting = mod.settings.find(s => s.key === OFF_KEY);
+    if (offSetting) {
+      hasOffKey = true;
+      const off = String(offSetting.value || '').split(',').map(n => n.trim()).filter(Boolean);
+      offExtra = off.filter(n => !ALWAYS_LOADED['npc:' + n]);
+      for (const [k, info] of Object.entries(ALWAYS_LOADED))
+        byKey.set(k, { key: k, ...info, value: !off.includes(k.slice(4)) });
+    }
+    const buffSetting = mod.settings.find(s => s.key === BUFF_KEY);
+    if (buffSetting) {
+      hasBuffKey = true;
+      const known = BUFFS.flatMap(g => g.list.map(b => b.code));
+      const chosen = String(buffSetting.value ?? '').split(',').map(c => c.trim()).filter(Boolean);
+      buffExtra = chosen.filter(c => !known.includes(c));
+      drawBuffs(chosen);
+    }
     for (const g of GROUPS) {
       const list = g.keys.filter(k => byKey.has(k)).map(k => byKey.get(k));
       g.keys.forEach(k => byKey.delete(k));
       if (list.length) drawGroup(g.title, list);
     }
     if (byKey.size) drawGroup('Other', [...byKey.values()]);
+    if (hasBuffKey) buffCount();
     saved = values();
   } catch (e) {
     status('Could not read the settings: ' + (e && e.message || e), true);

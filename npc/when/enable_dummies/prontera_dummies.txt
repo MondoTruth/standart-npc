@@ -1,0 +1,35 @@
+//===== rAthena Script =======================================
+//= Prontera Training Dummies (Medium & Large)
+//===== By: Lil Art ===========================================
+//===== Description: =========================================
+//= Stationary target dummies for testing damage output.
+//===== Status: ================================================
+//= First release -- expect this to get refined further.
+//============================================================
+
+-	script	PrtDummyManager	-1,{
+OnInit:
+    killmonster "prontera", "PrtDummyManager::OnDummyInfo2";
+    killmonster "prontera", "PrtDummyManager::OnDummyInfo3";
+
+    // Medium Dummy & Large Dummy
+    monster "prontera", 153, 163, "Medium Dummy", 2411, 1, "PrtDummyManager::OnDummyInfo2";
+    monster "prontera", 158, 163, "Large Dummy", 2411, 1, "PrtDummyManager::OnDummyInfo3";
+    end;
+
+OnDummyInfo2:
+    addtimer 2000, "PrtDummyManager::OnRespawn2";
+    end;
+
+OnDummyInfo3:
+    addtimer 2000, "PrtDummyManager::OnRespawn3";
+    end;
+
+OnRespawn2:
+    monster "prontera", 153, 163, "Medium Dummy", 2411, 1, "PrtDummyManager::OnDummyInfo2";
+    end;
+
+OnRespawn3:
+    monster "prontera", 158, 163, "Large Dummy", 2411, 1, "PrtDummyManager::OnDummyInfo3";
+    end;
+}
