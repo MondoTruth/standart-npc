@@ -1,96 +1,154 @@
-# standart-npc
+<p align="center">
+  <img src="assets/banner.svg" alt="standart-npc — All-in-one NPC pack for Ragnarok Offline" width="100%">
+</p>
 
-All-in-one NPC pack for [Ragnarok Offline](https://github.com/Flux159/ragnarokoffline.app).
-One mod instead of many: warper, buffer, job changer, hunting contracts, shops and services.
+<p align="center">
+  <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/MondoTruth/standart-npc?style=for-the-badge&label=latest&color=d9a233" alt="Latest release"></a>
+  <a href="../../releases"><img src="https://img.shields.io/github/downloads/MondoTruth/standart-npc/total?style=for-the-badge&color=5da9e0" alt="Downloads"></a>
+  <a href="https://github.com/Flux159/ragnarokoffline.app"><img src="https://img.shields.io/badge/Ragnarok%20Offline-%E2%89%A5%201.3.4-c8503f?style=for-the-badge" alt="Requires Ragnarok Offline 1.3.4 or newer"></a>
+</p>
 
-**Current version: 4.7.0** · needs Ragnarok Offline **1.3.4 or newer**
+<p align="center">
+  <b>Warper, Buffer, Job Master and a whole town of custom NPCs — one mod, one checkbox.</b>
+</p>
 
-## Install
+<p align="center">
+  <a href="#-install">📥 Install</a> &nbsp;•&nbsp;
+  <a href="#-whats-included">🗺️ What's included</a> &nbsp;•&nbsp;
+  <a href="#-credits">🏆 Credits</a> &nbsp;•&nbsp;
+  <a href="#-contributing">🤝 Contributing</a>
+</p>
 
-1. Download `standart-npc-4_7_0.zip` from the latest release.
-2. In Ragnarok Offline open **Settings → Mods** and install the zip.
-3. Tick **standart-npc** to turn it on. This turns on every NPC in the pack.
-4. Optional: press **Settings…** next to the mod to switch single NPCs off or choose the Buffer's buffs.
-5. Restart the server (the settings window has a button for it).
+---
 
-> ⚠ Some NPCs are built around items from the Cash Shop (Episode Clear Tickets, refine certificates, Gym Pass and so on).
+## 📥 Install
 
-## Settings window
+1. Download the [latest release](../../releases/latest) (or clone this repo).
+2. Drop the folder into your Ragnarok Offline mods directory.
+3. **Settings → Mods** → tick **standart-npc** → **Apply**. This turns on every NPC in the pack.
 
-**Settings → Mods → standart-npc → Settings…**
+> [!IMPORTANT]
+> Requires app version **1.3.4 or newer** — the settings window and the per-NPC switches depend on it.
 
-- Every NPC has its own checkbox, grouped: Travel and services, Character, Shops, Hunting quests, Dungeons, Equipment, Training.
-- A group's checkbox switches the whole group; groups can be folded.
-- **Buffer → Choose buffs…** opens the list of buffs by class, each with a short description.
-- **Save** keeps the changes for the next server start, **Save and restart server** applies them right away.
+---
 
-## NPCs
+## Settings
 
-| NPC | Where | What it does | Author |
-|---|---|---|---|
-| Warper | every major town, Prontera (160,192) | Teleports to towns, fields and dungeons | MondoTruth |
-| Buffer | every major town, Prontera (163,192) | Free buffs of your choice + full heal | MondoTruth, Claude |
-| Job Master | Prontera (157,195) | Job changes up to 4th class | MondoTruth |
-| Reset Girl | Prontera (154,195) | Resets skills, stats, or both | MondoTruth |
-| Stylist | Prontera (169,180) | Hair style, hair color, cloth color | Euphy (base script), Claude |
-| Episode Valkyrie | Prontera (128,193) | Redeems Episode Clear Tickets from the Cash Shop | Lil Art |
-| Kafra Employee | Prontera (160,187) | Save point, storage, free identify | MondoTruth |
-| Weight Maxxer | Prontera (164,166) | Gym Pass → +1 permanent carry capacity, up to 10 times | Lil Art |
-| Tool Dealer | Prontera (143,178) | Fixed-price shop | MondoTruth, Lil Art |
-| Smuggler | Prontera (144,174) | Any item by ID, any amount | MondoTruth |
-| Card Exchanger | Prontera (151,187) | Cards → card albums, card removal | MondoTruth |
-| **Bounty Hunter** | Prontera (147,172) | Hunting contracts, see below | MondoTruth, Claude — on the work of Lil Art and IceGlaive |
-| Cheffenia Gatekeeper | Prontera (140,180) | Timed MVP dungeon, Zeny or Cash Points | Lil Art |
-| Safe Refiner | Prontera (164,172) | +7 to +15 with certificates | Lil Art |
-| Costume Stone Enchanter | Prontera (164,169) | Puts an Enchant/Class Stone on a costume slot | Lil Art |
-| Master Nokzin | Prontera (167,178) | Elemental weapon endow for an hour | Nokzin |
-| Training Dummies | Prontera (153–158,163) | Target dummies for testing damage | Lil Art |
+Open **Settings → Mods → standart-npc → Settings…**
 
-### Bounty Hunter
+- Every NPC has its own checkbox, grouped the same way as the list below. A group's checkbox switches the whole group.
+- **Buffer → Choose buffs…** picks which buffs the Buffer casts, grouped by class, each with a short description.
+- **Save** keeps your choice for the next server start, **Save and restart server** applies it right away.
 
-One NPC with four kinds of work. You can hold one contract of each kind at the same time.
+---
 
-| Work | Levels | How it works | Reward |
-|---|---|---|---|
-| Target Hunt | 70 – 231+ | Pick a map, hunt its 2 monsters × 400 | EXP |
-| Overlook Water Dungeon | 30 – 85 | 4 floors in order, each once | EXP per floor; all 4 = one card of your choice |
-| Illusion Dungeons | 99+ | Pick one of 9 dungeons, hunt its 3 monsters × 150 | EXP |
-| Daily Area Purge | 30+ | Once a day: any 500 monsters in a random area for your level | EXP and Zeny |
+## 🗺️ What's included
 
-Contracts, maps and rewards are one table: `npc/when/enable_bounties/bounty_contracts.txt`.
-Adding a map is one line there plus its monster spawns in `bounty_mobs.txt`.
+Everything is on by default. Any NPC can be switched off in the settings window.
 
-### Buffer
+#### 🧭 Travel & services
 
-Choose the buffs in the settings window. On by default: Blessing, Increase AGI, Kyrie Eleison, Magnificat.
-Also available: Gloria, Angelus, Impositio Manus, Suffragium, Assumptio, Providence, Weapon Perfection, Over Thrust,
-Poem of Bragi, Soul Link (for your class), Kaupe, Kaizel, Kaahi, Kaite, Expiatio, Sacrament, Renovatio,
-Gentle Touch – Revitalize / Change, and the Soul Reaper souls (Shadow, Falcon, Fairy, Golem).
-Buffs that cancel each other in the game can't be ticked together. The full heal always comes last.
+| | NPC | What it does | Location |
+|:-:|---|---|---|
+| 🌀 | **Warper** | Menu-based travel — towns, fields, dungeons, guild castles, instances. Duplicated in every major town. | Every major town |
+| ✨ | **Buffer** | Free instant buffs + full heal on click, no dialog window. You choose the buffs (see below). Duplicated in every major town. | Every major town |
+| 📦 | **Kafra Employee** | Save point, storage, and free identify-all. | Prontera (160, 187) |
+| 🏋️ | **Weight Maxxer** | Trades a Gym Pass for +1 permanent carry capacity, up to 10 times. | Prontera (164, 166) |
 
-## For modders
+#### 🎓 Character
 
-```
-standart-npc/
-  mod.json                 name, version, settings
-  Patch Notes.txt          full history
-  settings/index.html      the settings window
-  db/prontera_dummies.yml  training dummy monsters
-  npc/                     always loaded: Warper, Job Master, Reset Girl, Stylist, Episode Valkyrie
-    custom/snpc_settings.txt   on/off switch for the always-loaded NPCs
-  npc/when/<setting>/      loaded only while that setting is on
-```
+| | NPC | What it does | Location |
+|:-:|---|---|---|
+| 🎓 | **Job Master** | Full job changer up to 4th class, including job-change equipment (Wolf Flute for Ranger, etc.). | Prontera (157, 195) |
+| 🔄 | **Reset Girl** | Resets skills, stats, or both, for Zeny. | Prontera (154, 195) |
+| 💇 | **Stylist** | Hair style, hair color, cloth color changer. | Prontera (169, 180) |
+| 🛡️ | **Episode Valkyrie** | Redeems Episode Clear Tickets (Episodes 13-20), bought via the Cash Shop, for EXP and quest completion. | Prontera (128, 193) |
 
-Every script starts with a **How to customize** block that says what to change and where.
+#### 🛒 Shops & cards
 
-## Credits
+| | NPC | What it does | Location |
+|:-:|---|---|---|
+| 🧪 | **Tool Dealer** | Standard fixed-price shop — potions, wings, Blacksmith Blessing, and a few other staples. | Prontera (143, 178) |
+| 🕵️ | **Smuggler** | Buy any item by ID, as many as you want at once. Detects the server era automatically: on Renewal the price depends on item type, on Pre-renewal every item costs its normal price x2. | Prontera (144, 174) |
+| 🃏 | **Card Exchanger** | 10 cards → Old Card Album, 30 cards → Mystical Card Album. Also extracts a card out of equipped gear. | Prontera (151, 187) |
 
-- **MondoTruth** — owner and maintainer
-- **Lil Art** — Gramps, Overlook, Illusion Manager, Cheffenia MVP Dungeon, Safe Refiner, Costume Stone Enchanter, Weight Maxxer, Episode Valkyrie, Training Dummies
-- **IceGlaive** — Lucky John, shared rewards and EXP balance
-- **Nokzin** — Master Nokzin
-- **Euphy** — base Stylist script
-- **Claude** (Anthropic) — scripting help
-- the Ragnarok Offline community
+#### ⚔️ Hunting & dungeons
 
-Full history: `Patch Notes.txt` inside the mod.
+| | NPC | What it does | Location |
+|:-:|---|---|---|
+| 🏹 | **Bounty Hunter** | All hunting contracts in one NPC — four kinds of work, one contract of each at a time (see below). | Prontera (147, 172) |
+| 🐉 | **Cheffenia Gatekeeper** | Timed access to the Cheffenia MVP Dungeon, paid in Zeny or Cash Points. | Prontera (140, 180) |
+
+#### 🔨 Gear upgrades
+
+| | NPC | What it does | Location |
+|:-:|---|---|---|
+| ⚒️ | **Safe Refiner** | Refine gear to +7 through +15 using certificates. | Prontera (164, 172) |
+| 💎 | **Costume Stone Enchanter** | Attach an Enchant/Class Stone (or similar item) to a costume slot, for free. | Prontera (164, 169) |
+| 🔥 | **Master Nokzin** | Endows your weapon with an element for an hour, works on carded weapons too. Can also remove an endow for free. Portable Elemental Converter scrolls are sold in the Cash Shop instead. | Prontera (167, 178) |
+
+#### 🥊 Training
+
+| | NPC | What it does | Location |
+|:-:|---|---|---|
+| 🎯 | **Training Dummies** | Stationary target dummies (Medium & Large) for testing damage output. | Prontera, near the fountain |
+
+> [!NOTE]
+> Some NPCs (Master Nokzin, Episode Valkyrie) may need the Cash Shop for full functionality.
+
+### 🏹 Bounty Hunter
+
+Gramps, Overlook Fisherman, Illusion Manager and Lucky John in one NPC. Each kind of work keeps its own rules and maps.
+
+| | Work | Levels | How it works | Reward |
+|:-:|---|---|---|---|
+| 👴 | **Target Hunt** | 70 – 231+ | Pick a map, hunt its 2 monsters × 400. | EXP |
+| 🎣 | **Overlook Water Dungeon** | 30 – 85 | 4 floors in order, each once. | EXP per floor; all 4 = a card of your choice |
+| 🌫️ | **Illusion Dungeons** | 99+ | Pick one of 9 Illusion dungeons, hunt its 3 monsters × 150. | EXP |
+| 🍀 | **Daily Area Purge** | 30+ | Once a day: any 500 monsters in a random area for your level. | EXP and Zeny |
+
+All contracts, maps and rewards are one table: [`npc/when/enable_bounties/bounty_contracts.txt`](./npc/when/enable_bounties/bounty_contracts.txt).
+
+### ✨ Buffer
+
+On by default: **Blessing, Increase AGI, Kyrie Eleison, Magnificat**. The full heal always comes last.
+
+Can be switched on in the settings window:
+
+| Class | Buffs |
+|---|---|
+| Acolyte / Priest | Gloria, Angelus, Impositio Manus, Suffragium, Assumptio |
+| Crusader | Providence |
+| Blacksmith | Weapon Perfection, Over Thrust |
+| Bard | Poem of Bragi |
+| Soul Linker | Soul Link (matched to your class), Kaupe, Kaizel, Kaahi, Kaite |
+| Arch Bishop | Expiatio, Sacrament, Renovatio |
+| Sura | Gentle Touch – Revitalize, Gentle Touch – Change |
+| Soul Reaper | Shadow Soul, Falcon Soul, Fairy Soul, Golem Soul |
+
+Buffs that cancel each other in the game can't be ticked together.
+
+📜 Full version history: [`Patch Notes.txt`](./Patch%20Notes.txt)
+
+---
+
+## 🏆 Credits
+
+- 👑 **MondoTruth** — pack owner/maintainer, and the `npc/when/<setting>` and mod settings window support in the app itself (the PRs that make the checkboxes above work).
+- 🎨 **Lil Art** — Safe Refiner, Costume Stone Enchanter, Gramps, Overlook Fisherman, the 231+ Gramps bracket, Cheffenia MVP Dungeon, Illusion Dungeon bounties, Weight Maxxer, Training Dummies, Episode Valkyrie, and the Tool Dealer's Blacksmith Blessing.
+- ❄️ **IceGlaive** — Lucky John, Gramps per-character progress tracking, live kill notifications, the original 3 extended Gramps level brackets (with monster IDs verified live via `@mobinfo`), the bounty penalty/abandon system, the Gramps EXP rebalance, the reduced over-level penalty, the 231+ bracket monster fix, and the shared bounty rewards file with the EXP rebalance for Gramps, Lucky John, and Illusion Manager.
+- 🔥 **Nokzin** — Master Nokzin (elemental weapon endows).
+- 🌍 **The Ragnarok Offline community** — bug reports and testing.
+- 🤖 **Claude** (Anthropic) — AI assistant used throughout development: writing and reviewing NPC scripts, diagnosing bugs, and packaging releases.
+
+> The 🏹 Bounty Hunter is built on the Gramps, Overlook, Illusion Manager and Lucky John work of Lil Art and IceGlaive.
+
+---
+
+## 🤝 Contributing
+
+Found a bug or want to add something? [Open an issue](../../issues) or a [pull request](../../pulls) — bounty script tweaks, new NPCs, and bug fixes are all welcome.
+
+## 📄 License
+
+No license set yet.
