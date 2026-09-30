@@ -1,0 +1,101 @@
+//===== rAthena Script =======================================
+//= Falcon Breeder
+//===== By: MondoTruth, Claude ================================
+//===== Description: =========================================
+//= Sells the companion items of the Archer line:
+//=   - Falcon (setfalcon): Hunter, Sniper, Baby Hunter.
+//=     Needs Falcon Mastery, no Falcon yet and no Warg.
+//=   - Wolf Flute (item 6124, summons the Warg):
+//=     Ranger, Ranger (trans), Baby Ranger, Windhawk.
+//=   - Hawk Flute (item 1000311, AegisName Hawk_Pipe): Windhawk.
+//=     Renewal item only; on servers without it the menu entry
+//=     says so and sells nothing.
+//= Every entry is shown to everyone; a wrong class gets a refusal.
+//= Always loaded; can be switched off in the Settings... window
+//= (name "falcon" in npc_off).
+//===== How to customize: ====================================
+//= - Prices: .falcon_price / .wolf_price / .hawk_price in OnInit.
+//= - Who may buy what: the Class checks in each menu case.
+//= - Location/sprite: the first line (map,x,y,dir / sprite).
+//============================================================
+
+prontera,128,211,5	script	Falcon Breeder#snpc	4_F_RANGER,{
+	mes "[Falcon Breeder]";
+	mes "Hunters, Rangers, Windhawks -- I've got everything you need for your animal friends.";
+	next;
+	switch(select("Rent a Falcon (" + callfunc("F_InsertComma", .falcon_price) + " z):Buy a Wolf Flute (" + callfunc("F_InsertComma", .wolf_price) + " z):Buy a Hawk Flute (" + callfunc("F_InsertComma", .hawk_price) + " z):Cancel")) {
+	case 1:
+		mes "[Falcon Breeder]";
+		if (Class != JOB_HUNTER && Class != JOB_SNIPER && Class != JOB_BABY_HUNTER) {
+			mes "Sorry, Falcons are only for Hunters and Snipers.";
+			close;
+		}
+		if (getskilllv("HT_FALCON") < 1) {
+			mes "Learn Falcon Mastery first. I can't give a Falcon to someone who can't handle it.";
+			close;
+		}
+		if (checkfalcon()) {
+			mes "You already have a Falcon. It's right there on your shoulder!";
+			close;
+		}
+		if (checkwug()) {
+			mes "You can't take a Falcon while you have a Warg. Dismiss it first.";
+			close;
+		}
+		if (Zeny < .falcon_price) {
+			mes "You don't have enough zeny.";
+			close;
+		}
+		Zeny -= .falcon_price;
+		setfalcon;
+		mes "Here you go. Take good care of it!";
+		close;
+	case 2:
+		mes "[Falcon Breeder]";
+		if (Class != JOB_RANGER && Class != JOB_RANGER_T && Class != JOB_BABY_RANGER && Class != JOB_WINDHAWK) {
+			mes "Sorry, Wolf Flutes are only for Rangers and Windhawks.";
+			close;
+		}
+		.@item = 6124;
+		.@price = .wolf_price;
+		break;
+	case 3:
+		mes "[Falcon Breeder]";
+		if (Class != JOB_WINDHAWK) {
+			mes "Sorry, Hawk Flutes are only for Windhawks.";
+			close;
+		}
+		if (getitemname(1000311) == "null") {
+			mes "Sorry, Hawk Flutes are not available on this server.";
+			close;
+		}
+		.@item = 1000311;
+		.@price = .hawk_price;
+		break;
+	case 4:
+		mes "[Falcon Breeder]";
+		mes "Come back anytime.";
+		close;
+	}
+	// Cases 2 and 3: sell one flute.
+	if (Zeny < .@price) {
+		mes "You don't have enough zeny.";
+		close;
+	}
+	if (!checkweight(.@item, 1)) {
+		mes "You're carrying too much. Make some room first.";
+		close;
+	}
+	Zeny -= .@price;
+	getitem .@item, 1;
+	mes "Here's your " + getitemname(.@item) + ". Thank you!";
+	close;
+
+OnInit:
+	.falcon_price = 2500;	// official Falcon Breeder price
+	.wolf_price = 10000;
+	.hawk_price = 10000;
+	// Switched off in the settings window? Hide.
+	if (callfunc("F_SNPC_Off", "falcon")) disablenpc strnpcinfo(0);
+	end;
+}
