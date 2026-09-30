@@ -53,7 +53,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | 🌀 | **Warper** | Menu-based travel — towns, fields, dungeons, guild castles, instances. Duplicated in every major town. | Every major town |
 | ✨ | **Buffer** | Free instant buffs + full heal on click, no dialog window. You choose the buffs (see below). Duplicated in every major town. | Every major town |
 | 📦 | **Kafra Employee** | Save point, storage, and free identify-all. | Prontera (160, 187) |
-| 🏋️ | **Weight Maxxer** | Trades a Gym Pass for +1 permanent carry capacity, up to 10 times. | Prontera (164, 166) |
+| 🏋️ | **Weight Maxxer** | Trades a Gym Pass for +1 permanent carry capacity, up to 10 times. | Prontera (147, 169) |
 
 #### 🎓 Character
 
@@ -63,6 +63,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | 🔄 | **Reset Girl** | Resets skills, stats, or both, for Zeny. | Prontera (154, 195) |
 | 💇 | **Stylist** | Hair style, hair color, cloth color changer. | Prontera (169, 180) |
 | 🛡️ | **Episode Valkyrie** | Redeems Episode Clear Tickets (Episodes 13-20), bought via the Cash Shop, for EXP and quest completion. | Prontera (128, 193) |
+| 🎭 | **Plagiarism Master** | Rogue, Stalker, Shadow Chaser and Abyss Chaser copy any skill Plagiarism can copy. The level goes up to your Plagiarism level. | Prontera (164, 166) |
 
 #### 🛒 Shops & cards
 
@@ -71,6 +72,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | 🧪 | **Tool Dealer** | Standard fixed-price shop — potions, wings, Blacksmith Blessing, and a few other staples. | Prontera (143, 178) |
 | 🕵️ | **Smuggler** | Buy any item by ID, as many as you want at once. Detects the server era automatically: on Renewal the price depends on item type, on Pre-renewal every item costs its normal price x2. | Prontera (144, 174) |
 | 🃏 | **Card Exchanger** | 10 cards → Old Card Album, 30 cards → Mystical Card Album. Also extracts a card out of equipped gear. | Prontera (151, 187) |
+| 🦅 | **Falcon Breeder** | Falcon for Hunters and Snipers, Wolf Flute for Rangers and Windhawks, Hawk Flute for Windhawks (Renewal only). | Prontera (128, 211) |
 
 #### ⚔️ Hunting & dungeons
 
@@ -138,6 +140,7 @@ Buffs that cancel each other in the game can't be ticked together.
 - 🎨 **Lil Art** — Safe Refiner, Costume Stone Enchanter, Gramps, Overlook Fisherman, the 231+ Gramps bracket, Cheffenia MVP Dungeon, Illusion Dungeon bounties, Weight Maxxer, Training Dummies, Episode Valkyrie, and the Tool Dealer's Blacksmith Blessing.
 - ❄️ **IceGlaive** — Lucky John, Gramps per-character progress tracking, live kill notifications, the original 3 extended Gramps level brackets (with monster IDs verified live via `@mobinfo`), the bounty penalty/abandon system, the Gramps EXP rebalance, the reduced over-level penalty, the 231+ bracket monster fix, and the shared bounty rewards file with the EXP rebalance for Gramps, Lucky John, and Illusion Manager.
 - 🔥 **Nokzin** — Master Nokzin (elemental weapon endows).
+- 🎭 **iguera** — Plagiarism Master (from his arpg-equipments mod, used with permission).
 - 🌍 **The Ragnarok Offline community** — bug reports and testing.
 - 🤖 **Claude** (Anthropic) — AI assistant used throughout development: writing and reviewing NPC scripts, diagnosing bugs, and packaging releases.
 
