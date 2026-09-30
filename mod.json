@@ -1,7 +1,7 @@
 {
   "name": "standart-npc",
-  "version": "4.7.0",
-  "author": "MondoTruth, Lil Art, IceGlaive, Nokzin, Claude, and the Ragnarok Offline community",
+  "version": "4.7.1",
+  "author": "MondoTruth, Lil Art, IceGlaive, Nokzin, iguera, Claude, and the Ragnarok Offline community",
   "description": "⚠ Some NPCs may need the Cash Shop for full functionality. Turning the mod on turns on every NPC; switch single ones off with Settings… (Warper, Job Master, Reset Girl, Stylist, Episode Valkyrie and all the others).",
   "settingsPage": "settings/index.html",
   "default": "off",
@@ -16,7 +16,7 @@
       "default": "",
       "max_length": 200,
       "label": "Switched-off NPCs",
-      "description": "Filled in by the Settings… window: the always-loaded NPCs (Warper, Job Master, Reset Girl, Stylist, Episode Valkyrie) that are unticked there. Empty = all on."
+      "description": "Filled in by the Settings… window: the always-loaded NPCs (Warper, Job Master, Reset Girl, Stylist, Episode Valkyrie, Falcon Breeder) that are unticked there. Empty = all on."
     },
     {
       "key": "enable_buffer",
@@ -101,7 +101,14 @@
       "type": "boolean",
       "default": true,
       "label": "Weight Maxxer",
-      "description": "Trades a Gym Pass for +1 permanent carry capacity, up to 10 times. Prontera (164,166)."
+      "description": "Trades a Gym Pass for +1 permanent carry capacity, up to 10 times. Prontera (147,169)."
+    },
+    {
+      "key": "enable_plagiarism",
+      "type": "boolean",
+      "default": true,
+      "label": "Plagiarism Master",
+      "description": "Rogue line: copy any Plagiarism-copyable skill, level capped by your Plagiarism level. By iguera. Prontera (164,166)."
     },
     {
       "key": "enable_dummies",

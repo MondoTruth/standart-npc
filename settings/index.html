@@ -14,8 +14,9 @@
   one of the groups below. A key that is in no group still appears, under
   "Other", so forgetting this step never hides an option.
 
-  Warper, Job Master, Reset Girl, Stylist and Episode Valkyrie are always
-  loaded (npc/, not npc/when/) because a mod may declare only 20 settings.
+  Warper, Job Master, Reset Girl, Stylist, Episode Valkyrie and Falcon
+  Breeder are always loaded (npc/, not npc/when/) because a mod may declare
+  only 20 settings.
   Here they look like any other NPC; their ticks are stored together in the
   one string setting "npc_off" (names of the unticked ones), which the NPCs
   read at start-up through F_SNPC_Off (npc/custom/snpc_settings.txt).
@@ -85,8 +86,8 @@
 // "npc:<name>" keys are the always-loaded NPCs from ALWAYS_LOADED below.
 const GROUPS = [
   { title: 'Travel and services', keys: ['npc:warper', 'enable_buffer', 'enable_kafra', 'enable_weightmax'] },
-  { title: 'Character',           keys: ['npc:jobmaster', 'npc:reset', 'npc:stylist', 'npc:epvalk'] },
-  { title: 'Shops',               keys: ['enable_tooldealer', 'enable_smuggler', 'enable_cardexchanger'] },
+  { title: 'Character',           keys: ['npc:jobmaster', 'npc:reset', 'npc:stylist', 'npc:epvalk', 'enable_plagiarism'] },
+  { title: 'Shops',               keys: ['enable_tooldealer', 'enable_smuggler', 'enable_cardexchanger', 'npc:falcon'] },
   { title: 'Hunting quests',      keys: ['enable_bounties'] },
   { title: 'Dungeons',            keys: ['enable_mvp'] },
   { title: 'Equipment',           keys: ['enable_refiner', 'enable_enchanter', 'enable_nokzin'] },
@@ -102,6 +103,7 @@ const ALWAYS_LOADED = {
   'npc:reset':     { label: 'Reset Girl',        description: 'Resets skills, stats, or both. Prontera (154,195).' },
   'npc:stylist':   { label: 'Stylist',           description: 'Hair style, hair color and cloth color. Prontera (169,180).' },
   'npc:epvalk':    { label: 'Episode Valkyrie',  description: 'Redeems Episode Clear Tickets from the Cash Shop. Prontera (128,193).' },
+  'npc:falcon':    { label: 'Falcon Breeder',    description: 'Falcon for Hunters/Snipers, Wolf Flute for Rangers/Windhawks, Hawk Flute for Windhawks. Prontera (128,211).' },
 };
 
 // The Buffer's buffs, in casting order. code = what buffer.txt checks.
