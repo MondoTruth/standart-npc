@@ -1,0 +1,185 @@
+//===== rAthena Script =======================================
+//= Plagiarism Master
+//===== By: Iguera (adapted for standart-npc by MondoTruth, Claude)
+//===== Description: =========================================
+//= Lets the Rogue line copy any Plagiarism-copyable skill:
+//= Rogue, Stalker, Baby Rogue, Shadow Chaser (normal, trans,
+//= baby) and Abyss Chaser. The skill goes into the Plagiarism
+//= slot and replaces the current copied skill.
+//= The skill level is capped by the player's Plagiarism level
+//= (and by the skill's own max level).
+//= Needs Plagiarism learned (the engine refuses the copy
+//= otherwise). Removes the Preserve buff, which blocks copying.
+//= The list holds every skill with Plagiarism: true in skill_db
+//= (checked for Renewal and Pre-Renewal).
+//= Original: iguera's arpg-equipments mod, used with permission.
+//===== How to customize: ====================================
+//= - Skills: the menus below; .@sk = skill ID, .@lv = max level.
+//= - Location/sprite: the first line (map,x,y,dir / sprite).
+//============================================================
+
+prontera,164,166,4	script	Plagiarism Master#snpc	4_F_ROGUE,{
+	if (Class != JOB_ROGUE && Class != JOB_STALKER && Class != JOB_BABY_ROGUE
+	&&  Class != JOB_SHADOW_CHASER && Class != JOB_SHADOW_CHASER_T
+	&&  Class != JOB_BABY_SHADOW_CHASER && Class != JOB_ABYSS_CHASER) {
+		mes "[Plagiarism Master]";
+		mes "Sorry, only Rogues, Stalkers, Shadow Chasers and Abyss Chasers can use this service!";
+		close;
+	}
+	.@plag = getskilllv("RG_PLAGIARISM");
+	if (.@plag < 1) {
+		mes "[Plagiarism Master]";
+		mes "You need to learn Plagiarism first.";
+		close;
+	}
+
+	mes "[Plagiarism Master]";
+	mes "I can teach you a skill to copy.";
+	mes "Its level will be up to your Plagiarism level (^0055FF" + .@plag + "^000000).";
+	mes "It will replace your current copied skill.";
+	mes "^FF0000Your Preserve buff will be removed.^000000";
+	next;
+
+	.@cat = select("Swordsman / Knight / Crusader:Mage / Wizard / Sage:Acolyte / Priest / Monk:Archer / Hunter / Bard / Dancer:Merchant / Blacksmith / Alchemist:Thief / Assassin / Rogue:Ninja / Kagerou / Oboro:Taekwon / Other:Cancel");
+	if (.@cat == 9) close;
+
+	// ---- Swordsman / Knight / Crusader ----
+	if (.@cat == 1) {
+		.@c = select("Bash:Magnum Break:Bowling Bash:Charge Attack:Smite:Shield Boomerang:Holy Cross:Grand Cross:Cancel");
+		if (.@c == 9) close;
+		if (.@c == 1) { .@sk = 5; .@lv = 10; .@name$ = "Bash"; } // SM_BASH
+		if (.@c == 2) { .@sk = 7; .@lv = 10; .@name$ = "Magnum Break"; } // SM_MAGNUM
+		if (.@c == 3) { .@sk = 62; .@lv = 10; .@name$ = "Bowling Bash"; } // KN_BOWLINGBASH
+		if (.@c == 4) { .@sk = 1001; .@lv = 1; .@name$ = "Charge Attack"; } // KN_CHARGEATK
+		if (.@c == 5) { .@sk = 250; .@lv = 5; .@name$ = "Smite"; } // CR_SHIELDCHARGE
+		if (.@c == 6) { .@sk = 251; .@lv = 5; .@name$ = "Shield Boomerang"; } // CR_SHIELDBOOMERANG
+		if (.@c == 7) { .@sk = 253; .@lv = 10; .@name$ = "Holy Cross"; } // CR_HOLYCROSS
+		if (.@c == 8) { .@sk = 254; .@lv = 10; .@name$ = "Grand Cross"; } // CR_GRANDCROSS
+	}
+
+	// ---- Mage / Wizard / Sage ----
+	if (.@cat == 2) {
+		.@c = select("Napalm Beat:Soul Strike:Cold Bolt:Frost Diver:Fire Ball:Fire Wall:Fire Bolt:Lightning Bolt:Thunderstorm:Fire Pillar:Sightrasher:Meteor Storm:Jupitel Thunder:Lord of Vermilion:Water Ball:Frost Nova:Storm Gust:Earth Spike:Heaven's Drive:Sight Blaster:Cancel");
+		if (.@c == 21) close;
+		if (.@c == 1) { .@sk = 11; .@lv = 10; .@name$ = "Napalm Beat"; } // MG_NAPALMBEAT
+		if (.@c == 2) { .@sk = 13; .@lv = 10; .@name$ = "Soul Strike"; } // MG_SOULSTRIKE
+		if (.@c == 3) { .@sk = 14; .@lv = 10; .@name$ = "Cold Bolt"; } // MG_COLDBOLT
+		if (.@c == 4) { .@sk = 15; .@lv = 10; .@name$ = "Frost Diver"; } // MG_FROSTDIVER
+		if (.@c == 5) { .@sk = 17; .@lv = 10; .@name$ = "Fire Ball"; } // MG_FIREBALL
+		if (.@c == 6) { .@sk = 18; .@lv = 10; .@name$ = "Fire Wall"; } // MG_FIREWALL
+		if (.@c == 7) { .@sk = 19; .@lv = 10; .@name$ = "Fire Bolt"; } // MG_FIREBOLT
+		if (.@c == 8) { .@sk = 20; .@lv = 10; .@name$ = "Lightning Bolt"; } // MG_LIGHTNINGBOLT
+		if (.@c == 9) { .@sk = 21; .@lv = 10; .@name$ = "Thunderstorm"; } // MG_THUNDERSTORM
+		if (.@c == 10) { .@sk = 80; .@lv = 10; .@name$ = "Fire Pillar"; } // WZ_FIREPILLAR
+		if (.@c == 11) { .@sk = 81; .@lv = 10; .@name$ = "Sightrasher"; } // WZ_SIGHTRASHER
+		if (.@c == 12) { .@sk = 83; .@lv = 10; .@name$ = "Meteor Storm"; } // WZ_METEOR
+		if (.@c == 13) { .@sk = 84; .@lv = 10; .@name$ = "Jupitel Thunder"; } // WZ_JUPITEL
+		if (.@c == 14) { .@sk = 85; .@lv = 10; .@name$ = "Lord of Vermilion"; } // WZ_VERMILION
+		if (.@c == 15) { .@sk = 86; .@lv = 5; .@name$ = "Water Ball"; } // WZ_WATERBALL
+		if (.@c == 16) { .@sk = 88; .@lv = 10; .@name$ = "Frost Nova"; } // WZ_FROSTNOVA
+		if (.@c == 17) { .@sk = 89; .@lv = 10; .@name$ = "Storm Gust"; } // WZ_STORMGUST
+		if (.@c == 18) { .@sk = 90; .@lv = 5; .@name$ = "Earth Spike"; } // WZ_EARTHSPIKE
+		if (.@c == 19) { .@sk = 91; .@lv = 5; .@name$ = "Heaven's Drive"; } // WZ_HEAVENDRIVE
+		if (.@c == 20) { .@sk = 1006; .@lv = 1; .@name$ = "Sight Blaster"; } // WZ_SIGHTBLASTER
+	}
+
+	// ---- Acolyte / Priest / Monk ----
+	if (.@cat == 3) {
+		.@c = select("Ruwach:Heal:Resurrection:Aspersio:B.S. Sacramenti:Sanctuary:Turn Undead:Magnus Exorcismus:Holy Light:Raging Trifecta Blow:Occult Impaction:Throw Spirit Sphere:Asura Strike:Raging Quadruple Blow:Ki Translation:Cancel");
+		if (.@c == 16) close;
+		if (.@c == 1) { .@sk = 24; .@lv = 1; .@name$ = "Ruwach"; } // AL_RUWACH
+		if (.@c == 2) { .@sk = 28; .@lv = 10; .@name$ = "Heal"; } // AL_HEAL
+		if (.@c == 3) { .@sk = 54; .@lv = 4; .@name$ = "Resurrection"; } // ALL_RESURRECTION
+		if (.@c == 4) { .@sk = 68; .@lv = 5; .@name$ = "Aspersio"; } // PR_ASPERSIO
+		if (.@c == 5) { .@sk = 69; .@lv = 5; .@name$ = "B.S. Sacramenti"; } // PR_BENEDICTIO
+		if (.@c == 6) { .@sk = 70; .@lv = 10; .@name$ = "Sanctuary"; } // PR_SANCTUARY
+		if (.@c == 7) { .@sk = 77; .@lv = 10; .@name$ = "Turn Undead"; } // PR_TURNUNDEAD
+		if (.@c == 8) { .@sk = 79; .@lv = 10; .@name$ = "Magnus Exorcismus"; } // PR_MAGNUS
+		if (.@c == 9) { .@sk = 156; .@lv = 1; .@name$ = "Holy Light"; } // AL_HOLYLIGHT
+		if (.@c == 10) { .@sk = 263; .@lv = 10; .@name$ = "Raging Trifecta Blow"; } // MO_TRIPLEATTACK
+		if (.@c == 11) { .@sk = 266; .@lv = 5; .@name$ = "Occult Impaction"; } // MO_INVESTIGATE
+		if (.@c == 12) { .@sk = 267; .@lv = 5; .@name$ = "Throw Spirit Sphere"; } // MO_FINGEROFFENSIVE
+		if (.@c == 13) { .@sk = 271; .@lv = 5; .@name$ = "Asura Strike"; } // MO_EXTREMITYFIST
+		if (.@c == 14) { .@sk = 272; .@lv = 5; .@name$ = "Raging Quadruple Blow"; } // MO_CHAINCOMBO
+		if (.@c == 15) { .@sk = 1015; .@lv = 1; .@name$ = "Ki Translation"; } // MO_KITRANSLATION
+	}
+
+	// ---- Archer / Hunter / Bard / Dancer ----
+	if (.@cat == 4) {
+		.@c = select("Double Strafe:Arrow Shower:Land Mine:Freezing Trap:Blast Mine:Claymore Trap:Arrow Repel:Phantasmic Arrow:Cancel");
+		if (.@c == 9) close;
+		if (.@c == 1) { .@sk = 46; .@lv = 10; .@name$ = "Double Strafe"; } // AC_DOUBLE
+		if (.@c == 2) { .@sk = 47; .@lv = 10; .@name$ = "Arrow Shower"; } // AC_SHOWER
+		if (.@c == 3) { .@sk = 116; .@lv = 5; .@name$ = "Land Mine"; } // HT_LANDMINE
+		if (.@c == 4) { .@sk = 121; .@lv = 5; .@name$ = "Freezing Trap"; } // HT_FREEZINGTRAP
+		if (.@c == 5) { .@sk = 122; .@lv = 5; .@name$ = "Blast Mine"; } // HT_BLASTMINE
+		if (.@c == 6) { .@sk = 123; .@lv = 5; .@name$ = "Claymore Trap"; } // HT_CLAYMORETRAP
+		if (.@c == 7) { .@sk = 148; .@lv = 1; .@name$ = "Arrow Repel"; } // AC_CHARGEARROW
+		if (.@c == 8) { .@sk = 1009; .@lv = 1; .@name$ = "Phantasmic Arrow"; } // HT_PHANTASMIC
+	}
+
+	// ---- Merchant / Blacksmith / Alchemist ----
+	if (.@cat == 5) {
+		.@c = select("Mammonite:Bomb:Acid Terror:Cancel");
+		if (.@c == 4) close;
+		if (.@c == 1) { .@sk = 42; .@lv = 10; .@name$ = "Mammonite"; } // MC_MAMMONITE
+		if (.@c == 2) { .@sk = 229; .@lv = 5; .@name$ = "Bomb"; } // AM_DEMONSTRATION
+		if (.@c == 3) { .@sk = 230; .@lv = 5; .@name$ = "Acid Terror"; } // AM_ACIDTERROR
+	}
+
+	// ---- Thief / Assassin / Rogue ----
+	if (.@cat == 6) {
+		.@c = select("Envenom:Venom Splasher:Stone Fling:Back Stab:Throw Venom Knife:Cancel");
+		if (.@c == 6) close;
+		if (.@c == 1) { .@sk = 52; .@lv = 10; .@name$ = "Envenom"; } // TF_POISON
+		if (.@c == 2) { .@sk = 141; .@lv = 10; .@name$ = "Venom Splasher"; } // AS_SPLASHER
+		if (.@c == 3) { .@sk = 152; .@lv = 1; .@name$ = "Stone Fling"; } // TF_THROWSTONE
+		if (.@c == 4) { .@sk = 212; .@lv = 10; .@name$ = "Back Stab"; } // RG_BACKSTAP
+		if (.@c == 5) { .@sk = 1004; .@lv = 1; .@name$ = "Throw Venom Knife"; } // AS_VENOMKNIFE
+	}
+
+	// ---- Ninja / Kagerou / Oboro ----
+	if (.@cat == 7) {
+		.@c = select("Throw Zeny:Improvised Defense:Vanishing Slash:Shadow Leap:Shadow Slash:Cicada Skin Sheeding:Crimson Fire Petal:Crimson Fire Formation:Raging Fire Dragon:Spear of Ice:Ice Meteor:Wind Blade:Lightning Strike of Destruction:Kamaitachi:Rapid Throw:Cancel");
+		if (.@c == 16) close;
+		if (.@c == 1) { .@sk = 526; .@lv = 10; .@name$ = "Throw Zeny"; } // NJ_ZENYNAGE
+		if (.@c == 2) { .@sk = 527; .@lv = 5; .@name$ = "Improvised Defense"; } // NJ_TATAMIGAESHI
+		if (.@c == 3) { .@sk = 528; .@lv = 10; .@name$ = "Vanishing Slash"; } // NJ_KASUMIKIRI
+		if (.@c == 4) { .@sk = 529; .@lv = 5; .@name$ = "Shadow Leap"; } // NJ_SHADOWJUMP
+		if (.@c == 5) { .@sk = 530; .@lv = 5; .@name$ = "Shadow Slash"; } // NJ_KIRIKAGE
+		if (.@c == 6) { .@sk = 531; .@lv = 5; .@name$ = "Cicada Skin Sheeding"; } // NJ_UTSUSEMI
+		if (.@c == 7) { .@sk = 534; .@lv = 10; .@name$ = "Crimson Fire Petal"; } // NJ_KOUENKA
+		if (.@c == 8) { .@sk = 535; .@lv = 10; .@name$ = "Crimson Fire Formation"; } // NJ_KAENSIN
+		if (.@c == 9) { .@sk = 536; .@lv = 5; .@name$ = "Raging Fire Dragon"; } // NJ_BAKUENRYU
+		if (.@c == 10) { .@sk = 537; .@lv = 10; .@name$ = "Spear of Ice"; } // NJ_HYOUSENSOU
+		if (.@c == 11) { .@sk = 539; .@lv = 5; .@name$ = "Ice Meteor"; } // NJ_HYOUSYOURAKU
+		if (.@c == 12) { .@sk = 540; .@lv = 10; .@name$ = "Wind Blade"; } // NJ_HUUJIN
+		if (.@c == 13) { .@sk = 541; .@lv = 5; .@name$ = "Lightning Strike of Destruction"; } // NJ_RAIGEKISAI
+		if (.@c == 14) { .@sk = 542; .@lv = 5; .@name$ = "Kamaitachi"; } // NJ_KAMAITACHI
+		if (.@c == 15) { .@sk = 3008; .@lv = 10; .@name$ = "Rapid Throw"; } // KO_MUCHANAGE
+	}
+
+	// ---- Taekwon / Other ----
+	if (.@cat == 8) {
+		.@c = select("Flying Kick:Throw Tomahawk:Cancel");
+		if (.@c == 3) close;
+		if (.@c == 1) { .@sk = 421; .@lv = 7; .@name$ = "Flying Kick"; } // TK_JUMPKICK
+		if (.@c == 2) { .@sk = 337; .@lv = 1; .@name$ = "Throw Tomahawk"; } // ITM_TOMAHAWK
+	}
+
+	// The copied level can't be higher than the Plagiarism level.
+	.@lv = min(.@lv, .@plag);
+
+	// Preserve blocks copying, so turn it off first.
+	sc_end SC_PRESERVE;
+
+	.@ok = plagiarizeskill(.@sk, .@lv);
+
+	mes "[Plagiarism Master]";
+	if (.@ok) {
+		mes "Success! You have learned " + .@name$ + " Lv " + .@lv + ".";
+	} else {
+		mes "The copy failed for skill ID " + .@sk + ".";
+	}
+	close;
+}
