@@ -12,7 +12,7 @@
 //= - Location/sprite: the first line below.
 //============================================================
 
-prontera,147,169,4	script	Weight Maxxer#prontera	4_M_MONK,{
+prontera,147,169,5	script	Weight Maxxer#prontera	4_M_MONK,{
 	mes "[Maxxer]";
 	mes "Hey, there. People aren't as physically active as they used to be.";
 	mes "Train with me, and I can guarantee that you'll be able to lift and carry more gear.";
