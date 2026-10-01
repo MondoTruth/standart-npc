@@ -94,6 +94,11 @@ const GROUPS = [
   { title: 'Training',            keys: ['enable_dummies'] },
 ];
 
+// Renewal-only NPCs: hidden on a Pre-renewal server and switched off there,
+// so they do not load. Turning the server back to Renewal shows them again,
+// still off.
+const RENEWAL_ONLY = ['enable_grade'];
+
 // NPCs without a setting of their own. The name after "npc:" is what goes
 // into "npc_off" and what the NPC passes to F_SNPC_Off.
 const OFF_KEY = 'npc_off';
@@ -335,6 +340,14 @@ async function save() {
       $('about').append(off);
     }
     const byKey = new Map(mod.settings.filter(s => s.type === 'boolean').map(s => [s.key, s]));
+    if (mod.context && mod.context.era === 'pre-renewal') {
+      const turnOff = {};
+      for (const k of RENEWAL_ONLY) {
+        if (byKey.get(k)?.value === true) turnOff[k] = false;
+        byKey.delete(k);
+      }
+      if (Object.keys(turnOff).length) await window.modSettings.set(turnOff);
+    }
     const offSetting = mod.settings.find(s => s.key === OFF_KEY);
     if (offSetting) {
       hasOffKey = true;

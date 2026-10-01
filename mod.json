@@ -87,7 +87,7 @@
       "type": "boolean",
       "default": true,
       "label": "Grade Refiner",
-      "description": "Opens the equipment grading UI (Renewal only) and the refining UI. By Lil Art. Prontera (164,166)."
+      "description": "Opens the equipment grading UI and the refining UI. Renewal only: hidden and switched off on Pre-renewal. By Lil Art. Prontera (164,166)."
     },
     {
       "key": "enable_enchanter",

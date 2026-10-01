@@ -86,7 +86,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | | NPC | What it does | Location |
 |:-:|---|---|---|
 | ⚒️ | **Safe Refiner** | Refine gear to +7 through +15 using certificates. | Prontera (164, 172) |
-| 📊 | **Grade Refiner** | Opens the game's grading window (Renewal only) and refining window. | Prontera (164, 166) |
+| 📊 | **Grade Refiner** | Opens the game's grading and refining windows. Renewal only. | Prontera (164, 166) |
 | 💎 | **Universal Enchanter** | Attach an Enchant/Class Stone (or similar item) to costume, shadow or regular gear, for free. Keeps the refine level. | Prontera (164, 169) |
 | 🔥 | **Master Nokzin** | Endows your weapon with an element for an hour, works on carded weapons too. Can also remove an endow for free. Portable Elemental Converter scrolls are sold in the Cash Shop instead. | Prontera (167, 178) |
 
