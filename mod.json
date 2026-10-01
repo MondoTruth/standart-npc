@@ -122,7 +122,7 @@
       "type": "boolean",
       "default": true,
       "label": "Daily Rewards",
-      "description": "Distributes daily attendance rewards, once every 24 hours. By Lil Art. Prontera (147,169)."
+      "description": "Distributes daily attendance rewards, once every 24 hours. By Lil Art. Prontera (147,166)."
     },
     {
       "key": "enable_dummies",

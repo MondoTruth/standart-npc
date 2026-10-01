@@ -40,7 +40,7 @@ The repository root is the mod folder (the release zip wraps it in
 mod.json                 -- version, author, requires, settingsPage, settings[]
 Patch Notes.txt          -- full history, one ## <version> section per release
 settings/index.html      -- the mod's own settings window
-db/                      -- prontera_dummies.yml, attendance.yml
+db/                      -- prontera_dummies.yml
 npc/
   custom/snpc_settings.txt  -- F_SNPC_Off: switch for always-loaded NPCs
   warper.txt jobmaster.txt resetnpc.txt stylist.txt ep-valk.txt falcon.txt
