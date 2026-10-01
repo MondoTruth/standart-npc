@@ -143,3 +143,11 @@ Initial release.
 - Weight Maxxer moved to Prontera (147,169).
 - Tool Dealer: no longer sells Wolf Flute and Memento.
 - Thanks to iguera (Plagiarism Master) and Lil Art (Weight Maxxer).
+
+## 4.8.0
+- New NPC: Grade Refiner. Opens the grading and refining windows from one NPC in central Prontera (164,166). Grading is Renewal only, so on Pre-renewal the NPC offers just refining.
+- New NPC: Daily Rewards. Collect a daily attendance reward every 24h for 30 days. Prontera (147,166). Can be switched off in the settings window.
+- Universal Enchanter (was Costume Stone Enchanter) now enchants costume, shadow and regular gear, and keeps the refine level.
+- Plagiarism Master moved to Prontera (171,182).
+- Safe Refiner has a new look; Weight Maxxer faces a different way.
+- Thanks to Lil Art for the update.

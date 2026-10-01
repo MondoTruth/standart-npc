@@ -18,7 +18,7 @@
 //= - Location/sprite: the first line (map,x,y,dir / sprite).
 //============================================================
 
-prontera,164,166,4	script	Plagiarism Master#snpc	4_F_ROGUE,{
+prontera,171,182,4	script	Plagiarism Master#snpc	4_F_ROGUE,{
 	if (Class != JOB_ROGUE && Class != JOB_STALKER && Class != JOB_BABY_ROGUE
 	&&  Class != JOB_SHADOW_CHASER && Class != JOB_SHADOW_CHASER_T
 	&&  Class != JOB_BABY_SHADOW_CHASER && Class != JOB_ABYSS_CHASER) {

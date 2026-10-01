@@ -1,0 +1,34 @@
+//===== rAthena Script =======================================
+//= Grade Refiner
+//===== By: Lil Art ===========================================
+//===== Description: =========================================
+//= Opens the game's own equipment grading UI and refining UI
+//= from one NPC in central Prontera.
+//= Grading exists only on Renewal: on Pre-renewal servers the
+//= grading option is hidden (checked with checkre(0)).
+//===== How to customize: ====================================
+//= - Location/sprite: the first line (map,x,y,dir / sprite).
+//============================================================
+
+prontera,164,166,4	script	Grade Refiner#prontera	864,{
+	mes "[Grade Refiner]";
+	mes "Hello! What service would you like to access today?";
+	next;
+
+	// An empty menu entry is not shown, so "Equipment Grading" is
+	// hidden on Pre-renewal while the case numbers stay the same.
+	switch(select((checkre(0) ? "Equipment Grading" : "") + ":Equipment Refinement:Cancel")) {
+	case 1:
+		close2;
+		enchantgradeui;
+		end;
+	case 2:
+		close2;
+		refineUI;
+		end;
+	case 3:
+		mes "[Grade Refiner]";
+		mes "Come back whenever you need to process your gear!";
+		close;
+	}
+}

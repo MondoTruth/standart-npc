@@ -1,31 +1,46 @@
 //===== rAthena Script =======================================
-//= Costume Stone Enchanter (Class Stones Enabled)
+//= Universal Enchanter (Class Stones Enabled)
 //===== By: Lil Art ===========================================
 //===== Description: =========================================
 //= Free -- no Zeny cost, just consumes the stone used. Accepts
 //= any inventory item (Class Stones, Garment Stones, Essences,
-//= Fixed Casting, Nebula Stones, etc.) and attaches it to a 
-//= costume headgear or costume garment slot.
+//= Fixed Casting, Nebula Stones, etc.) and attaches it to any
+//= equipped Costume, Shadow, or Regular gear slot. The item's
+//= refine level is kept.
 //===== How to customize: ====================================
-//= - Which costume slots are offered: .@EQ_SLOTS/.@EQ_NAMES$
-//=   arrays (currently the 3 costume headgear slots + garment).
+//= - Which slots are offered: the .@EQ_SLOTS/.@EQ_NAMES$ arrays
+//=   for each category (Costume, Shadow, Regular).
 //= - Location/sprite: the first line below.
 //============================================================
 
-prontera,164,169,4	script	Costume Enchanter	55,{
-    mes "[Costume Enchanter]";
-    mes "Greetings! I can attach any ^0055FFEnchant Stone or Class Stone^000000 directly to your equipped costume headgears and costume garment!";
+prontera,164,169,4	script	Universal Enchanter	10182,{
+    mes "[Universal Enchanter]";
+    mes "Greetings! I can attach any ^0055FFEnchant Stone or Class Stone^000000 directly to your equipped gear!";
     next;
 
-    if (select("Enchant Costume Gear:Cancel") == 2) close;
+    // Primary Equipment Category Selection
+    .@cat = select("Costume Gear", "Shadow Gear", "Regular Gear", "Cancel");
+    if (.@cat == 4) close;
 
-    // Step 1: Select Costume Slot (Strictly 4 Costume Slots)
-    mes "[Costume Enchanter]";
-    mes "Which equipped costume piece do you want to enchant?";
+    deletearray .@EQ_SLOTS[0];
+    deletearray .@EQ_NAMES$[0];
+
+    // Branch equipment choices by category
+    if (.@cat == 1) {
+        setarray .@EQ_SLOTS[1], EQI_COSTUME_HEAD_TOP, EQI_COSTUME_HEAD_MID, EQI_COSTUME_HEAD_LOW, EQI_COSTUME_GARMENT;
+        setarray .@EQ_NAMES$[1], "Costume Top Headgear", "Costume Mid Headgear", "Costume Low Headgear", "Costume Garment";
+    } else if (.@cat == 2) {
+        setarray .@EQ_SLOTS[1], EQI_SHADOW_ARMOR, EQI_SHADOW_WEAPON, EQI_SHADOW_SHIELD, EQI_SHADOW_SHOES, EQI_SHADOW_ACC_R, EQI_SHADOW_ACC_L;
+        setarray .@EQ_NAMES$[1], "Shadow Armor", "Shadow Weapon", "Shadow Shield", "Shadow Shoes", "Shadow Accessory (Right)", "Shadow Accessory (Left)";
+    } else if (.@cat == 3) {
+        setarray .@EQ_SLOTS[1], EQI_HEAD_TOP, EQI_HEAD_MID, EQI_HEAD_LOW, EQI_ARMOR, EQI_HAND_R, EQI_HAND_L, EQI_GARMENT, EQI_SHOES, EQI_ACC_R, EQI_ACC_L;
+        setarray .@EQ_NAMES$[1], "Top Headgear", "Mid Headgear", "Low Headgear", "Armor", "Right Hand (Weapon)", "Left Hand (Shield)", "Garment", "Shoes", "Accessory (Right)", "Accessory (Left)";
+    }
+
+    // Step 1: Select Slot
+    mes "[Universal Enchanter]";
+    mes "Which equipped piece do you want to enchant?";
     next;
-
-    setarray .@EQ_SLOTS[1], EQI_COSTUME_HEAD_TOP, EQI_COSTUME_HEAD_MID, EQI_COSTUME_HEAD_LOW, EQI_COSTUME_GARMENT;
-    setarray .@EQ_NAMES$[1], "Costume Top Headgear", "Costume Mid Headgear", "Costume Low Headgear", "Costume Garment";
 
     .@menu_str$ = "";
     for (.@i = 1; .@i <= getarraysize(.@EQ_SLOTS); .@i++) {
@@ -46,13 +61,13 @@ prontera,164,169,4	script	Costume Enchanter	55,{
     .@target_id = getequipid(.@target_eq);
 
     if (.@target_id <= 0) {
-        mes "[Costume Enchanter]";
-        mes "You do not have a costume equipped in that slot!";
+        mes "[Universal Enchanter]";
+        mes "You do not have gear equipped in that slot!";
         close;
     }
 
     // Step 2: Select Target Socket Slot (0 to 3)
-    mes "[Costume Enchanter]";
+    mes "[Universal Enchanter]";
     mes "Selected: ^0055FF" + getitemname(.@target_id) + "^000000";
     mes "Which socket do you want to enchant?";
     next;
@@ -71,7 +86,7 @@ prontera,164,169,4	script	Costume Enchanter	55,{
     if (.@sock_choice >= 4) close;
 
     if (getequipcardid(.@target_eq, .@sock_choice) > 0) {
-        mes "[Costume Enchanter]";
+        mes "[Universal Enchanter]";
         mes "That socket is already occupied!";
         close;
     }
@@ -112,13 +127,13 @@ prontera,164,169,4	script	Costume Enchanter	55,{
     }
 
     if (.@stone_count == 0) {
-        mes "[Costume Enchanter]";
+        mes "[Universal Enchanter]";
         mes "You do not have any valid Class Stones or Enchant Stones in your inventory!";
         close;
     }
 
     // Step 4: Choose Stone
-    mes "[Costume Enchanter]";
+    mes "[Universal Enchanter]";
     mes "Select the Class Stone or Enchantment to attach:";
     next;
 
@@ -133,19 +148,21 @@ prontera,164,169,4	script	Costume Enchanter	55,{
 
     .@chosen_stone_id = .@valid_stone_id[.@stone_sel];
 
-    mes "[Costume Enchanter]";
+    mes "[Universal Enchanter]";
     mes "Attach ^0055FF" + getitemname(.@chosen_stone_id) + "^000000 to ^0055FF" + getitemname(.@target_id) + "^000000?";
     next;
 
     if (select("Yes, proceed:Cancel") == 2) close;
 
     if (countitem(.@chosen_stone_id) < 1) {
-        mes "[Costume Enchanter]";
+        mes "[Universal Enchanter]";
         mes "You are missing the required stone!";
         close;
     }
 
-    // Process Enchanting
+    // Process Enchanting (Store refinement level first)
+    .@refine = getequiprefinerycnt(.@target_eq);
+
     .@cards[0] = .@c0;
     .@cards[1] = .@c1;
     .@cards[2] = .@c2;
@@ -154,11 +171,11 @@ prontera,164,169,4	script	Costume Enchanter	55,{
 
     delitem .@chosen_stone_id, 1;
     delequip .@target_eq;
-    getitem2 .@target_id, 1, 1, 0, 0, .@cards[0], .@cards[1], .@cards[2], .@cards[3];
+    getitem2 .@target_id, 1, 1, .@refine, 0, .@cards[0], .@cards[1], .@cards[2], .@cards[3];
     equip .@target_id;
 
     specialeffect2 154;
-    mes "[Costume Enchanter]";
+    mes "[Universal Enchanter]";
     mes "Enchantment successful!";
     close;
 }
