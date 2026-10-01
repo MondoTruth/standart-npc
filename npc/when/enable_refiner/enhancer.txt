@@ -1,12 +1,17 @@
 //===== rAthena Script =======================================
 //= Dynamic Safe Refiner (+7 to +15 Certificates)
 //===== By: Lil Art ===========================================
+//===== Description: =========================================
+//= Refines an equipped item straight to the chosen level for
+//= one refine certificate of that level.
+//= Renewal: +7 to +15. Pre-renewal: +7, +8, +9 and +11 only
+//= (the other certificates do not exist there).
 //===== How to customize: ====================================
 //= - Certificate item IDs (what gets consumed per target level):
 //=   the .armor_certs/.weapon_certs arrays below.
-//= - Refine range offered: the "+7:+8:..." menu and the +6 offset
-//=   right after it, together with the arrays above -- all three
-//=   need to change together if you extend/shrink the range.
+//= - Refine levels offered: the .@levels arrays (one for Renewal,
+//=   one for Pre-renewal). Each level needs a certificate in both
+//=   arrays above.
 //= - Location/sprite: the first line (map,x,y,dir / sprite).
 //============================================================
 prontera,164,172,4	script	Safe Refiner	1930,{
@@ -32,8 +37,16 @@ prontera,164,172,4	script	Safe Refiner	1930,{
                                 6871,  // Safe to +14 Weapon Certificate
                                 6872;  // Safe to +15 Weapon Certificate
 
+    // checkre(0): 1 = Renewal, 0 = Pre-renewal
+    if (checkre(0))
+        setarray .@levels, 7, 8, 9, 10, 11, 12, 13, 14, 15;
+    else
+        setarray .@levels, 7, 8, 9, 11;
+    for (.@i = 0; .@i < getarraysize(.@levels); .@i++)
+        .@levels$ += (.@i ? ":" : "") + "+" + .@levels[.@i];
+
     mes "[Safe Refiner]";
-    mes "Select an equipped item and the target refine level (+7 to +15).";
+    mes "Select an equipped item and the target refine level (" + .@levels$ + ").";
     next;
 
     .@menu = select("Top Headgear:Middle Headgear:Lower Headgear:Body Armor:Right Hand (Weapon):Left Hand (Shield):Garment:Shoes:Right Accessory:Left Accessory:Cancel");
@@ -64,8 +77,7 @@ prontera,164,172,4	script	Safe Refiner	1930,{
     mes "Select your target refinement level:";
     next;
 
-    // Options mapping: 1 -> +7, 2 -> +8, ..., 9 -> +15
-    .@target_level = select("+7:+8:+9:+10:+11:+12:+13:+14:+15") + 6;
+    .@target_level = .@levels[select(.@levels$) - 1];
 
     if (.@current_refine >= .@target_level) {
         mes "[Safe Refiner]";

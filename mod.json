@@ -80,7 +80,7 @@
       "type": "boolean",
       "default": true,
       "label": "Safe Refiner",
-      "description": "Refines gear to +7 through +15 using certificates. Prontera (164,172)."
+      "description": "Refines gear to +7 through +15 using certificates (Pre-renewal: +7, +8, +9, +11). Prontera (164,172)."
     },
     {
       "key": "enable_grade",
