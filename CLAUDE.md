@@ -147,13 +147,18 @@ check it especially carefully.
 3. Add a `## <version>` section to `Patch Notes.txt` — short plain bullets,
    credit the authors.
 4. Update README.md if NPCs, coordinates or credits changed.
-5. Build `standart-npc-<version>.zip` with the files inside a `standart-npc/`
-   folder, **without** README.md, assets/, CLAUDE.md, .git, .github.
+5. The zip is built automatically by `.github/workflows/release.yml`:
+   `standart-npc-<version>.zip`, files inside a `standart-npc/` folder,
+   **without** README.md, assets/, CLAUDE.md, .git, .github, .gitattributes.
+   To check the build before a release: Actions → "Build release zip" → Run
+   workflow, then download the zip from the run's Artifacts.
 6. Before tagging: tabs check, same version everywhere, README coordinates,
    credits. If possible start the server with the zip and look for
    `script error` in the map-server log.
-7. GitHub release with tag `v<version>`, Patch Notes section as description,
-   zip attached.
+7. Publish a GitHub release with tag `v<version>` and the Patch Notes section
+   as description. Don't attach the zip by hand: the workflow builds it and
+   attaches it to the release. If the tag is not `v<version>` from mod.json,
+   the workflow fails and attaches nothing.
 
 Open questions and plans live in the repo's GitHub issues — check
 `gh issue list` before starting work.
