@@ -1,6 +1,6 @@
 {
   "name": "standart-npc",
-  "version": "4.7.1",
+  "version": "4.8.0",
   "author": "MondoTruth, Lil Art, IceGlaive, Nokzin, iguera, Claude, and the Ragnarok Offline community",
   "description": "⚠ Some NPCs may need the Cash Shop for full functionality. Turning the mod on turns on every NPC; switch single ones off with Settings… (Warper, Job Master, Reset Girl, Stylist, Episode Valkyrie and all the others).",
   "settingsPage": "settings/index.html",
@@ -83,11 +83,18 @@
       "description": "Refines gear to +7 through +15 using certificates. Prontera (164,172)."
     },
     {
+      "key": "enable_grade",
+      "type": "boolean",
+      "default": true,
+      "label": "Grade Refiner",
+      "description": "Opens the equipment grading UI (Renewal only) and the refining UI. By Lil Art. Prontera (164,166)."
+    },
+    {
       "key": "enable_enchanter",
       "type": "boolean",
       "default": true,
-      "label": "Costume Stone Enchanter",
-      "description": "Attaches an Enchant/Class Stone to a costume slot, for free. Prontera (164,169)."
+      "label": "Universal Enchanter",
+      "description": "Attaches an Enchant/Class Stone to costume, shadow or regular gear, for free. By Lil Art. Prontera (164,169)."
     },
     {
       "key": "enable_nokzin",
@@ -108,7 +115,14 @@
       "type": "boolean",
       "default": true,
       "label": "Plagiarism Master",
-      "description": "Rogue line: copy any Plagiarism-copyable skill, level capped by your Plagiarism level. By iguera. Prontera (164,166)."
+      "description": "Rogue line: copy any Plagiarism-copyable skill, level capped by your Plagiarism level. By iguera. Prontera (171,182)."
+    },
+    {
+      "key": "enable_daily",
+      "type": "boolean",
+      "default": true,
+      "label": "Daily Rewards",
+      "description": "Distributes daily attendance rewards, once every 24 hours. By Lil Art. Prontera (147,169)."
     },
     {
       "key": "enable_dummies",

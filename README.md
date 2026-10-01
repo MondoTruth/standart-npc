@@ -63,7 +63,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | 🔄 | **Reset Girl** | Resets skills, stats, or both, for Zeny. | Prontera (154, 195) |
 | 💇 | **Stylist** | Hair style, hair color, cloth color changer. | Prontera (169, 180) |
 | 🛡️ | **Episode Valkyrie** | Redeems Episode Clear Tickets (Episodes 13-20), bought via the Cash Shop, for EXP and quest completion. | Prontera (128, 193) |
-| 🎭 | **Plagiarism Master** | Rogue, Stalker, Shadow Chaser and Abyss Chaser copy any skill Plagiarism can copy. The level goes up to your Plagiarism level. | Prontera (164, 166) |
+| 🎭 | **Plagiarism Master** | Rogue, Stalker, Shadow Chaser and Abyss Chaser copy any skill Plagiarism can copy. The level goes up to your Plagiarism level. | Prontera (171, 182) |
 
 #### 🛒 Shops & cards
 
@@ -86,7 +86,8 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | | NPC | What it does | Location |
 |:-:|---|---|---|
 | ⚒️ | **Safe Refiner** | Refine gear to +7 through +15 using certificates. | Prontera (164, 172) |
-| 💎 | **Costume Stone Enchanter** | Attach an Enchant/Class Stone (or similar item) to a costume slot, for free. | Prontera (164, 169) |
+| 📊 | **Grade Refiner** | Opens the game's grading window (Renewal only) and refining window. | Prontera (164, 166) |
+| 💎 | **Universal Enchanter** | Attach an Enchant/Class Stone (or similar item) to costume, shadow or regular gear, for free. Keeps the refine level. | Prontera (164, 169) |
 | 🔥 | **Master Nokzin** | Endows your weapon with an element for an hour, works on carded weapons too. Can also remove an endow for free. Portable Elemental Converter scrolls are sold in the Cash Shop instead. | Prontera (167, 178) |
 
 #### 🥊 Training
@@ -94,6 +95,12 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | | NPC | What it does | Location |
 |:-:|---|---|---|
 | 🎯 | **Training Dummies** | Stationary target dummies (Medium & Large) for testing damage output. | Prontera, near the fountain |
+
+#### 🎁 Other
+
+| | NPC | What it does | Location |
+|:-:|---|---|---|
+| 📅 | **Daily Rewards** | A daily attendance reward every 24 hours, 30 days in a row. | Prontera (147, 166) |
 
 > [!NOTE]
 > Some NPCs (Master Nokzin, Episode Valkyrie) may need the Cash Shop for full functionality.
@@ -137,7 +144,7 @@ Buffs that cancel each other in the game can't be ticked together.
 ## 🏆 Credits
 
 - 👑 **MondoTruth** — pack owner/maintainer, and the `npc/when/<setting>` and mod settings window support in the app itself (the PRs that make the checkboxes above work).
-- 🎨 **Lil Art** — Safe Refiner, Costume Stone Enchanter, Gramps, Overlook Fisherman, the 231+ Gramps bracket, Cheffenia MVP Dungeon, Illusion Dungeon bounties, Weight Maxxer, Training Dummies, Episode Valkyrie, and the Tool Dealer's Blacksmith Blessing.
+- 🎨 **Lil Art** — Safe Refiner, Grade Refiner, Universal Enchanter, Daily Rewards, Gramps, Overlook Fisherman, the 231+ Gramps bracket, Cheffenia MVP Dungeon, Illusion Dungeon bounties, Weight Maxxer, Training Dummies, Episode Valkyrie, and the Tool Dealer's Blacksmith Blessing.
 - ❄️ **IceGlaive** — Lucky John, Gramps per-character progress tracking, live kill notifications, the original 3 extended Gramps level brackets (with monster IDs verified live via `@mobinfo`), the bounty penalty/abandon system, the Gramps EXP rebalance, the reduced over-level penalty, the 231+ bracket monster fix, and the shared bounty rewards file with the EXP rebalance for Gramps, Lucky John, and Illusion Manager.
 - 🔥 **Nokzin** — Master Nokzin (elemental weapon endows).
 - 🎭 **iguera** — Plagiarism Master (from his arpg-equipments mod, used with permission).
