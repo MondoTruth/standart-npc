@@ -72,7 +72,7 @@ App limits: `type` is `boolean`, `number` or `string`; max 20 settings;
 Shops, Hunting quests, Dungeons, Equipment, Training, Other (keys not in a
 group land in Other).
 
-## NPCs in Prontera (grepped from files, 4.8.0)
+## NPCs in Prontera (grepped from files, 4.8.1)
 
 | NPC | x,y | File / toggle |
 |---|---|---|
