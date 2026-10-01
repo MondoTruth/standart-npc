@@ -246,7 +246,10 @@ S_Purge:
 	next;
 	if (select("Accept:Not now") == 2) close;
 	explode(.@pool$, .map$[.@r], ",");
-	BB_PurgeMap$ = .@pool$[rand(getarraysize(.@pool$))];
+	// rand(1) is a script error ("no randomness possible") that ends the
+	// script, so a one-map line (Lv 201-230) must not call it.
+	.@n = getarraysize(.@pool$);
+	BB_PurgeMap$ = .@pool$[.@n > 1 ? rand(.@n) : 0];
 	BB_PurgeDay = .@today;
 	BB_Row_4 = .@r + 1;
 	mes .n$;
