@@ -10,20 +10,20 @@
   Older apps ignore "settingsPage" and show the same options as plain
   checkboxes in the Mods tab, so nothing here is required for the mod to work.
 
-  To add an NPC: give it a setting in mod.json as usual, then add its key to
-  one of the groups below. A key that is in no group still appears, under
-  "Other", so forgetting this step never hides an option.
-
-  Warper, Job Master, Reset Girl, Stylist, Episode Valkyrie and Falcon
-  Breeder are always loaded (npc/, not npc/when/) because a mod may declare
-  only 20 settings.
-  Here they look like any other NPC; their ticks are stored together in the
-  one string setting "npc_off" (names of the unticked ones), which the NPCs
-  read at start-up through F_SNPC_Off (npc/custom/snpc_settings.txt).
+  Most NPCs are always loaded (npc/, not npc/when/) because a mod may
+  declare only 20 settings. Here they look like any other NPC; their ticks
+  are stored together in the one string setting "npc_off" (names of the
+  unticked ones), which the NPCs read at start-up through F_SNPC_Off
+  (npc/custom/snpc_settings.txt). To add one: an entry in ALWAYS_LOADED
+  below, and its key in one of the groups. Only NPCs with monster spawns,
+  mapflags or db/ tables need a folder toggle: a boolean in mod.json and
+  npc/when/<key>/.
+  A key that is in no group still appears, under "Other", so forgetting
+  this step never hides an option.
 
   The Buffer's buffs: "Choose buffs" next to the Buffer opens a second page
   (a settings page may not open windows). It writes the "buffer_set" string:
-  the codes of the ticked buffs, which npc/when/enable_buffer/buffer.txt
+  the codes of the ticked buffs, which npc/buffer.txt
   checks one by one. A new buff needs a line in BUFFS here and a block there.
 -->
 <style>
@@ -85,14 +85,18 @@
 // Groups, in the order they are shown. Keys are the setting keys in mod.json.
 // "npc:<name>" keys are the always-loaded NPCs from ALWAYS_LOADED below.
 const GROUPS = [
-  { title: 'Travel and services', keys: ['npc:warper', 'enable_buffer', 'enable_kafra', 'enable_weightmax'] },
-  { title: 'Character',           keys: ['npc:jobmaster', 'npc:reset', 'npc:stylist', 'npc:epvalk', 'enable_plagiarism'] },
-  { title: 'Shops',               keys: ['enable_tooldealer', 'enable_smuggler', 'enable_cardexchanger', 'npc:falcon'] },
+  { title: 'Travel and services', keys: ['npc:warper', 'npc:buffer', 'npc:kafra', 'npc:weightmax'] },
+  { title: 'Character',           keys: ['npc:jobmaster', 'npc:reset', 'npc:stylist', 'npc:epvalk', 'npc:plagiarism'] },
+  { title: 'Shops',               keys: ['npc:tooldealer', 'npc:smuggler', 'npc:cardexchanger', 'npc:falcon'] },
   { title: 'Hunting quests',      keys: ['enable_bounties'] },
   { title: 'Dungeons',            keys: ['enable_mvp'] },
-  { title: 'Equipment',           keys: ['enable_refiner', 'enable_grade', 'enable_enchanter', 'enable_nokzin'] },
+  { title: 'Equipment',           keys: ['npc:refiner', 'npc:grade', 'npc:enchanter', 'npc:nokzin'] },
   { title: 'Training',            keys: ['enable_dummies'] },
 ];
+
+// Renewal-only NPCs: hidden on a Pre-renewal server (the NPC also hides
+// itself there). Their ticked/unticked state is kept for Renewal.
+const RENEWAL_ONLY = ['npc:grade'];
 
 // NPCs without a setting of their own. The name after "npc:" is what goes
 // into "npc_off" and what the NPC passes to F_SNPC_Off.
@@ -104,6 +108,18 @@ const ALWAYS_LOADED = {
   'npc:stylist':   { label: 'Stylist',           description: 'Hair style, hair color and cloth color. Prontera (169,180).' },
   'npc:epvalk':    { label: 'Episode Valkyrie',  description: 'Redeems Episode Clear Tickets from the Cash Shop. Prontera (128,193).' },
   'npc:falcon':    { label: 'Falcon Breeder',    description: 'Falcon for Hunters/Snipers, Wolf Flute for Rangers/Windhawks, Hawk Flute for Windhawks. Prontera (128,211).' },
+  'npc:buffer':    { label: 'Buffer',            description: 'Free instant buffs + full heal on click. Every major town.' },
+  'npc:kafra':     { label: 'Kafra Employee',    description: 'Save point, storage, free identify. Prontera (160,187).' },
+  'npc:weightmax': { label: 'Weight Maxxer',     description: 'Trades a Gym Pass for +1 permanent carry capacity, up to 10 times. Prontera (147,169).' },
+  'npc:plagiarism':{ label: 'Plagiarism Master', description: 'Rogue line: copy any Plagiarism-copyable skill, level capped by your Plagiarism level. By iguera. Prontera (171,182).' },
+  'npc:tooldealer':{ label: 'Tool Dealer',       description: 'Fixed-price shop. Prontera (143,178).' },
+  'npc:smuggler':  { label: 'Smuggler',          description: 'Buy any item by ID. Prontera (144,174).' },
+  'npc:cardexchanger': { label: 'Card Exchanger', description: 'Trade cards for an album, or pull one out of your gear. Prontera (151,187).' },
+  'npc:refiner':   { label: 'Safe Refiner',      description: 'Refines gear to +7 through +15 using certificates (Pre-renewal: +7, +8, +9, +11). Prontera (164,172).' },
+  'npc:grade':     { label: 'Grade Refiner',     description: 'Opens the equipment grading UI and the refining UI. Renewal only. By Lil Art. Prontera (164,166).' },
+  'npc:enchanter': { label: 'Universal Enchanter', description: 'Attaches an Enchant/Class Stone to costume, shadow or regular gear, for free. By Lil Art. Prontera (164,169).' },
+  'npc:nokzin':    { label: 'Master Nokzin',     description: 'Endows your weapon with an element for an hour, removable for free. Prontera (167,178).' },
+  'npc:daily':     { label: 'Daily Rewards',     description: 'Distributes daily attendance rewards, once every 24 hours. By Lil Art. Prontera (147,166).' },
 };
 
 // The Buffer's buffs, in casting order. code = what buffer.txt checks.
@@ -225,7 +241,7 @@ function drawGroup(title, settings) {
     }
     box.onchange = () => { syncGroup(group); markDirty(); };
     label.append(box, text);
-    if (s.key === 'enable_buffer' && hasBuffKey) {
+    if (s.key === 'npc:buffer' && hasBuffKey) {
       const open = document.createElement('button');
       open.textContent = 'Choose buffs…';
       open.onclick = e => { e.preventDefault(); showBuffs(true); };
@@ -342,6 +358,13 @@ async function save() {
       offExtra = off.filter(n => !ALWAYS_LOADED['npc:' + n]);
       for (const [k, info] of Object.entries(ALWAYS_LOADED))
         byKey.set(k, { key: k, ...info, value: !off.includes(k.slice(4)) });
+      if (mod.context && mod.context.era === 'pre-renewal') {
+        for (const k of RENEWAL_ONLY) {
+          // Not shown, so keep it in npc_off as it is
+          if (off.includes(k.slice(4))) offExtra.push(k.slice(4));
+          byKey.delete(k);
+        }
+      }
     }
     const buffSetting = mod.settings.find(s => s.key === BUFF_KEY);
     if (buffSetting) {

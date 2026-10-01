@@ -5,7 +5,7 @@
 <p align="center">
   <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/MondoTruth/standart-npc?style=for-the-badge&label=latest&color=d9a233" alt="Latest release"></a>
   <a href="../../releases"><img src="https://img.shields.io/github/downloads/MondoTruth/standart-npc/total?style=for-the-badge&color=5da9e0" alt="Downloads"></a>
-  <a href="https://github.com/Flux159/ragnarokoffline.app"><img src="https://img.shields.io/badge/Ragnarok%20Offline-%E2%89%A5%201.3.4-c8503f?style=for-the-badge" alt="Requires Ragnarok Offline 1.3.4 or newer"></a>
+  <a href="https://github.com/Flux159/ragnarokoffline.app"><img src="https://img.shields.io/badge/Ragnarok%20Offline-%E2%89%A5%201.3.9-c8503f?style=for-the-badge" alt="Requires Ragnarok Offline 1.3.9 or newer"></a>
 </p>
 
 <p align="center">
@@ -28,7 +28,7 @@
 3. **Settings → Mods** → tick **standart-npc** → **Apply**. This turns on every NPC in the pack.
 
 > [!IMPORTANT]
-> Requires app version **1.3.4 or newer** — the settings window and the per-NPC switches depend on it.
+> Requires app version **1.3.9 or newer** — the settings window, the per-NPC switches and Bounty Hunter credit for party bot kills depend on it.
 
 ---
 
@@ -85,8 +85,8 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 
 | | NPC | What it does | Location |
 |:-:|---|---|---|
-| ⚒️ | **Safe Refiner** | Refine gear to +7 through +15 using certificates. | Prontera (164, 172) |
-| 📊 | **Grade Refiner** | Opens the game's grading window (Renewal only) and refining window. | Prontera (164, 166) |
+| ⚒️ | **Safe Refiner** | Refine gear to +7 through +15 using certificates (Pre-renewal: +7, +8, +9, +11). | Prontera (164, 172) |
+| 📊 | **Grade Refiner** | Opens the game's grading and refining windows. Renewal only. | Prontera (164, 166) |
 | 💎 | **Universal Enchanter** | Attach an Enchant/Class Stone (or similar item) to costume, shadow or regular gear, for free. Keeps the refine level. | Prontera (164, 169) |
 | 🔥 | **Master Nokzin** | Endows your weapon with an element for an hour, works on carded weapons too. Can also remove an endow for free. Portable Elemental Converter scrolls are sold in the Cash Shop instead. | Prontera (167, 178) |
 
@@ -143,7 +143,7 @@ Buffs that cancel each other in the game can't be ticked together.
 
 ## 🏆 Credits
 
-- 👑 **MondoTruth** — pack owner/maintainer, and the `npc/when/<setting>` and mod settings window support in the app itself (the PRs that make the checkboxes above work).
+- 👑 **MondoTruth** — pack owner/maintainer, and just a good guy.
 - 🎨 **Lil Art** — Safe Refiner, Grade Refiner, Universal Enchanter, Daily Rewards, Gramps, Overlook Fisherman, the 231+ Gramps bracket, Cheffenia MVP Dungeon, Illusion Dungeon bounties, Weight Maxxer, Training Dummies, Episode Valkyrie, and the Tool Dealer's Blacksmith Blessing.
 - ❄️ **IceGlaive** — Lucky John, Gramps per-character progress tracking, live kill notifications, the original 3 extended Gramps level brackets (with monster IDs verified live via `@mobinfo`), the bounty penalty/abandon system, the Gramps EXP rebalance, the reduced over-level penalty, the 231+ bracket monster fix, and the shared bounty rewards file with the EXP rebalance for Gramps, Lucky John, and Illusion Manager.
 - 🔥 **Nokzin** — Master Nokzin (elemental weapon endows).

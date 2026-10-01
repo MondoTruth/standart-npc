@@ -182,4 +182,8 @@ prontera,171,182,4	script	Plagiarism Master#snpc	4_F_ROGUE,{
 		mes "The copy failed for skill ID " + .@sk + ".";
 	}
 	close;
+
+OnInit:
+	if (callfunc("F_SNPC_Off", "plagiarism")) disablenpc strnpcinfo(0);	// switched off in the settings window
+	end;
 }

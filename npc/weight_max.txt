@@ -71,4 +71,8 @@ prontera,147,169,5	script	Weight Maxxer#prontera	4_M_MONK,{
 			close;
 		}
 	}
+
+OnInit:
+	if (callfunc("F_SNPC_Off", "weightmax")) disablenpc strnpcinfo(0);	// switched off in the settings window
+	end;
 }

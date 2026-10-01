@@ -4,8 +4,10 @@
 //===== Description: =========================================
 //= Opens the game's own equipment grading UI and refining UI
 //= from one NPC in central Prontera.
-//= Grading exists only on Renewal: on Pre-renewal servers the
-//= grading option is hidden (checked with checkre(0)).
+//= Renewal only: grading does not exist on Pre-renewal, and the
+//= Safe Refiner covers refining there. The settings window
+//= hides it on Pre-renewal, and the NPC hides itself there at
+//= start-up.
 //===== How to customize: ====================================
 //= - Location/sprite: the first line (map,x,y,dir / sprite).
 //============================================================
@@ -15,9 +17,7 @@ prontera,164,166,4	script	Grade Refiner#prontera	864,{
 	mes "Hello! What service would you like to access today?";
 	next;
 
-	// An empty menu entry is not shown, so "Equipment Grading" is
-	// hidden on Pre-renewal while the case numbers stay the same.
-	switch(select((checkre(0) ? "Equipment Grading" : "") + ":Equipment Refinement:Cancel")) {
+	switch(select("Equipment Grading:Equipment Refinement:Cancel")) {
 	case 1:
 		close2;
 		enchantgradeui;
@@ -31,4 +31,11 @@ prontera,164,166,4	script	Grade Refiner#prontera	864,{
 		mes "Come back whenever you need to process your gear!";
 		close;
 	}
+
+OnInit:
+	// Off on Pre-renewal (checkre(0): 1 = Renewal, 0 = Pre-renewal),
+	// or switched off in the settings window
+	if (!checkre(0) || callfunc("F_SNPC_Off", "grade"))
+		disablenpc strnpcinfo(0);
+	end;
 }

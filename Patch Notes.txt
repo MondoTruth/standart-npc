@@ -151,3 +151,21 @@ Initial release.
 - Plagiarism Master moved to Prontera (171,182).
 - Safe Refiner has a new look; Weight Maxxer faces a different way.
 - Thanks to Lil Art for the update.
+
+## 4.8.1
+Now needs Ragnarok Offline 1.3.9 or newer.
+
+### Renewal and Pre-renewal
+- Bounty Hunter: kills by party bots (recruited AI companions) now count for all contracts, Area Purge included.
+- Bounty Hunter: fixed Area Purge for Lv 201-230. Accepting the contract left the window open and no contract started. (Not tested in game yet.)
+- Universal Enchanter: on regular gear, stones now go only into the sockets after the item's card slots, so card slots stay for cards. The item keeps its random options, bound status and (on Renewal) grade. Rental, crafted/named items and items you own more than one copy of are refused. (Not tested in game yet.)
+- Daily Rewards: if a reward item is missing on the server, the day is no longer used up. Removed the unused db/attendance.yml.
+- Settings: 12 NPCs no longer need a setting of their own (17 settings -> 5). The settings window looks the same.
+  If you had switched off any of these NPCs, they are on again after updating, so untick them once more: Buffer, Kafra Employee, Weight Maxxer, Plagiarism Master, Tool Dealer, Smuggler, Card Exchanger, Safe Refiner, Grade Refiner (Renewal), Universal Enchanter, Master Nokzin, Daily Rewards.
+
+### Pre-renewal only
+- Daily Rewards: its own reward list (most of the original items exist only on Renewal).
+- Grade Refiner removed: grading does not exist on Pre-renewal, and the Safe Refiner covers refining. It is hidden in the settings window and does not appear in game.
+- Safe Refiner offers only +7, +8, +9 and +11 (the other certificates do not exist on Pre-renewal).
+
+Thanks to Vibbuz who reported the Area Purge bug.

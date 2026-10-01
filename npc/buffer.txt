@@ -126,6 +126,7 @@
 	end;
 
 OnInit:
+	if (callfunc("F_SNPC_Off", "buffer")) disablenpc strnpcinfo(0);	// switched off in the settings window
 	.dur = 600000;
 	.dur_short = 360000;
 	.default_set$ = "bless,agi,kyrie,magni";

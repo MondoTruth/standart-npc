@@ -4,12 +4,18 @@
 //===== Description: =========================================
 //= Free -- no Zeny cost, just consumes the stone used. Accepts
 //= any inventory item (Class Stones, Garment Stones, Essences,
-//= Fixed Casting, Nebula Stones, etc.) and attaches it to any
-//= equipped Costume, Shadow, or Regular gear slot. The item's
-//= refine level is kept.
+//= Fixed Casting, Nebula Stones, etc.) and attaches it to an
+//= empty socket of equipped Costume, Shadow, or Regular gear.
+//= Regular gear: only the sockets after its card slots, so the
+//= card slots stay for cards.
+//= The item keeps its refine, grade, random options, bound type
+//= and broken state. Refused: rental items, forged/brewed/pet
+//= items (their card fields hold crafter data), and items the
+//= player owns more than one copy of (equip picks by item ID).
 //===== How to customize: ====================================
-//= - Which slots are offered: the .@EQ_SLOTS/.@EQ_NAMES$ arrays
-//=   for each category (Costume, Shadow, Regular).
+//= - Which slots are offered: the .@EQ_SLOTS/.@EQ_POS/.@EQ_NAMES$
+//=   arrays for each category (Costume, Shadow, Regular). .@EQ_POS
+//=   is the EQP_* position matching each EQI_* slot.
 //= - Location/sprite: the first line below.
 //============================================================
 
@@ -23,17 +29,21 @@ prontera,164,169,4	script	Universal Enchanter	10182,{
     if (.@cat == 4) close;
 
     deletearray .@EQ_SLOTS[0];
+    deletearray .@EQ_POS[0];
     deletearray .@EQ_NAMES$[0];
 
     // Branch equipment choices by category
     if (.@cat == 1) {
         setarray .@EQ_SLOTS[1], EQI_COSTUME_HEAD_TOP, EQI_COSTUME_HEAD_MID, EQI_COSTUME_HEAD_LOW, EQI_COSTUME_GARMENT;
+        setarray .@EQ_POS[1], EQP_COSTUME_HEAD_TOP, EQP_COSTUME_HEAD_MID, EQP_COSTUME_HEAD_LOW, EQP_COSTUME_GARMENT;
         setarray .@EQ_NAMES$[1], "Costume Top Headgear", "Costume Mid Headgear", "Costume Low Headgear", "Costume Garment";
     } else if (.@cat == 2) {
         setarray .@EQ_SLOTS[1], EQI_SHADOW_ARMOR, EQI_SHADOW_WEAPON, EQI_SHADOW_SHIELD, EQI_SHADOW_SHOES, EQI_SHADOW_ACC_R, EQI_SHADOW_ACC_L;
+        setarray .@EQ_POS[1], EQP_SHADOW_ARMOR, EQP_SHADOW_WEAPON, EQP_SHADOW_SHIELD, EQP_SHADOW_SHOES, EQP_SHADOW_ACC_R, EQP_SHADOW_ACC_L;
         setarray .@EQ_NAMES$[1], "Shadow Armor", "Shadow Weapon", "Shadow Shield", "Shadow Shoes", "Shadow Accessory (Right)", "Shadow Accessory (Left)";
     } else if (.@cat == 3) {
         setarray .@EQ_SLOTS[1], EQI_HEAD_TOP, EQI_HEAD_MID, EQI_HEAD_LOW, EQI_ARMOR, EQI_HAND_R, EQI_HAND_L, EQI_GARMENT, EQI_SHOES, EQI_ACC_R, EQI_ACC_L;
+        setarray .@EQ_POS[1], EQP_HEAD_TOP, EQP_HEAD_MID, EQP_HEAD_LOW, EQP_ARMOR, EQP_HAND_R, EQP_HAND_L, EQP_GARMENT, EQP_SHOES, EQP_ACC_R, EQP_ACC_L;
         setarray .@EQ_NAMES$[1], "Top Headgear", "Mid Headgear", "Low Headgear", "Armor", "Right Hand (Weapon)", "Left Hand (Shield)", "Garment", "Shoes", "Accessory (Right)", "Accessory (Left)";
     }
 
@@ -66,26 +76,81 @@ prontera,164,169,4	script	Universal Enchanter	10182,{
         close;
     }
 
+    // Read everything the item carries, so it can be recreated as it is.
+    // Find the equipped copy by position; count the other copies.
+    getinventorylist;
+    .@inv = -1;
+    .@copies = 0;
+    for (.@i = 0; .@i < @inventorylist_count; .@i++) {
+        if (@inventorylist_id[.@i] != .@target_id) continue;
+        .@copies++;
+        if (.@inv < 0 && (@inventorylist_equip[.@i] & .@EQ_POS[.@sel_slot]))
+            .@inv = .@i;
+    }
+    if (.@inv < 0) {
+        mes "[Universal Enchanter]";
+        mes "I could not find that item in your inventory.";
+        close;
+    }
+    if (.@copies > 1) {
+        mes "[Universal Enchanter]";
+        mes "You own more than one ^0055FF" + getitemname(.@target_id) + "^000000.";
+        mes "Please put the other copies in storage first, so the right one gets enchanted.";
+        close;
+    }
+    if (@inventorylist_expire[.@inv] > 0) {
+        mes "[Universal Enchanter]";
+        mes "Rental items cannot be enchanted.";
+        close;
+    }
+    .@c0 = @inventorylist_card1[.@inv];
+    if (.@c0 == CARD0_FORGE || .@c0 == CARD0_CREATE || .@c0 == CARD0_PET) {
+        mes "[Universal Enchanter]";
+        mes "Crafted or named items cannot be enchanted: their sockets hold the crafter's data.";
+        close;
+    }
+    .@c1 = @inventorylist_card2[.@inv];
+    .@c2 = @inventorylist_card3[.@inv];
+    .@c3 = @inventorylist_card4[.@inv];
+    .@refine = @inventorylist_refine[.@inv];
+    .@attr = @inventorylist_attribute[.@inv];
+    .@bound = @inventorylist_bound[.@inv];
+    .@grade = @inventorylist_enchantgrade[.@inv];
+    for (.@o = 1; .@o <= 5; .@o++) {
+        .@opt_id[.@o - 1] = getd("@inventorylist_option_id" + .@o + "[" + .@inv + "]");
+        .@opt_val[.@o - 1] = getd("@inventorylist_option_value" + .@o + "[" + .@inv + "]");
+        .@opt_par[.@o - 1] = getd("@inventorylist_option_parameter" + .@o + "[" + .@inv + "]");
+    }
+
+    // Regular gear: the item's own card slots stay for cards
+    .@first = (.@cat == 3) ? getitemslots(.@target_id) : 0;
+    if (.@first >= 4) {
+        mes "[Universal Enchanter]";
+        mes "All sockets of this item are card slots. There is no room for an enchant.";
+        close;
+    }
+
     // Step 2: Select Target Socket Slot (0 to 3)
     mes "[Universal Enchanter]";
     mes "Selected: ^0055FF" + getitemname(.@target_id) + "^000000";
     mes "Which socket do you want to enchant?";
     next;
 
-    .@c0 = getequipcardid(.@target_eq, 0);
-    .@c1 = getequipcardid(.@target_eq, 1);
-    .@c2 = getequipcardid(.@target_eq, 2);
-    .@c3 = getequipcardid(.@target_eq, 3);
-
-    .@sock_str$ = "Socket 1 [" + (.@c0 ? getitemname(.@c0) : "^00FF00Empty^000000") + "]:"
-                + "Socket 2 [" + (.@c1 ? getitemname(.@c1) : "^00FF00Empty^000000") + "]:"
-                + "Socket 3 [" + (.@c2 ? getitemname(.@c2) : "^00FF00Empty^000000") + "]:"
-                + "Socket 4 [" + (.@c3 ? getitemname(.@c3) : "^00FF00Empty^000000") + "]:Cancel";
+    // Card slots of regular gear are left out: an empty menu entry is
+    // not shown, and the numbering of the others stays the same.
+    setarray .@sock[0], .@c0, .@c1, .@c2, .@c3;
+    .@sock_str$ = "";
+    for (.@i = 0; .@i < 4; .@i++) {
+        if (.@i >= .@first)
+            .@sock_str$ += "Socket " + (.@i + 1) + " [" + (.@sock[.@i] ? getitemname(.@sock[.@i]) : "^00FF00Empty^000000") + "]";
+        .@sock_str$ += ":";
+    }
+    .@sock_str$ += "Cancel";
 
     .@sock_choice = select(.@sock_str$) - 1;
     if (.@sock_choice >= 4) close;
 
-    if (getequipcardid(.@target_eq, .@sock_choice) > 0) {
+    if (.@sock[.@sock_choice] > 0) {
         mes "[Universal Enchanter]";
         mes "That socket is already occupied!";
         close;
@@ -160,22 +225,20 @@ prontera,164,169,4	script	Universal Enchanter	10182,{
         close;
     }
 
-    // Process Enchanting (Store refinement level first)
-    .@refine = getequiprefinerycnt(.@target_eq);
-
-    .@cards[0] = .@c0;
-    .@cards[1] = .@c1;
-    .@cards[2] = .@c2;
-    .@cards[3] = .@c3;
-    .@cards[.@sock_choice] = .@chosen_stone_id;
+    // Recreate the item with everything read above, plus the stone
+    .@sock[.@sock_choice] = .@chosen_stone_id;
 
     delitem .@chosen_stone_id, 1;
     delequip .@target_eq;
-    getitem2 .@target_id, 1, 1, .@refine, 0, .@cards[0], .@cards[1], .@cards[2], .@cards[3];
+    getitembound4 .@target_id, 1, 1, .@refine, .@attr, .@sock[0], .@sock[1], .@sock[2], .@sock[3], .@bound, .@grade, .@opt_id, .@opt_val, .@opt_par;
     equip .@target_id;
 
     specialeffect2 154;
     mes "[Universal Enchanter]";
     mes "Enchantment successful!";
     close;
+
+OnInit:
+    if (callfunc("F_SNPC_Off", "enchanter")) disablenpc strnpcinfo(0);	// switched off in the settings window
+    end;
 }
