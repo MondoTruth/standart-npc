@@ -21,8 +21,9 @@ document disagrees with the files, trust the files and say so.
 
 ## Workflow
 
-- Every change starts from an issue. Create one with `gh issue create` if it
-  doesn't exist yet.
+- Create issues only when MondoTruth asks for it.
+- Otherwise go straight to a branch and a PR. If the work matches an existing
+  issue, put `Closes #<issue>` in the PR body.
 - Work in a branch named after the task, never commit to `main` directly.
 - Open a PR with `gh pr create`, body contains `Closes #<issue>`.
 - **Don't merge PRs yourself.** MondoTruth merges after testing in game.
