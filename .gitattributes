@@ -1,0 +1,11 @@
+# Keep LF line endings in all text files (scripts, db, mod.json, settings),
+# also on Windows checkouts with core.autocrlf=true.
+* text=auto eol=lf
+
+# Binary files: never touch line endings
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.zip binary
