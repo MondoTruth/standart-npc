@@ -2,14 +2,16 @@
 //= standart-npc: switches for the always-loaded NPCs
 //===== By: MondoTruth, Claude =================================
 //===== Description: =========================================
-//= Warper, Job Master, Reset Girl, Stylist, Episode Valkyrie and
-//= Falcon Breeder live directly in npc/, so they are always
-//= loaded. Each of them asks this function at start-up whether it was switched off in
-//= the mod's settings window, and hides itself if so.
+//= The NPCs that live directly in npc/ are always loaded. Each of
+//= them asks this function at start-up whether it was switched
+//= off in the mod's settings window, and hides itself if so
+//= (disablenpc: hidden, and its OnPCLogin etc. no longer run).
 //=   callfunc("F_SNPC_Off", "<name>")  -> 1 = switched off
 //= The answer comes from the "npc_off" setting: a comma-separated
-//= list of names (warper, jobmaster, reset, stylist, epvalk,
-//= falcon).
+//= list of names (warper, buffer, jobmaster, reset, stylist,
+//= epvalk, falcon, kafra, weightmax, plagiarism, tooldealer,
+//= smuggler, cardexchanger, refiner, grade, enchanter, nokzin,
+//= daily).
 //= Empty = everything on.
 //===== How to customize: ====================================
 //= - Nothing to edit here: tick/untick the NPCs in

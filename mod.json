@@ -16,14 +16,7 @@
       "default": "",
       "max_length": 200,
       "label": "Switched-off NPCs",
-      "description": "Filled in by the Settings… window: the always-loaded NPCs (Warper, Job Master, Reset Girl, Stylist, Episode Valkyrie, Falcon Breeder) that are unticked there. Empty = all on."
-    },
-    {
-      "key": "enable_buffer",
-      "type": "boolean",
-      "default": true,
-      "label": "Buffer",
-      "description": "Free instant buffs + full heal on click. Every major town. Buffs are chosen in the Settings… window."
+      "description": "Filled in by the Settings… window: the NPCs without a setting of their own (Warper, Buffer, Job Master, Reset Girl, Stylist, Episode Valkyrie, Falcon Breeder, Kafra Employee, Weight Maxxer, Plagiarism Master, Tool Dealer, Smuggler, Card Exchanger, Safe Refiner, Grade Refiner, Universal Enchanter, Master Nokzin, Daily Rewards) that are unticked there. Empty = all on."
     },
     {
       "key": "buffer_set",
@@ -32,34 +25,6 @@
       "max_length": 200,
       "label": "Buffer: buffs",
       "description": "Filled in by the Settings… window (Buffer → Choose buffs): the buffs the Buffer casts, as a comma-separated list of codes."
-    },
-    {
-      "key": "enable_tooldealer",
-      "type": "boolean",
-      "default": true,
-      "label": "Tool Dealer",
-      "description": "Fixed-price shop. Prontera (143,178)."
-    },
-    {
-      "key": "enable_cardexchanger",
-      "type": "boolean",
-      "default": true,
-      "label": "Card Exchanger",
-      "description": "Trade cards for an album, or pull one out of your gear. Prontera (151,187)."
-    },
-    {
-      "key": "enable_kafra",
-      "type": "boolean",
-      "default": true,
-      "label": "Kafra Employee",
-      "description": "Save point, storage, free identify. Prontera (160,187)."
-    },
-    {
-      "key": "enable_smuggler",
-      "type": "boolean",
-      "default": true,
-      "label": "Smuggler",
-      "description": "Buy any item by ID. Prontera (144,174)."
     },
     {
       "key": "enable_bounties",
@@ -74,55 +39,6 @@
       "default": true,
       "label": "Cheffenia MVP Dungeon",
       "description": "Timed MVP dungeon access, paid in Zeny or Cash Points. Prontera (140,180)."
-    },
-    {
-      "key": "enable_refiner",
-      "type": "boolean",
-      "default": true,
-      "label": "Safe Refiner",
-      "description": "Refines gear to +7 through +15 using certificates (Pre-renewal: +7, +8, +9, +11). Prontera (164,172)."
-    },
-    {
-      "key": "enable_grade",
-      "type": "boolean",
-      "default": true,
-      "label": "Grade Refiner",
-      "description": "Opens the equipment grading UI and the refining UI. Renewal only: hidden and switched off on Pre-renewal. By Lil Art. Prontera (164,166)."
-    },
-    {
-      "key": "enable_enchanter",
-      "type": "boolean",
-      "default": true,
-      "label": "Universal Enchanter",
-      "description": "Attaches an Enchant/Class Stone to costume, shadow or regular gear, for free. By Lil Art. Prontera (164,169)."
-    },
-    {
-      "key": "enable_nokzin",
-      "type": "boolean",
-      "default": true,
-      "label": "Master Nokzin",
-      "description": "Endows your weapon with an element for an hour, removable for free. Prontera (167,178)."
-    },
-    {
-      "key": "enable_weightmax",
-      "type": "boolean",
-      "default": true,
-      "label": "Weight Maxxer",
-      "description": "Trades a Gym Pass for +1 permanent carry capacity, up to 10 times. Prontera (147,169)."
-    },
-    {
-      "key": "enable_plagiarism",
-      "type": "boolean",
-      "default": true,
-      "label": "Plagiarism Master",
-      "description": "Rogue line: copy any Plagiarism-copyable skill, level capped by your Plagiarism level. By iguera. Prontera (171,182)."
-    },
-    {
-      "key": "enable_daily",
-      "type": "boolean",
-      "default": true,
-      "label": "Daily Rewards",
-      "description": "Distributes daily attendance rewards, once every 24 hours. By Lil Art. Prontera (147,166)."
     },
     {
       "key": "enable_dummies",

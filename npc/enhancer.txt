@@ -108,4 +108,8 @@ prontera,164,172,4	script	Safe Refiner	1930,{
     mes "Success! Your equipment is now ^00FF00+" + getequiprefinerycnt(.@equip_slot) + "^000000.";
 
     close;
+
+OnInit:
+    if (callfunc("F_SNPC_Off", "refiner")) disablenpc strnpcinfo(0);	// switched off in the settings window
+    end;
 }

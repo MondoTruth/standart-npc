@@ -237,4 +237,8 @@ prontera,164,169,4	script	Universal Enchanter	10182,{
     mes "[Universal Enchanter]";
     mes "Enchantment successful!";
     close;
+
+OnInit:
+    if (callfunc("F_SNPC_Off", "enchanter")) disablenpc strnpcinfo(0);	// switched off in the settings window
+    end;
 }

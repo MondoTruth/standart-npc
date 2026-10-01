@@ -173,4 +173,8 @@ prontera,151,187,4	script	Card Exchanger	660,{
 		mes "Come back anytime you have cards to exchange!";
 		close;
 	}
+
+OnInit:
+	if (callfunc("F_SNPC_Off", "cardexchanger")) disablenpc strnpcinfo(0);	// switched off in the settings window
+	end;
 }

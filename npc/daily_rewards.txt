@@ -94,6 +94,7 @@ OnPCLogin:
 	end;
 
 OnInit:
+	if (callfunc("F_SNPC_Off", "daily")) disablenpc strnpcinfo(0);	// switched off in the settings window
 	// 4.8.0 kept the rewards in permanent globals; drop the old copies
 	deletearray $att_items;
 	deletearray $att_amounts;

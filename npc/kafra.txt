@@ -46,4 +46,8 @@ prontera,160,187,4	script	Kafra Employee	4_F_KAFRA1,{
 	close2;
 	cutin "",255;
 	end;
+
+OnInit:
+	if (callfunc("F_SNPC_Off", "kafra")) disablenpc strnpcinfo(0);	// switched off in the settings window
+	end;
 }

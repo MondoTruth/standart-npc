@@ -94,4 +94,8 @@ prontera,144,174,4	script	Smuggler	494,{
 	mes "[Smuggler]";
 	mes "Pleasure doing business.";
 	close;
+
+OnInit:
+	if (callfunc("F_SNPC_Off", "smuggler")) disablenpc strnpcinfo(0);	// switched off in the settings window
+	end;
 }

@@ -43,8 +43,9 @@ settings/index.html      -- the mod's own settings window
 db/                      -- prontera_dummies.yml
 npc/
   custom/snpc_settings.txt  -- F_SNPC_Off: switch for always-loaded NPCs
-  warper.txt jobmaster.txt resetnpc.txt stylist.txt ep-valk.txt falcon.txt
+  *.txt                     -- always-loaded NPCs (Warper, Buffer, Job Master, ...)
   when/<setting key>/      -- loaded only if that boolean setting is on
+                              (Bounty Hunter, MVP dungeon, Training Dummies)
 README.md, assets/, CLAUDE.md  -- repo only, never in the release zip
 ```
 
@@ -54,14 +55,16 @@ README.md, assets/, CLAUDE.md  -- repo only, never in the release zip
   is on. When off, nothing in the folder loads (NPCs, `monster` spawns, warps).
 - **Always-loaded NPCs** in `npc/` call `callfunc("F_SNPC_Off", "<name>")` at
   start-up and hide themselves if listed in the string setting `npc_off`
-  (comma list: `warper, jobmaster, reset, stylist, epvalk, falcon`; empty =
-  all on). `disablenpc` hides only the NPC — `monster` lines in the same file
+  (comma list: `warper, buffer, jobmaster, reset, stylist, epvalk, falcon,
+  kafra, weightmax, plagiarism, tooldealer, smuggler, cardexchanger, refiner,
+  grade, enchanter, nokzin, daily`; empty = all on). A `shop` has no OnInit, so
+  Tool Dealer uses a small helper script. `disablenpc` hides only the NPC — `monster` lines in the same file
   still load, so anything with spawns must be a folder toggle.
 - Scripts read settings with
   `callfunc("F_ModSetting", "standart-npc", "<key>", <default>)`.
 - Files in `db/` load even when the related NPC is switched off.
 
-### Settings — 17 of max 20 used
+### Settings — 5 of max 20 used
 
 App limits: `type` is `boolean`, `number` or `string`; max 20 settings;
 `requires.mods` gates the whole mod only. Settings window groups (in
@@ -74,25 +77,25 @@ group land in Other).
 | NPC | x,y | File / toggle |
 |---|---|---|
 | Warper | 160,192 + duplicates in towns | npc/warper.txt, npc_off `warper` |
-| Buffer | 163,192 + duplicates in towns | enable_buffer |
+| Buffer | 163,192 + duplicates in towns | npc_off `buffer` |
 | Job Master | 157,195 | npc_off `jobmaster` |
 | Reset Girl | 154,195 | npc_off `reset` |
 | Stylist | 169,180 | npc_off `stylist` |
 | Episode Valkyrie | 128,193 | npc_off `epvalk` |
 | Falcon Breeder | 128,211 | npc_off `falcon` |
-| Kafra Employee | 160,187 | enable_kafra |
-| Weight Maxxer | 147,169 | enable_weightmax |
-| Plagiarism Master | 171,182 | enable_plagiarism |
-| Tool Dealer | 143,178 | enable_tooldealer |
-| Smuggler | 144,174 | enable_smuggler |
-| Card Exchanger | 151,187 | enable_cardexchanger |
+| Kafra Employee | 160,187 | npc_off `kafra` |
+| Weight Maxxer | 147,169 | npc_off `weightmax` |
+| Plagiarism Master | 171,182 | npc_off `plagiarism` |
+| Tool Dealer | 143,178 | npc_off `tooldealer` |
+| Smuggler | 144,174 | npc_off `smuggler` |
+| Card Exchanger | 151,187 | npc_off `cardexchanger` |
 | Bounty Hunter | 147,172 | enable_bounties |
 | Cheffenia Gatekeeper | 140,180 | enable_mvp |
-| Safe Refiner | 164,172 | enable_refiner |
-| Grade Refiner | 164,166 | enable_grade |
-| Universal Enchanter | 164,169 | enable_enchanter |
-| Master Nokzin | 167,178 | enable_nokzin |
-| Daily Rewards | 147,166 | enable_daily |
+| Safe Refiner | 164,172 | npc_off `refiner` |
+| Grade Refiner | 164,166 | npc_off `grade` (Renewal only) |
+| Universal Enchanter | 164,169 | npc_off `enchanter` |
+| Master Nokzin | 167,178 | npc_off `nokzin` |
+| Daily Rewards | 147,166 | npc_off `daily` |
 | Training Dummies | near 153-158,163 | enable_dummies |
 
 Before placing a new NPC, grep all `prontera,` lines to avoid collisions.
@@ -125,9 +128,11 @@ Before placing a new NPC, grep all `prontera,` lines to avoid collisions.
   account-wide; avoid permanent global `$var` for static data (use `.var`).
 - `db/*.yml` needs a real `Header: {Type, Version}` / `Body:` wrapper.
 - Coordinates in mod.json descriptions and README: always grep from the file.
-- New NPC: folder `npc/when/<new_key>/` + boolean in `mod.json` + place in a
-  group in `settings/index.html`. Mind the 20-settings cap. A simple
-  always-loaded NPC can use `F_SNPC_Off` + `npc_off` instead of a new key.
+- New NPC: by default always loaded -- file in `npc/`, `OnInit` with
+  `F_SNPC_Off`, an entry in `ALWAYS_LOADED` and a group in
+  `settings/index.html`. Only NPCs with `monster`/`mapflag` lines or `db/`
+  tables need a folder `npc/when/<new_key>/` + boolean in `mod.json` (mind
+  the 20-settings cap).
 - Bounty Hunter: all contracts are in `bounty_contracts.txt`, one line each;
   keep the first lines of each type in their old order (progress migration
   depends on it); new hunting monsters also need spawn lines in

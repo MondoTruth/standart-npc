@@ -55,4 +55,8 @@ prontera,167,178,1	script	Master Nokzin#endowersage	86,{
 	case 4:
 		close;
 	}
+
+OnInit:
+	if (callfunc("F_SNPC_Off", "nokzin")) disablenpc strnpcinfo(0);	// switched off in the settings window
+	end;
 }

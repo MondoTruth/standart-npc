@@ -6,8 +6,8 @@
 //= from one NPC in central Prontera.
 //= Renewal only: grading does not exist on Pre-renewal, and the
 //= Safe Refiner covers refining there. The settings window
-//= switches enable_grade off on Pre-renewal; if it is still on,
-//= the NPC hides itself at start-up.
+//= hides it on Pre-renewal, and the NPC hides itself there at
+//= start-up.
 //===== How to customize: ====================================
 //= - Location/sprite: the first line (map,x,y,dir / sprite).
 //============================================================
@@ -33,8 +33,9 @@ prontera,164,166,4	script	Grade Refiner#prontera	864,{
 	}
 
 OnInit:
-	// checkre(0): 1 = Renewal, 0 = Pre-renewal
-	if (!checkre(0))
+	// Off on Pre-renewal (checkre(0): 1 = Renewal, 0 = Pre-renewal),
+	// or switched off in the settings window
+	if (!checkre(0) || callfunc("F_SNPC_Off", "grade"))
 		disablenpc strnpcinfo(0);
 	end;
 }
