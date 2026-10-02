@@ -52,9 +52,10 @@ jobs:
             ':(exclude)assets' \
             ':(exclude)CLAUDE.md' \
             ':(exclude).github' \
-            ':(exclude).gitattributes'
+            ':(exclude).gitattributes' \
+            ':(exclude)tests'
           unzip -l "$ZIP"
-          if unzip -Z1 "$ZIP" | grep -E '^standart-npc/(README\.md|assets/|CLAUDE\.md|\.git/|\.github/|\.gitattributes)'; then
+          if unzip -Z1 "$ZIP" | grep -E '^standart-npc/(README\.md|assets/|CLAUDE\.md|\.git/|\.github/|\.gitattributes|tests/)'; then
             echo "::error::The zip contains files that must not be in the release (listed above)."
             exit 1
           fi
