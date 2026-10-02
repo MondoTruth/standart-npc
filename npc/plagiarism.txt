@@ -1,6 +1,7 @@
 //===== rAthena Script =======================================
 //= Plagiarism Master
 //===== By: Iguera (adapted for standart-npc by MondoTruth, Claude)
+//= License: MIT, Copyright (c) 2026 Igor (ARPG-Equipments-Mod), see LICENSE.
 //===== Description: =========================================
 //= Lets the Rogue line copy any Plagiarism-copyable skill:
 //= Rogue, Stalker, Baby Rogue, Shadow Chaser (normal, trans,

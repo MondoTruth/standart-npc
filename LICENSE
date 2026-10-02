@@ -32,3 +32,11 @@ not under the MIT licence above:
   npc/jobmaster.txt  based on npc/custom/jobmaster.txt (Euphy)
   npc/resetnpc.txt   based on npc/custom/resetnpc.txt
   npc/stylist.txt    based on npc/custom/stylist.txt (Euphy)
+
+-------------------------------------------------------------------------------
+Third-party code under the MIT licence
+
+  npc/plagiarism.txt  based on iguera's ARPG-Equipments-Mod
+                      (https://github.com/igueradx/ARPG-Equipments-Mod)
+                      Copyright (c) 2026 Igor
+                      MIT licence, same terms as the notice above.
