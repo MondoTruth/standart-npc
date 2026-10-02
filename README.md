@@ -94,7 +94,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 
 | | NPC | What it does | Location |
 |:-:|---|---|---|
-| 🎯 | **Training Dummies** | Stationary target dummies (Medium & Large) for testing damage output. | Prontera, near the fountain |
+| 🎯 | **Training Dummies** | Stationary target dummies for testing damage output: a Medium-size and a Large-size one, in both eras. | Prontera (153, 163) and (158, 163) |
 
 #### 🎁 Other
 
@@ -111,9 +111,9 @@ Gramps, Overlook Fisherman, Illusion Manager and Lucky John in one NPC. Each kin
 
 | | Work | Levels | How it works | Reward |
 |:-:|---|---|---|---|
-| 👴 | **Target Hunt** | 70 – 231+ | Pick a map, hunt its 2 monsters × 400. | EXP |
+| 👴 | **Target Hunt** | 70 – 231+ (Pre-renewal: up to 125) | Pick a map, hunt its 2 monsters × 400. | EXP |
 | 🎣 | **Overlook Water Dungeon** | 30 – 85 | 4 floors in order, each once. | EXP per floor; all 4 = a card of your choice |
-| 🌫️ | **Illusion Dungeons** | 99+ | Pick one of 9 Illusion dungeons, hunt its 3 monsters × 150. | EXP |
+| 🌫️ | **Illusion Dungeons** | 99+ | Pick one of 9 Illusion dungeons, hunt its 3 monsters × 150. Renewal only. | EXP |
 | 🍀 | **Daily Area Purge** | 30+ | Once a day: any 500 monsters in a random area for your level. | EXP and Zeny |
 
 All contracts, maps and rewards are one table: [`npc/when/enable_bounties/bounty_contracts.txt`](./npc/when/enable_bounties/bounty_contracts.txt).
