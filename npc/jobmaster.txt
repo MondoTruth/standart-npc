@@ -10,6 +10,8 @@
 //= - Job-change equipment items (Wolf Flute, Sniper Goggle, etc.):
 //=   the Get_Job_Equip function -- one case per BaseJob, edit the
 //=   getitem line(s) to change which item(s)/IDs are granted.
+//= License: GPL-3.0, based on rAthena's npc/custom/jobmaster.txt
+//=   (see LICENSE and LICENSE-GPL-3.0).
 //============================================================
 
 prontera,157,195,5	script	Job Master	866,{

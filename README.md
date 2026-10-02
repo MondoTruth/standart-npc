@@ -161,4 +161,6 @@ Found a bug or want to add something? [Open an issue](../../issues) or a [pull r
 
 ## 📄 License
 
-No license set yet.
+[MIT](./LICENSE) — use, change and share it freely, just keep the authors' names and the licence text.
+
+Exception: `npc/warper.txt`, `npc/jobmaster.txt`, `npc/resetnpc.txt` and `npc/stylist.txt` are based on rAthena's custom scripts and stay under rAthena's [GPL-3.0](./LICENSE-GPL-3.0).
