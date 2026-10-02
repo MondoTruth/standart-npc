@@ -247,9 +247,12 @@ S_Purge:
 	if (select("Accept:Not now") == 2) close;
 	explode(.@pool$, .map$[.@r], ",");
 	// rand(1) is a script error ("no randomness possible") that ends the
-	// script, so a one-map line (Lv 201-230) must not call it.
+	// script, so a one-map line (Lv 201-230) must not call it. Use if,
+	// not ?: -- the ternary evaluates both sides, so rand(1) still ran.
 	.@n = getarraysize(.@pool$);
-	BB_PurgeMap$ = .@pool$[.@n > 1 ? rand(.@n) : 0];
+	.@pick = 0;
+	if (.@n > 1) .@pick = rand(.@n);
+	BB_PurgeMap$ = .@pool$[.@pick];
 	BB_PurgeDay = .@today;
 	BB_Row_4 = .@r + 1;
 	mes .n$;
