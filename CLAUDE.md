@@ -220,8 +220,19 @@ them before relying on a mod.json key or folder.
   client, supervisor and asset server built and `dist/images.tar.gz`
   downloaded (app's `docs/AGENT_TESTING.md`, "Setting up a world"); the
   world runs on its own ports, so the installed app can stay open.
-- Play-testing through the app's `scripts/rotest` (log in, `gm "@..."`,
-  `walk`, `attack`, screenshots) is the next step (#8), not used yet.
+- **Play test**: `node tests/play.cjs` (or one era) logs the character
+  "Tester" in through the real client (app's `scripts/rotest`) and talks to
+  the NPCs: Buffer's chat line, Bounty Hunter's menu per era, Area Purge
+  at Lv 210 (Renewal) / 99 (Pre-renewal), both dummies and their
+  `@mobinfo`, Tool Dealer's list. Before each run the character is set
+  through SQL (class, level, Bounty progress cleared). NPC talk goes
+  through `tests/play-helper.js`, which sends the client's own NPC packets
+  and reads the NPC windows, so no screen coordinates. Needs
+  `npx playwright install chromium` in the app clone too. A new NPC or a
+  fixed bug gets a check here when it can be seen in game.
+- Both tests share `tests/world.cjs` (the world, its ports, installing the
+  mod). After every script change run the smoke test; before a release
+  run both.
 
 ## Reviewing contributions
 
@@ -243,7 +254,8 @@ check it especially carefully.
    **without** README.md, assets/, CLAUDE.md, tests/, .git, .github, .gitattributes.
    To check the build before a release: Actions → "Build release zip" → Run
    workflow, then download the zip from the run's Artifacts.
-6. Before tagging: `node tests/smoke.cjs` passes in both eras, tabs check,
+6. Before tagging: `node tests/smoke.cjs` and `node tests/play.cjs` pass in
+   both eras, tabs check,
    same version everywhere, README coordinates, credits.
 7. Publish a GitHub release with tag `v<version>` and the Patch Notes section
    as description. Don't attach the zip by hand: the workflow builds it and
