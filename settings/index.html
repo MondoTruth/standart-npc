@@ -25,6 +25,8 @@
   (a settings page may not open windows). It writes the "buffer_set" string:
   the codes of the ticked buffs, which npc/buffer.txt
   checks one by one. A new buff needs a line in BUFFS here and a block there.
+  4th class buffs go to a second string, "buffer_set4" (a string setting holds
+  at most 200 characters), read by buffer.txt as .@set4$.
 
   Presets (NPC_PRESETS, BUFF_PRESETS) set every switch on their page at
   once; the one that matches what is ticked is highlighted, and a mix that
@@ -113,6 +115,7 @@
   </div>
   <h2>Buffer — choose buffs</h2>
   <p>Everything ticked is cast on click; the full heal always comes last. Buffs marked ⚠ cancel each other in the game, so only one of them can be on.</p>
+  <p>3rd and 4th class buffs work on Renewal only. 4th class buffs raise P.ATK, S.MATK, RES, MRES, C.RATE and the trait stats (POW, STA, WIS, SPL, CON, CRT), which matter mostly for 4th classes; for other characters they do little.</p>
   <div class="presets" id="buff-presets"></div>
   <div id="buff-groups"></div>
 </main>
@@ -167,8 +170,13 @@ const ALWAYS_LOADED = {
 
 // The Buffer's buffs, in casting order. code = what buffer.txt checks.
 // excl: buffs with the same excl cancel each other; ticking one unticks the rest.
+// key: the setting a group's codes are stored in (default BUFF_KEY); 4th
+// class buffs have their own, because one string holds at most 200 characters.
+// re: Renewal only -- hidden on Pre-renewal, ticks kept as they are.
 const BUFF_KEY = 'buffer_set';
+const BUFF_KEY4 = 'buffer_set4';
 const BUFF_DEFAULT = ['bless', 'agi', 'kyrie', 'magni'];
+const NOTE_4TH = 'mostly useful for 4th classes';
 const BUFFS = [
   { job: 'Acolyte / Priest', list: [
     { code: 'bless',   label: 'Blessing',        text: 'Raises STR, DEX and INT.' },
@@ -181,15 +189,16 @@ const BUFFS = [
     { code: 'suffra',  label: 'Suffragium',      text: 'Shorter cast time for your next spell.' },
     { code: 'assu',    label: 'Assumptio',       text: 'Greatly reduces damage taken.', excl: 'assu' },
   ]},
+  // 2nd classes
   { job: 'Crusader', list: [
     { code: 'provi',   label: 'Providence',      text: '+25% resistance to Holy damage and to Demon monsters.' },
+  ]},
+  { job: 'Bard', list: [
+    { code: 'bragi',   label: 'Poem of Bragi',   text: 'Shorter cast time and skill delay.' },
   ]},
   { job: 'Blacksmith', list: [
     { code: 'wp',      label: 'Weapon Perfection', text: 'Full weapon damage against every monster size.' },
     { code: 'ot',      label: 'Over Thrust',       text: 'Raises weapon damage.' },
-  ]},
-  { job: 'Bard', list: [
-    { code: 'bragi',   label: 'Poem of Bragi',   text: 'Shorter cast time and skill delay.' },
   ]},
   { job: 'Soul Linker', list: [
     { code: 'link',    label: 'Soul Link',       text: 'The spirit of your own class (2nd classes, and 1st classes after rebirth).', excl: 'soul' },
@@ -198,22 +207,58 @@ const BUFFS = [
     { code: 'kaahi',   label: 'Kaahi',           text: 'Heals you on every hit taken, for a little SP.' },
     { code: 'kaite',   label: 'Kaite',           text: 'Reflects spells back at the caster.', excl: 'assu' },
   ]},
-  { job: 'Arch Bishop', list: [
+  // 3rd classes
+  { job: 'Arch Bishop', re: true, list: [
     { code: 'expia',   label: 'Expiatio',        text: 'Your attacks ignore 25% of the target\'s DEF.' },
     { code: 'secra',   label: 'Sacrament',       text: 'Shorter fixed cast time.' },
     { code: 'renov',   label: 'Renovatio',       text: 'Heals 5% of max HP every 5 seconds.' },
   ]},
-  { job: 'Sura', list: [
+  { job: 'Sura', re: true, list: [
     { code: 'gtrev',   label: 'Gentle Touch – Revitalize', text: '+10% max HP and faster HP recovery.', excl: 'gt' },
     { code: 'gtchg',   label: 'Gentle Touch – Change',     text: '+40 ATK and faster attacks (more with high AGI).', excl: 'gt' },
   ]},
-  { job: 'Soul Reaper', list: [
+  { job: 'Soul Reaper', re: true, list: [
     { code: 'sshadow', label: 'Shadow Soul',     text: 'Faster attacks and +20 CRIT.', excl: 'soul' },
     { code: 'sfalcon', label: 'Falcon Soul',     text: '+50 weapon ATK and more HIT.', excl: 'soul' },
     { code: 'sfairy',  label: 'Fairy Soul',      text: '+50 MATK and shorter cast time.', excl: 'soul' },
     { code: 'sgolem',  label: 'Golem Soul',      text: '+300 DEF and +40 MDEF.', excl: 'soul' },
   ]},
+  // 4th classes, all at skill level 5
+  { job: 'Cardinal', re: true, key: BUFF_KEY4, note: NOTE_4TH, list: [
+    { code: 'vita',    label: 'Argutus Vita',    text: 'Your attacks ignore 25% of the target\'s MRES.' },
+    { code: 'telum',   label: 'Argutus Telum',   text: 'Your attacks ignore 25% of the target\'s RES.' },
+    { code: 'acies',   label: 'Presens Acies',   text: '+10 C.RATE.' },
+    { code: 'compet',  label: 'Competentia',     text: '+50 P.ATK and S.MATK.' },
+    { code: 'relig',   label: 'Religio',         text: '+10 STA, WIS and SPL.' },
+    { code: 'bened',   label: 'Benedictum',      text: '+10 POW, CON and CRT.' },
+    { code: 'medial',  label: 'Mediale Votum',   text: 'Heals you every 2 seconds.' },
+  ]},
+  { job: 'Imperial Guard', re: true, key: BUFF_KEY4, note: NOTE_4TH, list: [
+    { code: 'gshld',   label: 'Guardian Shield', text: 'A barrier that absorbs damage (from your max HP and STA); gone once used up.' },
+  ]},
+  { job: 'Elemental Master', re: true, key: BUFF_KEY4, note: NOTE_4TH, list: [
+    { code: 'spench',  label: 'Spell Enchanting', text: '+20 S.MATK.' },
+  ]},
+  { job: 'Troubadour / Trouvère', re: true, key: BUFF_KEY4, note: NOTE_4TH, list: [
+    { code: 'interl',  label: 'Musical Interlude', text: '+30 RES.' },
+    { code: 'jawaii',  label: 'Jawaii Serenade',   text: '+15 S.MATK and faster movement.' },
+    { code: 'pron',    label: 'Pron March',        text: '+15 P.ATK.' },
+  ]},
+  { job: 'Meister', re: true, key: BUFF_KEY4, note: NOTE_4TH, list: [
+    { code: 'dmach',   label: 'Defense Machine', text: '+450 DEF and +100 RES.' },
+  ]},
+  { job: 'Soul Ascetic', re: true, key: BUFF_KEY4, note: NOTE_4TH, list: [
+    { code: 'talwar',  label: 'Talisman of Warrior',       text: '+10 P.ATK. Needs a weapon.' },
+    { code: 'talmag',  label: 'Talisman of Magician',      text: '+10 S.MATK. Needs a weapon.' },
+    { code: 'tal5',    label: 'Talisman of Five Elements', text: '+20% damage against Fire, Water, Wind, Earth and Neutral targets.' },
+    { code: 'talpro',  label: 'Talisman of Protection',    text: 'Heals you every 3 seconds.' },
+  ]},
+  { job: 'Spirit Handler', re: true, key: BUFF_KEY4, note: NOTE_4TH, list: [
+    { code: 'tcomm',   label: 'Temporary Communion', text: '+15 P.ATK, S.MATK and H.PLUS.' },
+  ]},
 ];
+// code -> setting key it is stored in
+const BUFF_SETTING = Object.fromEntries(BUFFS.flatMap(g => g.list.map(b => [b.code, g.key || BUFF_KEY])));
 // Presets: one click sets every switch on the page; the matching one is
 // highlighted. A combination that matches none highlights nothing and is
 // saved as it is. Hidden NPCs (Renewal-only on Pre-renewal) are not touched.
@@ -231,7 +276,9 @@ for (const g of BUFFS) for (const b of g.list)
 const BUFF_PRESETS = [
   { name: 'Default',      note: 'Blessing, AGI, Kyrie, Magnificat', codes: BUFF_DEFAULT },
   { name: 'Acolyte line', note: 'every Acolyte / Priest buff',      codes: BUFFS[0].list.map(b => b.code) },
-  { name: 'Everything',   note: 'one of each ⚠ set',                codes: BUFF_EVERYTHING },
+  { name: 'Everything',   note: 'one of each ⚠ set, 4th classes too', codes: BUFF_EVERYTHING },
+  { name: '4th class',    note: 'only the 4th class buffs', re: true,
+    codes: BUFFS.filter(g => g.key === BUFF_KEY4).flatMap(g => g.list.map(b => b.code)) },
   { name: 'Heal only',    note: 'no buffs, just the full heal',     codes: [] },
 ];
 const EXCL_NOTE = { assu: 'one of Assumptio / Kaite', gt: 'one Gentle Touch', soul: 'one of Soul Link / the Soul Reaper souls' };
@@ -242,9 +289,11 @@ const groups = [];   // drawn groups, for syncGroup after Revert
 let saved = {};      // what values() gave when last saved
 let offExtra = [];   // names in npc_off this page does not know; kept as they are
 let hasOffKey = false;
-const buffBoxes = {}; // buff code -> checkbox
-let buffExtra = [];  // codes in buffer_set this page does not know; kept as they are
+const buffBoxes = {}; // buff code -> checkbox (drawn buffs only)
+const buffExtra = {}; // setting key -> codes not drawn (unknown, or hidden on
+                      // Pre-renewal); kept as they are
 let hasBuffKey = false;
+let preRenewal = false;
 
 function status(text, dirty = false) {
   $('status').textContent = text;
@@ -260,7 +309,8 @@ function values() {
     else out[k] = box.checked;
   }
   if (hasOffKey) out[OFF_KEY] = [...off, ...offExtra].join(',');
-  if (hasBuffKey) out[BUFF_KEY] = [...Object.keys(buffBoxes).filter(c => buffBoxes[c].checked), ...buffExtra].join(',');
+  for (const key of Object.keys(buffExtra))
+    out[key] = [...Object.keys(buffBoxes).filter(c => BUFF_SETTING[c] === key && buffBoxes[c].checked), ...buffExtra[key]].join(',');
   return out;
 }
 const presetButtons = []; // { button, matches() }
@@ -283,7 +333,7 @@ function npcPresets() {
     p => Object.entries(inputs).every(([k, box]) => box.checked === p.on(k)));
 }
 function buffPresets() {
-  drawPresets($('buff-presets'), BUFF_PRESETS,
+  drawPresets($('buff-presets'), BUFF_PRESETS.filter(p => !(p.re && preRenewal)),
     p => { for (const [code, box] of Object.entries(buffBoxes)) box.checked = p.codes.includes(code); buffCount(); },
     p => Object.entries(buffBoxes).every(([code, box]) => box.checked === p.codes.includes(code)));
 }
@@ -291,7 +341,7 @@ function buffPresets() {
 // The opposite of values(): puts saved values back on the page (Revert).
 function setValues(v) {
   const off = String(v[OFF_KEY] ?? '').split(',').map(n => n.trim()).filter(Boolean);
-  const chosen = String(v[BUFF_KEY] ?? '').split(',').map(c => c.trim()).filter(Boolean);
+  const chosen = [BUFF_KEY, BUFF_KEY4].flatMap(k => String(v[k] ?? '').split(',')).map(c => c.trim()).filter(Boolean);
   for (const [k, box] of Object.entries(inputs))
     box.checked = k.startsWith('npc:') ? !off.includes(k.slice(4)) : v[k] === true;
   for (const [code, box] of Object.entries(buffBoxes)) box.checked = chosen.includes(code);
@@ -391,10 +441,21 @@ function buffCount() {
 }
 function drawBuffs(chosen) {
   for (const g of BUFFS) {
+    if (!((g.key || BUFF_KEY) in buffExtra)) continue;        // setting missing
+    if (g.re && preRenewal) continue;                         // ticks kept in buffExtra
     const details = document.createElement('details');
     details.open = true;
     const summary = document.createElement('summary');
-    summary.textContent = g.job;
+    const name = document.createElement('span');
+    name.className = 'name';
+    name.textContent = g.job;
+    summary.append(name);
+    if (g.note) {
+      const note = document.createElement('span');
+      note.className = 'note';
+      note.textContent = g.note;
+      summary.append(note);
+    }
     details.append(summary);
     for (const b of g.list) {
       const label = document.createElement('label');
@@ -418,7 +479,7 @@ function drawBuffs(chosen) {
       box.onchange = () => {
         if (box.checked && b.excl)
           for (const g2 of BUFFS) for (const o of g2.list)
-            if (o.excl === b.excl && o.code !== b.code) buffBoxes[o.code].checked = false;
+            if (o.excl === b.excl && o.code !== b.code && buffBoxes[o.code]) buffBoxes[o.code].checked = false;
         buffCount();
         markDirty();
       };
@@ -471,12 +532,19 @@ async function save() {
         }
       }
     }
-    const buffSetting = mod.settings.find(s => s.key === BUFF_KEY);
-    if (buffSetting) {
+    preRenewal = !!(mod.context && mod.context.era === 'pre-renewal');
+    const chosen = [];
+    for (const key of [BUFF_KEY, BUFF_KEY4]) {
+      const setting = mod.settings.find(s => s.key === key);
+      if (!setting) continue;
+      const codes = String(setting.value ?? '').split(',').map(c => c.trim()).filter(Boolean);
+      chosen.push(...codes);
+      // Unknown codes, and codes of groups not drawn on this era, stay as they are.
+      buffExtra[key] = codes.filter(c => BUFF_SETTING[c] !== key
+        || BUFFS.some(g => g.re && preRenewal && g.list.some(b => b.code === c)));
+    }
+    if (BUFF_KEY in buffExtra) {
       hasBuffKey = true;
-      const known = BUFFS.flatMap(g => g.list.map(b => b.code));
-      const chosen = String(buffSetting.value ?? '').split(',').map(c => c.trim()).filter(Boolean);
-      buffExtra = chosen.filter(c => !known.includes(c));
       drawBuffs(chosen);
       buffPresets();
     }

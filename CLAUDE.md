@@ -63,7 +63,10 @@ README.md, assets/, CLAUDE.md  -- repo only, never in the release zip
   start-up and hide themselves if listed in the string setting `npc_off`
   (comma list: `warper, buffer, jobmaster, reset, stylist, epvalk, falcon,
   kafra, weightmax, plagiarism, tooldealer, smuggler, cardexchanger, refiner,
-  grade, enchanter, nokzin, daily`; empty = all on). A `shop` has no OnInit, so
+  grade, enchanter, nokzin, daily`; empty = all on).
+- Buffer: the chosen buffs are two string settings, `buffer_set` (1st-3rd
+  class) and `buffer_set4` (4th class), comma lists of codes; a string
+  holds at most 200 characters, so a new class group may need its own key. A `shop` has no OnInit, so
   Tool Dealer uses a small helper script. `disablenpc` hides only the NPC — `monster` lines in the same file
   still load, so anything with spawns must be a folder toggle.
 - Scripts read settings with
@@ -78,7 +81,7 @@ README.md, assets/, CLAUDE.md  -- repo only, never in the release zip
   `db/import-tmpl`). Any other name lands in `db/import/` and is never read
   (see #25).
 
-### Settings — 5 of max 20 used
+### Settings — 6 of max 20 used
 
 App limits: `type` is `boolean`, `number` or `string`; max 20 settings;
 `label` up to 120 and `description` up to **400 bytes** (UTF-8; over that

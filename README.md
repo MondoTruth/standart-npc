@@ -128,14 +128,21 @@ Can be switched on in the settings window:
 |---|---|
 | Acolyte / Priest | Gloria, Angelus, Impositio Manus, Suffragium, Assumptio |
 | Crusader | Providence |
-| Blacksmith | Weapon Perfection, Over Thrust |
 | Bard | Poem of Bragi |
+| Blacksmith | Weapon Perfection, Over Thrust |
 | Soul Linker | Soul Link (matched to your class), Kaupe, Kaizel, Kaahi, Kaite |
 | Arch Bishop | Expiatio, Sacrament, Renovatio |
 | Sura | Gentle Touch – Revitalize, Gentle Touch – Change |
 | Soul Reaper | Shadow Soul, Falcon Soul, Fairy Soul, Golem Soul |
+| Cardinal | Argutus Vita, Argutus Telum, Presens Acies, Competentia, Religio, Benedictum, Mediale Votum |
+| Imperial Guard | Guardian Shield |
+| Elemental Master | Spell Enchanting |
+| Troubadour / Trouvère | Musical Interlude, Jawaii Serenade, Pron March |
+| Meister | Defense Machine |
+| Soul Ascetic | Talisman of Warrior, Talisman of Magician, Talisman of Five Elements, Talisman of Protection |
+| Spirit Handler | Temporary Communion |
 
-Buffs that cancel each other in the game can't be ticked together.
+Buffs that cancel each other in the game can't be ticked together. 3rd and 4th class buffs work on Renewal only; 4th class buffs (level 5) raise P.ATK, S.MATK, RES, MRES, C.RATE and trait stats, so they matter mostly for 4th classes.
 
 📜 Full version history: [`Patch Notes.txt`](./Patch%20Notes.txt)
 

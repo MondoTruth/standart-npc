@@ -28,6 +28,14 @@
       "description": "Filled in by the Settings… window (Buffer → Choose buffs): the buffs the Buffer casts, as a comma-separated list of codes."
     },
     {
+      "key": "buffer_set4",
+      "type": "string",
+      "default": "",
+      "max_length": 200,
+      "label": "Buffer: 4th class buffs",
+      "description": "Filled in by the Settings… window (Buffer → Choose buffs): the 4th class buffs the Buffer casts, as a comma-separated list of codes. Renewal only. Empty = none."
+    },
+    {
       "key": "enable_bounties",
       "type": "boolean",
       "default": true,
