@@ -48,6 +48,9 @@ npc/
   *.txt                     -- always-loaded NPCs (Warper, Buffer, Job Master, ...)
   when/<setting key>/      -- loaded only if that boolean setting is on
                               (Bounty Hunter, MVP dungeon, Training Dummies)
+    */*_era.txt            -- Renewal-only spawns
+pre-renewal/npc/when/...   -- Pre-renewal copies of the *_era.txt files
+                              ("prerenewalFolder" in mod.json, app 1.4.3+)
 README.md, assets/, CLAUDE.md  -- repo only, never in the release zip
 ```
 
@@ -68,7 +71,7 @@ README.md, assets/, CLAUDE.md  -- repo only, never in the release zip
   1.4.3 the same `when/<key>/` switch also works for `db/when/<key>/`
   (table added to the mod's own copy) and `lua/when/<key>/`, and
   `conf/when/<key>/` for `groups.yml`/`atcommands.yml`. Using `db/when/` or
-  `lua/when/` means `requires.app >= 1.4.3` (we are on 1.3.9).
+  `lua/when/` needs app 1.4.3 (we require 1.4.3).
 - A `db/` file only loads if its name is a table rAthena imports
   (`mob_db.yml`, `item_db.yml`, ... — the stubs in rAthena's
   `db/import-tmpl`). Any other name lands in `db/import/` and is never read
@@ -169,7 +172,11 @@ Before placing a new NPC, grep all `prontera,` lines to avoid collisions.
 - Bounty Hunter: all contracts are in `bounty_contracts.txt`, one line each;
   keep the first lines of each type in their old order (progress migration
   depends on it); new hunting monsters also need spawn lines in
-  `bounty_mobs.txt`.
+  `bounty_mobs.txt`. Monsters of one era only: spawns in
+  `bounty_mobs_era.txt` (Renewal) or `pre-renewal/.../bounty_mobs_era.txt`.
+  The board hides any contract whose monster is not in the running era's
+  mob db; a type with nothing left is left out of the menu with an empty
+  `select()` option (Illusion Dungeons on Pre-renewal).
 - Optional server behaviour that a script cannot do (new events, commands,
   formulas) is a **server extension** in the rAthena fork: an entry in its
   `db/extension_db.yml`, switched on by a mod shipping its own

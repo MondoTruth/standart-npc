@@ -1,0 +1,16 @@
+//===== rAthena Script =======================================
+//= Cheffenia MVP Dungeon -- Pre-renewal MVP spawns
+//===== By: MondoTruth, Claude =================================
+//===== Description: =========================================
+//= Replaces npc/when/enable_mvp/mvp_dun_spawns_era.txt on
+//= Pre-renewal ("prerenewalFolder" in mod.json). Pre-renewal MVPs that the shared
+//= mvp_dun_spawns.txt does not have yet (IDs checked in
+//= Flux159/rathena db/pre-re/mob_db.yml; all three also spawn in
+//= the stock Pre-renewal world).
+//===== How to customize: ====================================
+//= Format: bossnia_01,0,0,0,0<TAB>monster<TAB>Name<TAB>MobID,Count,Delay1,Delay2,Event
+//============================================================
+
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	1658,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	1885,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	1917,3,5000,0,0

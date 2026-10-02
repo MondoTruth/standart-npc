@@ -1,0 +1,13 @@
+//===== rAthena Script =======================================
+//= Bounty Hunter -- Pre-renewal monster spawns
+//===== By: MondoTruth, Claude =================================
+//===== Description: =========================================
+//= Replaces npc/when/enable_bounties/bounty_mobs_era.txt on
+//= Pre-renewal ("prerenewalFolder" in mod.json). Empty on purpose:
+//= the Renewal-only monsters in that file do not exist on
+//= Pre-renewal, and their contracts are hidden there (Illusion
+//= Dungeons is not in the menu).
+//===== How to customize: ====================================
+//= Spawns for Pre-renewal-only contracts would go here, format as
+//= in bounty_mobs.txt, event BountyBoard::OnHuntKill.
+//============================================================

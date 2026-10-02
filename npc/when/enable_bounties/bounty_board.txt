@@ -21,7 +21,9 @@
 //= kill on the server (OnNPCKillEvent).
 //===== How to customize: ====================================
 //= - Contracts, maps, monsters, kill counts, rewards:
-//=   bounty_contracts.txt -- nothing to change here.
+//=   bounty_contracts.txt -- nothing to change here. A type with no
+//=   line left for this era (Illusion Dungeons on Pre-renewal) is
+//=   left out of the menu.
 //= - Overlook: level range .owd_min_lv/.owd_max_lv, final card
 //=   choices .owd_cards (item IDs).
 //= - Menu names of the four types: .type_name$.
@@ -47,7 +49,12 @@
 	next;
 	.@menu$ = "";
 	for (.@c = 1; .@c <= 4; .@c++) {
-		.@menu$ += .type_name$[.@c] + (getd("BB_Row_" + .@c) ? " [active]" : "") + ":";
+		// Nothing for this era (Illusion Dungeons on Pre-renewal): an empty
+		// option is not shown, and select() still numbers the rest as before.
+		if (!.avail[.@c] && !getd("BB_Row_" + .@c))
+			.@menu$ += ":";
+		else
+			.@menu$ += .type_name$[.@c] + (getd("BB_Row_" + .@c) ? " [active]" : "") + ":";
 	}
 	.@c = select(.@menu$ + "Cancel");
 	if (.@c == 5) close;
@@ -111,6 +118,7 @@ S_Hunt:
 	.@n = 0;
 	for (.@i = 0; .@i < .rows; .@i++) {
 		if (.type[.@i] != .@c) continue;
+		if (!.ok[.@i]) continue;	// monster not in this era's mob db
 		.@row[.@n] = .@i;
 		.@n++;
 		.@menu$ += BB_Label(.@i);
@@ -120,6 +128,11 @@ S_Hunt:
 	// Overlook only: the one-time card for clearing all four floors.
 	.@card_opt = (.@c == 2 && BB_OwdAllDone() && !OWD_ClearedAll);
 	if (.@card_opt) .@menu$ += "Final card reward:";
+	if (!.@n && !.@card_opt) {	// not reachable from the menu; just in case
+		mes .n$;
+		mes "Sorry, I have no contracts of this kind on this server.";
+		close;
+	}
 	mes .n$;
 	mes .@c == 2 ? "Which floor?" : "Which one?";
 	next;
@@ -470,6 +483,7 @@ OnInit:
 
 	// Read bounty_contracts.txt into parallel arrays, one index per line.
 	.rows = 0;
+	deletearray .avail;	// OnInit runs once per copy of this NPC
 	while (1) {
 		.@line$ = callfunc("F_Bounty_Contract", .rows);
 		if (.@line$ == "") break;
@@ -484,13 +498,23 @@ OnInit:
 		.wx[.@i]   = atoi(.@xy$[0]);
 		.wy[.@i]   = atoi(.@xy$[1]);
 		for (.@n = 0; .@n < 3; .@n++) .mob[.@i * 3 + .@n] = atoi(.@m$[.@n]);
+		// 0 = a monster of this line is not in the mob db (Renewal-only
+		// monsters on Pre-renewal): the line is not offered.
+		.ok[.@i] = 1;
+		for (.@n = 0; .@n < 3; .@n++)
+			if (.mob[.@i * 3 + .@n] && getmonsterinfo(.mob[.@i * 3 + .@n], MOB_LV) < 0) .ok[.@i] = 0;
+		if (.ok[.@i]) .avail[.type[.@i]]++;	// lines of this type on offer
 		.cnt[.@i]  = atoi(.@f$[6]);
 		.bexp[.@i] = atoi(.@f$[7]);
 		.jexp[.@i] = atoi(.@f$[8]);
 		.zeny[.@i] = atoi(.@f$[9]);
 		.rows++;
 	}
-	if (strnpcinfo(0) == "BountyBoard") debugmes "Bounty Hunter: " + .rows + " contracts loaded.";
+	if (strnpcinfo(0) == "BountyBoard") {
+		.@off = 0;
+		for (.@i = 0; .@i < .rows; .@i++) if (!.ok[.@i]) .@off++;
+		debugmes "Bounty Hunter: " + .rows + " contracts loaded, " + .@off + " hidden (monsters not in this era).";
+	}
 	end;
 }
 
