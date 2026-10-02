@@ -27,6 +27,8 @@ document disagrees with the files, trust the files and say so.
 - Work in a branch named after the task, never commit to `main` directly.
 - Open a PR with `gh pr create`.
 - **Don't merge PRs yourself.** MondoTruth merges after testing in game.
+- No links to Claude sessions (`claude.ai/code/session_...`, `Claude-Session:`
+  trailers) in commits, issues, PRs or comments.
 - Contributors without GitHub (Lil Art) send zips. Commit their files as they
   are first (message mentions the author), then our fixes in a separate
   commit, so the history shows who did what.
