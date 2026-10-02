@@ -52,7 +52,7 @@ npc/
 pre-renewal/npc/when/...   -- Pre-renewal copies of the *_era.txt files
 pre-renewal/db/when/...    -- Pre-renewal copy of the dummies' mob_db.yml
                               ("prerenewalFolder" in mod.json, app 1.4.3+)
-README.md, assets/, CLAUDE.md  -- repo only, never in the release zip
+README.md, assets/, CLAUDE.md, tests/  -- repo only, never in the release zip
 ```
 
 ### Two kinds of on/off switch
@@ -211,10 +211,17 @@ them before relying on a mod.json key or folder.
 - Quick script iteration: edit the copy in `state/modbuild` and
   `@reloadscript` on a test character, then copy the change back — modbuild
   is rebuilt on every start.
-- Automated play-testing: the app's `scripts/rotest` (log in, `gm "@..."`,
-  `walk`, `attack`, `server logs map`, screenshots) against a throwaway
-  world; set-up in the app's `docs/AGENT_TESTING.md`. Not used here yet
-  (#8).
+- **Smoke test**: `node tests/smoke.cjs` (or `renewal` / `pre-renewal`)
+  starts a throwaway world with the mod in each era and checks the
+  map-server log: no script errors, unknown IDs or NPC parse problems, the
+  dummies' tables read, Bounty Hunter's start-up line. Run it after every
+  script change and before a release; it takes a few minutes per era. It
+  needs the app clone at `../ragnarokoffline.app` (or `SNPC_APP`) with the
+  client, supervisor and asset server built and `dist/images.tar.gz`
+  downloaded (app's `docs/AGENT_TESTING.md`, "Setting up a world"); the
+  world runs on its own ports, so the installed app can stay open.
+- Play-testing through the app's `scripts/rotest` (log in, `gm "@..."`,
+  `walk`, `attack`, screenshots) is the next step (#8), not used yet.
 
 ## Reviewing contributions
 
@@ -233,12 +240,11 @@ check it especially carefully.
 4. Update README.md if NPCs, coordinates or credits changed.
 5. The zip is built automatically by `.github/workflows/release.yml`:
    `standart-npc-<version>.zip`, files inside a `standart-npc/` folder,
-   **without** README.md, assets/, CLAUDE.md, .git, .github, .gitattributes.
+   **without** README.md, assets/, CLAUDE.md, tests/, .git, .github, .gitattributes.
    To check the build before a release: Actions → "Build release zip" → Run
    workflow, then download the zip from the run's Artifacts.
-6. Before tagging: tabs check, same version everywhere, README coordinates,
-   credits. If possible start the server with the zip and look for
-   `script error` in the map-server log.
+6. Before tagging: `node tests/smoke.cjs` passes in both eras, tabs check,
+   same version everywhere, README coordinates, credits.
 7. Publish a GitHub release with tag `v<version>` and the Patch Notes section
    as description. Don't attach the zip by hand: the workflow builds it and
    attaches it to the release. If the tag is not `v<version>` from mod.json,
