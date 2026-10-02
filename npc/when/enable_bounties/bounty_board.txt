@@ -111,6 +111,7 @@ S_Hunt:
 	.@n = 0;
 	for (.@i = 0; .@i < .rows; .@i++) {
 		if (.type[.@i] != .@c) continue;
+		if (!.ok[.@i]) continue;	// monster not in this era's mob db
 		.@row[.@n] = .@i;
 		.@n++;
 		.@menu$ += BB_Label(.@i);
@@ -120,6 +121,11 @@ S_Hunt:
 	// Overlook only: the one-time card for clearing all four floors.
 	.@card_opt = (.@c == 2 && BB_OwdAllDone() && !OWD_ClearedAll);
 	if (.@card_opt) .@menu$ += "Final card reward:";
+	if (!.@n && !.@card_opt) {	// e.g. Illusion Dungeons on Pre-renewal
+		mes .n$;
+		mes "Sorry, I have no contracts of this kind on this server.";
+		close;
+	}
 	mes .n$;
 	mes .@c == 2 ? "Which floor?" : "Which one?";
 	next;
@@ -481,13 +487,22 @@ OnInit:
 		.wx[.@i]   = atoi(.@xy$[0]);
 		.wy[.@i]   = atoi(.@xy$[1]);
 		for (.@n = 0; .@n < 3; .@n++) .mob[.@i * 3 + .@n] = atoi(.@m$[.@n]);
+		// 0 = a monster of this line is not in the mob db (Renewal-only
+		// monsters on Pre-renewal): the line is not offered.
+		.ok[.@i] = 1;
+		for (.@n = 0; .@n < 3; .@n++)
+			if (.mob[.@i * 3 + .@n] && getmonsterinfo(.mob[.@i * 3 + .@n], MOB_LV) < 0) .ok[.@i] = 0;
 		.cnt[.@i]  = atoi(.@f$[6]);
 		.bexp[.@i] = atoi(.@f$[7]);
 		.jexp[.@i] = atoi(.@f$[8]);
 		.zeny[.@i] = atoi(.@f$[9]);
 		.rows++;
 	}
-	if (strnpcinfo(0) == "BountyBoard") debugmes "Bounty Hunter: " + .rows + " contracts loaded.";
+	if (strnpcinfo(0) == "BountyBoard") {
+		.@off = 0;
+		for (.@i = 0; .@i < .rows; .@i++) if (!.ok[.@i]) .@off++;
+		debugmes "Bounty Hunter: " + .rows + " contracts loaded, " + .@off + " hidden (monsters not in this era).";
+	}
 	end;
 }
 

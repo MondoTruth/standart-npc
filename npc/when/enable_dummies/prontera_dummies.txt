@@ -9,6 +9,11 @@
 
 -	script	PrtDummyManager	-1,{
 OnInit:
+    // Dummy 2411 is Renewal only; on Pre-renewal spawn nothing (see #22, #25).
+    if (getmonsterinfo(2411, MOB_LV) < 0) {
+        debugmes "Training Dummies: monster 2411 not in this era's mob db, no dummies spawned.";
+        end;
+    }
     killmonster "prontera", "PrtDummyManager::OnDummyInfo2";
     killmonster "prontera", "PrtDummyManager::OnDummyInfo3";
 
