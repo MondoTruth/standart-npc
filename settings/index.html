@@ -25,34 +25,74 @@
   (a settings page may not open windows). It writes the "buffer_set" string:
   the codes of the ticked buffs, which npc/buffer.txt
   checks one by one. A new buff needs a line in BUFFS here and a block there.
+
+  Presets (NPC_PRESETS, BUFF_PRESETS) set every switch on their page at
+  once; the one that matches what is ticked is highlighted, and a mix that
+  matches none is simply saved as it is. Revert puts back what was last
+  saved.
 -->
 <style>
-  :root { color-scheme: light dark; --dim: #8a8a8a; --line: #8884; --accent: #4a8fe7; --warn: #d08a2a; }
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f6f8; --card: #fff; --line: #0002; --text: #1d1d22; --dim: #77777f;
+    --accent: #4a8fe7; --accent-soft: #4a8fe733; --warn: #b7791f; --knob: #fff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1b1c20; --card: #25262b; --line: #fff2; --text: #ececf0; --dim: #9a9aa3; --accent-soft: #4a8fe740; --warn: #e0a040; }
+  }
   * { box-sizing: border-box; }
-  body { font: 14px/1.4 system-ui, sans-serif; margin: 0; padding: 18px 20px 90px; }
-  header h1 { font-size: 18px; margin: 0; }
-  header p { color: var(--dim); margin: 2px 0 14px; font-size: 12px; }
+  body { font: 13px/1.45 system-ui, sans-serif; margin: 0; padding: 18px 20px 90px; background: var(--bg); color: var(--text); }
+  header h1 { font-size: 19px; margin: 0; }
+  header p { color: var(--dim); margin: 2px 0 0; }
+  header p.hint { margin: 6px 0 14px; }
   .off { color: var(--warn); }
+  button { font: inherit; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button:disabled { opacity: .5; cursor: default; }
   .tools { display: flex; gap: 8px; margin-bottom: 12px; }
   .tools button { font-size: 12px; padding: 3px 10px; }
-  details { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; }
-  summary { cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; list-style: none; user-select: none; }
+  .presets { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .presets button { flex: 1; min-width: 110px; padding: 8px 10px; border-radius: 8px; text-align: left; }
+  .presets button strong { display: block; }
+  .presets button span { color: var(--dim); font-size: 11px; }
+  .presets button.on { border-color: var(--accent); background: var(--accent-soft); }
+
+  /* A group is a card: a header bar (switch, name, note, count) over its rows. */
+  details { background: var(--card); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+  summary { cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 10px 14px; list-style: none; user-select: none; }
+  details[open] > summary { border-bottom: 1px solid var(--line); }
   summary::-webkit-details-marker { display: none; }
-  summary::before { content: "▶"; width: 1em; font-size: 11px; color: var(--dim); }
+  summary::before { content: "▶"; width: 1em; font-size: 10px; color: var(--dim); }
   details[open] > summary::before { content: "▼"; }
-  summary .count { margin-left: auto; font-weight: 400; color: var(--dim); font-size: 12px; }
-  label.row { display: flex; gap: 8px; align-items: flex-start; margin: 8px 0 0 26px; cursor: pointer; }
+  summary .name { font-weight: 600; }
+  summary .note { color: var(--dim); }
+  summary .count { margin-left: auto; color: var(--dim); font-size: 12px; white-space: nowrap; }
+  label.row { display: flex; gap: 12px; align-items: flex-start; padding: 9px 14px; cursor: pointer; }
+  label.row + label.row { border-top: 1px solid var(--line); }
+  label.row b { font-weight: 600; }
   label.row small { display: block; color: var(--dim); }
-  input[type=checkbox] { accent-color: var(--accent); margin-top: 3px; }
-  footer { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px 20px; display: flex; gap: 8px; align-items: center;
-           background: Canvas; border-top: 1px solid var(--line); }
-  footer button { padding: 6px 14px; }
-  #status { color: var(--dim); font-size: 12px; margin-left: 6px; }
-  #status.dirty { color: var(--warn); }
   label.row button { margin-left: 8px; font-size: 12px; padding: 1px 8px; }
+
+  /* Checkboxes drawn as switches. Half-on (a group with some NPCs on) puts
+     the knob in the middle. */
+  input[type=checkbox] { appearance: none; flex: none; position: relative; width: 34px; height: 20px; margin: 0;
+                         border-radius: 20px; background: #8886; cursor: pointer; transition: background .15s; }
+  input[type=checkbox]::after { content: ""; position: absolute; left: 2px; top: 2px; width: 16px; height: 16px;
+                                border-radius: 50%; background: var(--knob); transition: transform .15s; }
+  input[type=checkbox]:checked { background: var(--accent); }
+  input[type=checkbox]:checked::after { transform: translateX(14px); }
+  input[type=checkbox]:indeterminate { background: var(--accent-soft); }
+  input[type=checkbox]:indeterminate::after { transform: translateX(7px); }
+  input[type=checkbox]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  footer { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px 20px; display: flex; gap: 8px; align-items: center;
+           background: var(--bg); border-top: 1px solid var(--line); }
+  footer button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  #status { flex: 1; color: var(--dim); font-size: 12px; }
+  #status.dirty { color: var(--warn); }
   #buffs[hidden], #groups[hidden], .tools[hidden] { display: none; }
   #buffs h2 { font-size: 16px; margin: 0 0 4px; }
-  #buffs > p { color: var(--dim); font-size: 12px; margin: 0 0 12px; }
+  #buffs > p { color: var(--dim); margin: 0 0 12px; }
   .excl { color: var(--warn); }
 </style>
 </head>
@@ -60,38 +100,41 @@
 <header>
   <h1>standart-npc</h1>
   <p id="about">Loading…</p>
+  <p class="hint">Switch off what you don't want in your world. Changes take effect after <b>Save and restart server</b>. A switched-off NPC is removed from the world; players' progress with it stays on their characters.</p>
 </header>
 <div class="tools">
   <button id="expand">Expand all</button>
   <button id="collapse">Collapse all</button>
 </div>
-<main id="groups"></main>
+<main id="groups"><div class="presets" id="npc-presets"></div></main>
 <main id="buffs" hidden>
   <div class="tools">
     <button id="buffs-back">← Back</button>
-    <button id="buffs-default">Default set</button>
   </div>
   <h2>Buffer — choose buffs</h2>
   <p>Everything ticked is cast on click; the full heal always comes last. Buffs marked ⚠ cancel each other in the game, so only one of them can be on.</p>
+  <div class="presets" id="buff-presets"></div>
   <div id="buff-groups"></div>
 </main>
 <footer>
-  <button id="save">Save</button>
-  <button id="apply">Save and restart server</button>
   <span id="status"></span>
+  <button id="revert">Revert</button>
+  <button id="save">Save</button>
+  <button id="apply" class="primary">Save and restart server</button>
 </footer>
 
 <script>
 // Groups, in the order they are shown. Keys are the setting keys in mod.json.
 // "npc:<name>" keys are the always-loaded NPCs from ALWAYS_LOADED below.
+// note: one line under the group's name, shown even when it is folded.
 const GROUPS = [
-  { title: 'Travel and services', keys: ['npc:warper', 'npc:buffer', 'npc:kafra', 'npc:weightmax'] },
-  { title: 'Character',           keys: ['npc:jobmaster', 'npc:reset', 'npc:stylist', 'npc:epvalk', 'npc:plagiarism'] },
-  { title: 'Shops',               keys: ['npc:tooldealer', 'npc:smuggler', 'npc:cardexchanger', 'npc:falcon'] },
-  { title: 'Hunting quests',      keys: ['enable_bounties'] },
-  { title: 'Dungeons',            keys: ['enable_mvp'] },
-  { title: 'Equipment',           keys: ['npc:refiner', 'npc:grade', 'npc:enchanter', 'npc:nokzin'] },
-  { title: 'Training',            keys: ['enable_dummies'] },
+  { title: 'Travel and services', note: 'getting around, buffs, storage, rewards', keys: ['npc:warper', 'npc:buffer', 'npc:kafra', 'npc:weightmax', 'npc:daily'] },
+  { title: 'Character',           note: 'jobs, resets, looks, skills',             keys: ['npc:jobmaster', 'npc:reset', 'npc:stylist', 'npc:epvalk', 'npc:plagiarism'] },
+  { title: 'Shops',               note: 'items for Zeny',                          keys: ['npc:tooldealer', 'npc:smuggler', 'npc:cardexchanger', 'npc:falcon'] },
+  { title: 'Hunting quests',      note: 'one NPC, four kinds of contracts',        keys: ['enable_bounties'] },
+  { title: 'Dungeons',            note: 'a timed MVP dungeon',                     keys: ['enable_mvp'] },
+  { title: 'Equipment',           note: 'refining, grades, enchants, elements',    keys: ['npc:refiner', 'npc:grade', 'npc:enchanter', 'npc:nokzin'] },
+  { title: 'Training',            note: 'targets for testing damage',              keys: ['enable_dummies'] },
 ];
 
 // Renewal-only NPCs: hidden on a Pre-renewal server (the NPC also hides
@@ -171,10 +214,31 @@ const BUFFS = [
     { code: 'sgolem',  label: 'Golem Soul',      text: '+300 DEF and +40 MDEF.', excl: 'soul' },
   ]},
 ];
+// Presets: one click sets every switch on the page; the matching one is
+// highlighted. A combination that matches none highlights nothing and is
+// saved as it is. Hidden NPCs (Renewal-only on Pre-renewal) are not touched.
+const ESSENTIALS = ['npc:warper', 'npc:buffer', 'npc:kafra', 'npc:jobmaster', 'npc:reset', 'npc:stylist'];
+const NPC_PRESETS = [
+  { name: 'All on',     note: 'every NPC and feature',                            on: () => true },
+  { name: 'Essentials', note: 'Warper, Buffer, Kafra, Job Master, Reset, Stylist', on: k => ESSENTIALS.includes(k) },
+  { name: 'All off',    note: 'nothing from this mod',                            on: () => false },
+];
+// "Everything" takes the first buff of each ⚠ set, in list order.
+const BUFF_EVERYTHING = [];
+for (const g of BUFFS) for (const b of g.list)
+  if (!b.excl || !BUFFS.some(g2 => g2.list.some(o => o.excl === b.excl && BUFF_EVERYTHING.includes(o.code))))
+    BUFF_EVERYTHING.push(b.code);
+const BUFF_PRESETS = [
+  { name: 'Default',      note: 'Blessing, AGI, Kyrie, Magnificat', codes: BUFF_DEFAULT },
+  { name: 'Acolyte line', note: 'every Acolyte / Priest buff',      codes: BUFFS[0].list.map(b => b.code) },
+  { name: 'Everything',   note: 'one of each ⚠ set',                codes: BUFF_EVERYTHING },
+  { name: 'Heal only',    note: 'no buffs, just the full heal',     codes: [] },
+];
 const EXCL_NOTE = { assu: 'one of Assumptio / Kaite', gt: 'one Gentle Touch', soul: 'one of Soul Link / the Soul Reaper souls' };
 
 const $ = id => document.getElementById(id);
 const inputs = {};   // key -> checkbox ("npc:*" keys included)
+const groups = [];   // drawn groups, for syncGroup after Revert
 let saved = {};      // what values() gave when last saved
 let offExtra = [];   // names in npc_off this page does not know; kept as they are
 let hasOffKey = false;
@@ -199,7 +263,44 @@ function values() {
   if (hasBuffKey) out[BUFF_KEY] = [...Object.keys(buffBoxes).filter(c => buffBoxes[c].checked), ...buffExtra].join(',');
   return out;
 }
+const presetButtons = []; // { button, matches() }
+function drawPresets(box, presets, apply, matches) {
+  for (const p of presets) {
+    const button = document.createElement('button');
+    const name = document.createElement('strong');
+    name.textContent = p.name;
+    const note = document.createElement('span');
+    note.textContent = p.note;
+    button.append(name, note);
+    button.onclick = () => { apply(p); markDirty(); };
+    presetButtons.push({ button, matches: () => matches(p) });
+    box.append(button);
+  }
+}
+function npcPresets() {
+  drawPresets($('npc-presets'), NPC_PRESETS,
+    p => { for (const [k, box] of Object.entries(inputs)) box.checked = p.on(k); groups.forEach(syncGroup); },
+    p => Object.entries(inputs).every(([k, box]) => box.checked === p.on(k)));
+}
+function buffPresets() {
+  drawPresets($('buff-presets'), BUFF_PRESETS,
+    p => { for (const [code, box] of Object.entries(buffBoxes)) box.checked = p.codes.includes(code); buffCount(); },
+    p => Object.entries(buffBoxes).every(([code, box]) => box.checked === p.codes.includes(code)));
+}
+
+// The opposite of values(): puts saved values back on the page (Revert).
+function setValues(v) {
+  const off = String(v[OFF_KEY] ?? '').split(',').map(n => n.trim()).filter(Boolean);
+  const chosen = String(v[BUFF_KEY] ?? '').split(',').map(c => c.trim()).filter(Boolean);
+  for (const [k, box] of Object.entries(inputs))
+    box.checked = k.startsWith('npc:') ? !off.includes(k.slice(4)) : v[k] === true;
+  for (const [code, box] of Object.entries(buffBoxes)) box.checked = chosen.includes(code);
+  groups.forEach(syncGroup);
+  buffCount();
+  markDirty();
+}
 function markDirty() {
+  for (const p of presetButtons) p.button.classList.toggle('on', p.matches());
   const changed = Object.entries(values()).some(([k, v]) => saved[k] !== v);
   status(changed ? 'Unsaved changes' : '', changed);
 }
@@ -213,18 +314,23 @@ function syncGroup(group) {
   group.count.textContent = `${on} of ${group.boxes.length} on`;
 }
 
-function drawGroup(title, settings) {
+function drawGroup(title, settings, note = '') {
   const details = document.createElement('details');
   const summary = document.createElement('summary');
   const all = document.createElement('input');
   all.type = 'checkbox';
   const name = document.createElement('span');
+  name.className = 'name';
   name.textContent = title;
+  const hint = document.createElement('span');
+  hint.className = 'note';
+  hint.textContent = note;
   const count = document.createElement('span');
   count.className = 'count';
-  summary.append(all, name, count);
+  summary.append(all, name, hint, count);
   details.append(summary);
   const group = { all, count, boxes: [] };
+  groups.push(group);
 
   for (const s of settings) {
     const label = document.createElement('label');
@@ -233,7 +339,9 @@ function drawGroup(title, settings) {
     box.type = 'checkbox';
     box.checked = s.value === true;
     const text = document.createElement('span');
-    text.textContent = s.label || s.key;
+    const title = document.createElement('b');
+    title.textContent = s.label || s.key;
+    text.append(title);
     if (s.description) {
       const hint = document.createElement('small');
       hint.textContent = s.description;
@@ -295,7 +403,9 @@ function drawBuffs(chosen) {
       box.type = 'checkbox';
       box.checked = chosen.includes(b.code);
       const text = document.createElement('span');
-      text.textContent = b.label;
+      const title = document.createElement('b');
+      title.textContent = b.label;
+      text.append(title);
       const hint = document.createElement('small');
       hint.textContent = b.text;
       if (b.excl) {
@@ -321,11 +431,6 @@ function drawBuffs(chosen) {
   buffCount();
 }
 $('buffs-back').onclick = () => showBuffs(false);
-$('buffs-default').onclick = () => {
-  for (const [code, box] of Object.entries(buffBoxes)) box.checked = BUFF_DEFAULT.includes(code);
-  buffCount();
-  markDirty();
-};
 
 async function run(button, work) {
   for (const b of document.querySelectorAll('footer button')) b.disabled = true;
@@ -347,7 +452,7 @@ async function save() {
     if (!mod.enabled) {
       const off = document.createElement('span');
       off.className = 'off';
-      off.textContent = ' · switched off in the Mods tab';
+      off.textContent = ' · the mod is switched off in the Mods tab: turn it on there for any of this to take effect';
       $('about').append(off);
     }
     const byKey = new Map(mod.settings.filter(s => s.type === 'boolean').map(s => [s.key, s]));
@@ -373,15 +478,18 @@ async function save() {
       const chosen = String(buffSetting.value ?? '').split(',').map(c => c.trim()).filter(Boolean);
       buffExtra = chosen.filter(c => !known.includes(c));
       drawBuffs(chosen);
+      buffPresets();
     }
     for (const g of GROUPS) {
       const list = g.keys.filter(k => byKey.has(k)).map(k => byKey.get(k));
       g.keys.forEach(k => byKey.delete(k));
-      if (list.length) drawGroup(g.title, list);
+      if (list.length) drawGroup(g.title, list, g.note);
     }
     if (byKey.size) drawGroup('Other', [...byKey.values()]);
+    npcPresets();
     if (hasBuffKey) buffCount();
     saved = values();
+    markDirty();
   } catch (e) {
     status('Could not read the settings: ' + (e && e.message || e), true);
   }
@@ -390,6 +498,7 @@ async function save() {
 $('expand').onclick = () => document.querySelectorAll('details').forEach(d => { d.open = true; });
 $('collapse').onclick = () => document.querySelectorAll('details').forEach(d => { d.open = false; });
 
+$('revert').onclick = () => setValues(saved);
 $('save').onclick = () => run($('save'), async () => {
   await save();
   status('Saved. Changes take effect when the server restarts.');
