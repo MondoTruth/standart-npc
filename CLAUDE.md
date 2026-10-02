@@ -48,6 +48,10 @@ npc/
   *.txt                     -- always-loaded NPCs (Warper, Buffer, Job Master, ...)
   when/<setting key>/      -- loaded only if that boolean setting is on
                               (Bounty Hunter, MVP dungeon, Training Dummies)
+    */*_era.txt            -- Renewal-only spawns / no extra contracts
+pre-renewal/npc/when/...   -- Pre-renewal copies of the *_era.txt files
+                              ("prerenewalFolder" in mod.json, app 1.4.3+;
+                              older apps ignore it and load npc/ only)
 README.md, assets/, CLAUDE.md  -- repo only, never in the release zip
 ```
 
@@ -169,7 +173,11 @@ Before placing a new NPC, grep all `prontera,` lines to avoid collisions.
 - Bounty Hunter: all contracts are in `bounty_contracts.txt`, one line each;
   keep the first lines of each type in their old order (progress migration
   depends on it); new hunting monsters also need spawn lines in
-  `bounty_mobs.txt`.
+  `bounty_mobs.txt`. Monsters of one era only: spawns in
+  `bounty_mobs_era.txt` (Renewal) or `pre-renewal/.../bounty_mobs_era.txt`;
+  Pre-renewal-only contracts in `pre-renewal/.../bounty_contracts_era.txt`.
+  The board hides any contract whose monster is not in the running era's
+  mob db, so an older app (no era folders) still works.
 - Optional server behaviour that a script cannot do (new events, commands,
   formulas) is a **server extension** in the rAthena fork: an entry in its
   `db/extension_db.yml`, switched on by a mod shipping its own

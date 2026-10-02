@@ -1,0 +1,48 @@
+//===== rAthena Script =======================================
+//= Cheffenia MVP Dungeon -- Renewal-only MVP spawns
+//===== By: Lil Art, split out by MondoTruth, Claude ===========
+//===== Description: =========================================
+//= MVPs that exist only in Renewal. On Pre-renewal (app 1.4.3+)
+//= this file is replaced by
+//= pre-renewal/npc/when/enable_mvp/mvp_dun_spawns_era.txt, so
+//= these lines do not log "Unknown mob ID" there.
+//===== How to customize: ====================================
+//= Format: bossnia_01,0,0,0,0<TAB>monster<TAB>Name<TAB>MobID,Count,Delay1,Delay2,Event
+//============================================================
+
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	2165,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	2167,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	2251,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	2253,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	2255,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	2320,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	2362,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	2236,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	2237,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	2238,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	2239,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	2240,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	2241,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	2243,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20273,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20277,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	3796,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20340,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20342,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20343,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20344,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20345,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	2346,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20381,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20419,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20421,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20422,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20520,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20601,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20648,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20811,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20843,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20934,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	20943,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	21301,3,5000,0,0
+bossnia_01,0,0,0,0	monster	Cheffenia MVP	21395,3,5000,0,0

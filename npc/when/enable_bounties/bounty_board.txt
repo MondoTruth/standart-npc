@@ -21,7 +21,9 @@
 //= kill on the server (OnNPCKillEvent).
 //===== How to customize: ====================================
 //= - Contracts, maps, monsters, kill counts, rewards:
-//=   bounty_contracts.txt -- nothing to change here.
+//=   bounty_contracts.txt -- nothing to change here. Lines for one
+//=   era only: bounty_contracts_era.txt (and its copy under
+//=   pre-renewal/), read after the shared table.
 //= - Overlook: level range .owd_min_lv/.owd_max_lv, final card
 //=   choices .owd_cards (item IDs).
 //= - Menu names of the four types: .type_name$.
@@ -449,6 +451,10 @@ OnInit:
 	.exp_unit  = 10000;
 	.zeny_unit = 50000;
 	setarray .type_name$[1], "Target Hunt (Lv 70+)", "Overlook Water Dungeon (Lv 30+)", "Illusion Dungeons (Lv 99+)", "Daily Area Purge (Lv 30+)";
+	for (.@c = 1; .@c <= 4; .@c++) {	// an era file may rename a type
+		.@name$ = callfunc("F_Bounty_EraTypeName", .@c);
+		if (.@name$ != "") .type_name$[.@c] = .@name$;
+	}
 	.owd_min_lv = 30;	// Overlook: Base Level range to take a floor
 	.owd_max_lv = 85;
 	setarray .owd_cards, 4035, 4049, 4055, 4093, 4105, 4199;	// Overlook final reward: Hydra, Vadon, Marina, Obeaune, Marc, Merman cards
@@ -471,11 +477,20 @@ OnInit:
 		"Gray Wolf Forest 1", "Gray Wolf Forest 2", "Tartaros Storage Upper Floor", "Tartaros Storage Lower Floor", "Glast Heim Abyss 1F", "Nogg Road Dungeon 3F",
 		"Rudus 3F (Waste Disposal Plant)", "Oz Labyrinth 1F", "Oz Labyrinth 2F", "Rudus 4F (Waste Disposal Plant)", "Abandoned Lab Amicitia 1F", "Abandoned Lab Amicitia 2F";
 
-	// Read bounty_contracts.txt into parallel arrays, one index per line.
+	// Read bounty_contracts.txt, then this era's extra lines
+	// (bounty_contracts_era.txt), into parallel arrays, one index per line.
 	.rows = 0;
+	.@fn$ = "F_Bounty_Contract";
+	.@k = 0;
 	while (1) {
-		.@line$ = callfunc("F_Bounty_Contract", .rows);
-		if (.@line$ == "") break;
+		.@line$ = callfunc(.@fn$, .@k);
+		.@k++;
+		if (.@line$ == "") {
+			if (.@fn$ == "F_Bounty_ContractEra") break;
+			.@fn$ = "F_Bounty_ContractEra";
+			.@k = 0;
+			continue;
+		}
 		deletearray .@f$;  explode(.@f$, .@line$, "|");
 		deletearray .@xy$; explode(.@xy$, .@f$[4], ",");
 		deletearray .@m$;  explode(.@m$, .@f$[5], ",");

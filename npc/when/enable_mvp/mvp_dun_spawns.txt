@@ -2,6 +2,8 @@
 //===== By: Lil Art ==========================================
 //= Cheffenia Dynamic Map Spawns (Gramps Architecture)
 //= Format: bossnia_01,0,0,0,0 <TAB> monster <TAB> Name <TAB> MobID,Count,Delay1,Delay2,Event
+//= MVPs of both eras only; one-era MVPs go in mvp_dun_spawns_era.txt
+//= (Renewal) or pre-renewal/npc/when/enable_mvp/ (Pre-renewal).
 //============================================================
 
 bossnia_01,0,0,0,0	monster	Cheffenia MVP	1039,3,5000,0,0
@@ -42,13 +44,6 @@ bossnia_01,0,0,0,0	monster	Cheffenia MVP	1768,3,5000,0,0
 bossnia_01,0,0,0,0	monster	Cheffenia MVP	1871,3,5000,0,0
 bossnia_01,0,0,0,0	monster	Cheffenia MVP	1874,3,5000,0,0
 bossnia_01,0,0,0,0	monster	Cheffenia MVP	2022,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	2165,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	2167,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	2251,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	2253,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	2255,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	2320,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	2362,3,5000,0,0
 bossnia_01,0,0,0,0	monster	Cheffenia MVP	1956,3,5000,0,0
 bossnia_01,0,0,0,0	monster	Cheffenia MVP	2014,3,5000,0,0
 bossnia_01,0,0,0,0	monster	Cheffenia MVP	2068,3,5000,0,0
@@ -58,48 +53,19 @@ bossnia_01,0,0,0,0	monster	Cheffenia MVP	1648,3,5000,0,0
 bossnia_01,0,0,0,0	monster	Cheffenia MVP	1649,3,5000,0,0
 bossnia_01,0,0,0,0	monster	Cheffenia MVP	1650,3,5000,0,0
 bossnia_01,0,0,0,0	monster	Cheffenia MVP	1651,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	2236,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	2237,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	2238,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	2239,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	2240,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	2241,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	2243,3,5000,0,0
 // Ancient Tao Gunka (was 20328, not in this server's mob db)
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20273,3,5000,0,0
 // Ancient Wootan Defender (was 20334, not in this server's mob db)
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20277,3,5000,0,0
 // Awakened Ktullanux (was 20338, not in this server's mob db)
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	3796,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20340,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20342,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20343,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20344,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20345,3,5000,0,0
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	2346,3,5000,0,0
 // R48-85-Bestia (was 2383, not in this server's mob db)
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20381,3,5000,0,0
 // Rigid Muspellskoll (was 3467, not in this server's mob db)
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20419,3,5000,0,0
 // Corrupted Spider Queen (was 20387, not in this server's mob db)
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20421,3,5000,0,0
 // Corrupted Dark Lord (was 20388, not in this server's mob db)
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20422,3,5000,0,0
 // Chaos Baphomet (was 20389, not in this server's mob db)
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20520,3,5000,0,0
 // Jewel Ungoliant (was 20703, not in this server's mob db)
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20601,3,5000,0,0
 // Boss Meow (was 20707, not in this server's mob db)
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20648,3,5000,0,0
 // Deep Sea Kraken (was 20708, not in this server's mob db)
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20811,3,5000,0,0
 // Deep Sea Witch (was 20857, not in this server's mob db)
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20843,3,5000,0,0
 // R001-Bestia (was 20858, not in this server's mob db)
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20934,3,5000,0,0
 // Death Witch (was 20859, not in this server's mob db)
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	20943,3,5000,0,0
 // Burning Fang (was 20864, not in this server's mob db)
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	21301,3,5000,0,0
 // Silent Maya (was 20868, not in this server's mob db)
-bossnia_01,0,0,0,0	monster	Cheffenia MVP	21395,3,5000,0,0

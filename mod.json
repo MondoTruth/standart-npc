@@ -4,6 +4,7 @@
   "author": "MondoTruth, Lil Art, IceGlaive, Nokzin, iguera, Claude, and the Ragnarok Offline community",
   "description": "⚠ Some NPCs may need the Cash Shop for full functionality. Turning the mod on turns on every NPC; switch single ones off with Settings… (Warper, Job Master, Reset Girl, Stylist, Episode Valkyrie and all the others).",
   "settingsPage": "settings/index.html",
+  "prerenewalFolder": "pre-renewal",
   "default": "off",
   "requires": {
     "app": ">=1.3.9",
