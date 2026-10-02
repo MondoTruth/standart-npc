@@ -11,12 +11,16 @@
 //= - Chosen buffs: the "buffer_set" setting, a comma-separated
 //=   list of the codes below (the settings window writes it).
 //=   .default_set$ is used when the setting is missing.
+//=   4th class buffs have their own setting, "buffer_set4" (one
+//=   string holds at most 200 characters), empty by default.
+//= - 3rd and 4th class buffs are cast on Renewal only (checkre(0)).
+//=   4th class buffs are all skill level 5.
 //= - Duration: .dur (600000 ms = 10 min); Kaupe and Kaizel use
 //=   .dur_short (360000 = 6 min).
 //= - Buff strength: the number right after .dur in each line.
 //= - Adding a buff: a new "if (compare(.@set$, ",code,"))" block
-//=   here, and the same code in the BUFFS list of
-//=   settings/index.html so it gets a checkbox.
+//=   here (.@set4$ for a 4th class one), and the same code in the
+//=   BUFFS list of settings/index.html so it gets a checkbox.
 //= - percentheal must stay LAST, after every sc_start, so it heals
 //=   to max HP after any buff that raises max HP, not before.
 //= - Some buffs cancel each other in rAthena, so the settings
@@ -33,6 +37,7 @@
 //============================================================
 -	script	Buffer	-1,{
 	.@set$ = "," + callfunc("F_ModSetting", "standart-npc", "buffer_set", .default_set$) + ",";
+	.@set4$ = "," + callfunc("F_ModSetting", "standart-npc", "buffer_set4", "") + ",";	// 4th class buffs
 
 	// ---- Acolyte / Priest -------------------------------------------
 	if (compare(.@set$, ",bless,"))   { specialeffect2 EF_BLESSING;    sc_start SC_BLESSING,.dur,10;     .@b$[getarraysize(.@b$)] = "Blessing"; }
@@ -45,13 +50,14 @@
 	if (compare(.@set$, ",suffra,"))  { specialeffect2 EF_SUFFRAGIUM;  sc_start SC_SUFFRAGIUM,.dur,3;    .@b$[getarraysize(.@b$)] = "Suffragium"; }
 	if (compare(.@set$, ",assu,"))    { specialeffect2 EF_ASSUMPTIO;   sc_start SC_ASSUMPTIO,.dur,5;     .@b$[getarraysize(.@b$)] = "Assumptio"; }
 
-	// ---- Crusader, Blacksmith ----------------------------------------
+	// ---- 2nd classes ---------------------------------------------------
+	// Crusader
 	if (compare(.@set$, ",provi,"))   { specialeffect2 EF_PROVIDENCE;  sc_start SC_PROVIDENCE,.dur,5;    .@b$[getarraysize(.@b$)] = "Providence"; }
+	// Bard
+	if (compare(.@set$, ",bragi,"))   { sc_start4 SC_POEMBRAGI,.dur,10,BA_POEMBRAGI,0,0;               .@b$[getarraysize(.@b$)] = "Poem of Bragi"; }	// faster variable cast time
+	// Blacksmith
 	if (compare(.@set$, ",wp,"))                                    { sc_start SC_WEAPONPERFECTION,.dur,10; .@b$[getarraysize(.@b$)] = "Weapon Perfection"; }
 	if (compare(.@set$, ",ot,"))      { specialeffect2 EF_OVERTHRUST;  sc_start SC_OVERTHRUST,.dur,5;    .@b$[getarraysize(.@b$)] = "Over Thrust"; }	// party version: +5..15% ATK
-
-	// ---- Bard ----------------------------------------------------------
-	if (compare(.@set$, ",bragi,"))   { sc_start4 SC_POEMBRAGI,.dur,10,BA_POEMBRAGI,0,0;               .@b$[getarraysize(.@b$)] = "Poem of Bragi"; }	// faster variable cast time
 
 	// ---- Soul Linker ---------------------------------------------------
 	if (compare(.@set$, ",link,")) {
@@ -91,20 +97,56 @@
 	if (compare(.@set$, ",kaahi,"))   { specialeffect2 EF_KAAHI;      sc_start SC_KAAHI,.dur,7;          .@b$[getarraysize(.@b$)] = "Kaahi"; }	// heals on every hit taken, costs SP
 	if (compare(.@set$, ",kaite,"))                                  { sc_start SC_KAITE,.dur,7;          .@b$[getarraysize(.@b$)] = "Kaite"; }	// reflects magic back
 
-	// ---- Arch Bishop ---------------------------------------------------
-	if (compare(.@set$, ",expia,"))                                  { sc_start SC_EXPIATIO,.dur,5;       .@b$[getarraysize(.@b$)] = "Expiatio"; }	// ignores part of the target's DEF
-	if (compare(.@set$, ",secra,"))                                  { sc_start SC_SECRAMENT,.dur,5;      .@b$[getarraysize(.@b$)] = "Sacrament"; }	// shorter fixed cast time
-	if (compare(.@set$, ",renov,"))                                  { sc_start SC_RENOVATIO,.dur,1;      .@b$[getarraysize(.@b$)] = "Renovatio"; }	// heals 5% max HP every 5 seconds
+	// ---- 3rd classes: Renewal only -----------------------------------
+	if (checkre(0)) {
+		// ---- Arch Bishop ---------------------------------------------------
+		if (compare(.@set$, ",expia,"))                                  { sc_start SC_EXPIATIO,.dur,5;       .@b$[getarraysize(.@b$)] = "Expiatio"; }	// ignores part of the target's DEF
+		if (compare(.@set$, ",secra,"))                                  { sc_start SC_SECRAMENT,.dur,5;      .@b$[getarraysize(.@b$)] = "Sacrament"; }	// shorter fixed cast time
+		if (compare(.@set$, ",renov,"))                                  { sc_start SC_RENOVATIO,.dur,1;      .@b$[getarraysize(.@b$)] = "Renovatio"; }	// heals 5% max HP every 5 seconds
 
-	// ---- Sura ----------------------------------------------------------
-	if (compare(.@set$, ",gtrev,"))                                  { sc_start SC_GT_REVITALIZE,.dur,5;  .@b$[getarraysize(.@b$)] = "Gentle Touch - Revitalize"; }
-	if (compare(.@set$, ",gtchg,"))                                  { sc_start SC_GT_CHANGE,.dur,5;      .@b$[getarraysize(.@b$)] = "Gentle Touch - Change"; }
+		// ---- Sura ----------------------------------------------------------
+		if (compare(.@set$, ",gtrev,"))                                  { sc_start SC_GT_REVITALIZE,.dur,5;  .@b$[getarraysize(.@b$)] = "Gentle Touch - Revitalize"; }
+		if (compare(.@set$, ",gtchg,"))                                  { sc_start SC_GT_CHANGE,.dur,5;      .@b$[getarraysize(.@b$)] = "Gentle Touch - Change"; }
 
-	// ---- Soul Reaper (only one soul at a time, not with Soul Link) ----
-	if (compare(.@set$, ",sshadow,"))                                { sc_start SC_SOULSHADOW,.dur,5;     .@b$[getarraysize(.@b$)] = "Shadow Soul"; }
-	if (compare(.@set$, ",sfalcon,"))                                { sc_start SC_SOULFALCON,.dur,5;     .@b$[getarraysize(.@b$)] = "Falcon Soul"; }
-	if (compare(.@set$, ",sfairy,"))                                 { sc_start SC_SOULFAIRY,.dur,5;      .@b$[getarraysize(.@b$)] = "Fairy Soul"; }
-	if (compare(.@set$, ",sgolem,"))                                 { sc_start SC_SOULGOLEM,.dur,5;      .@b$[getarraysize(.@b$)] = "Golem Soul"; }
+		// ---- Soul Reaper (only one soul at a time, not with Soul Link) ----
+		if (compare(.@set$, ",sshadow,"))                                { sc_start SC_SOULSHADOW,.dur,5;     .@b$[getarraysize(.@b$)] = "Shadow Soul"; }
+		if (compare(.@set$, ",sfalcon,"))                                { sc_start SC_SOULFALCON,.dur,5;     .@b$[getarraysize(.@b$)] = "Falcon Soul"; }
+		if (compare(.@set$, ",sfairy,"))                                 { sc_start SC_SOULFAIRY,.dur,5;      .@b$[getarraysize(.@b$)] = "Fairy Soul"; }
+		if (compare(.@set$, ",sgolem,"))                                 { sc_start SC_SOULGOLEM,.dur,5;      .@b$[getarraysize(.@b$)] = "Golem Soul"; }
+	}
+
+	// ---- 4th classes (buffer_set4): Renewal only --------------------
+	// All at skill level 5; the status works out its strength from it
+	// (status_change_start in status.cpp). Values in the comments are Lv 5.
+	if (checkre(0)) {
+		// Cardinal
+		if (compare(.@set4$, ",vita,"))        { sc_start SC_A_VITA,.dur,5;          .@b$[getarraysize(.@b$)] = "Argutus Vita"; }	// ignore 25% of the target's MRES
+		if (compare(.@set4$, ",telum,"))       { sc_start SC_A_TELUM,.dur,5;         .@b$[getarraysize(.@b$)] = "Argutus Telum"; }	// ignore 25% of the target's RES
+		if (compare(.@set4$, ",acies,"))       { sc_start SC_PRE_ACIES,.dur,5;       .@b$[getarraysize(.@b$)] = "Presens Acies"; }	// +10 C.RATE
+		if (compare(.@set4$, ",compet,"))      { sc_start SC_COMPETENTIA,.dur,5;     .@b$[getarraysize(.@b$)] = "Competentia"; }	// +50 P.ATK and S.MATK
+		if (compare(.@set4$, ",relig,"))       { sc_start SC_RELIGIO,.dur,5;         .@b$[getarraysize(.@b$)] = "Religio"; }	// +10 STA, WIS, SPL
+		if (compare(.@set4$, ",bened,"))       { sc_start SC_BENEDICTUM,.dur,5;      .@b$[getarraysize(.@b$)] = "Benedictum"; }	// +10 POW, CON, CRT
+		if (compare(.@set4$, ",medial,"))      { sc_start SC_MEDIALE,.dur,5;         .@b$[getarraysize(.@b$)] = "Mediale Votum"; }	// heals you every 2 seconds
+		// Imperial Guard
+		if (compare(.@set4$, ",gshld,"))       { sc_start SC_GUARDIAN_S,.dur,5;      .@b$[getarraysize(.@b$)] = "Guardian Shield"; }	// barrier that absorbs damage, ends when used up
+		// Elemental Master
+		if (compare(.@set4$, ",spench,"))      { sc_start SC_SPELL_ENCHANTING,.dur,5; .@b$[getarraysize(.@b$)] = "Spell Enchanting"; }	// +20 S.MATK
+		// Troubadour / Trouvere
+		if (compare(.@set4$, ",interl,"))      { sc_start SC_MUSICAL_INTERLUDE,.dur,5; .@b$[getarraysize(.@b$)] = "Musical Interlude"; }	// +30 RES
+		if (compare(.@set4$, ",jawaii,"))      { sc_start SC_JAWAII_SERENADE,.dur,5; .@b$[getarraysize(.@b$)] = "Jawaii Serenade"; }	// +15 S.MATK, faster movement
+		if (compare(.@set4$, ",pron,"))        { sc_start SC_PRON_MARCH,.dur,5;      .@b$[getarraysize(.@b$)] = "Pron March"; }	// +15 P.ATK
+		// Meister
+		if (compare(.@set4$, ",dmach,"))       { sc_start SC_D_MACHINE,.dur,5;       .@b$[getarraysize(.@b$)] = "Defense Machine"; }	// +450 DEF, +100 RES
+		// Soul Ascetic
+		if (compare(.@set4$, ",talwar,"))      { sc_start SC_TALISMAN_OF_WARRIOR,.dur,5; .@b$[getarraysize(.@b$)] = "Talisman of Warrior"; }	// +10 P.ATK, needs a weapon
+		if (compare(.@set4$, ",talmag,"))      { sc_start SC_TALISMAN_OF_MAGICIAN,.dur,5; .@b$[getarraysize(.@b$)] = "Talisman of Magician"; }	// +10 S.MATK, needs a weapon
+		if (compare(.@set4$, ",tal5,"))        { sc_start SC_TALISMAN_OF_FIVE_ELEMENTS,.dur,5; .@b$[getarraysize(.@b$)] = "Talisman of Five Elements"; }	// +20% damage to Fire/Water/Wind/Earth/Neutral targets
+		// val2 = the caster: the heal timer ends the status when it finds no
+		// caster (map_id2sd(val2), status.cpp), so the player is their own.
+		if (compare(.@set4$, ",talpro,"))      { sc_start4 SC_TALISMAN_OF_PROTECTION,.dur,5,getcharid(3),0,0; .@b$[getarraysize(.@b$)] = "Talisman of Protection"; }	// heals you every 3 seconds
+		// Spirit Handler
+		if (compare(.@set4$, ",tcomm,"))       { sc_start SC_TEMPORARY_COMMUNION,.dur,5; .@b$[getarraysize(.@b$)] = "Temporary Communion"; }	// +15 P.ATK, S.MATK, H.PLUS
+	}
 
 	// ---- Heal: always last -------------------------------------------
 	specialeffect2 EF_HEAL2;
