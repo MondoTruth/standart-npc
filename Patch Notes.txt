@@ -169,3 +169,27 @@ Now needs Ragnarok Offline 1.3.9 or newer.
 - Safe Refiner offers only +7, +8, +9 and +11 (the other certificates do not exist on Pre-renewal).
 
 Thanks to Vibbuz who reported the Area Purge bug.
+
+## 4.9.0
+Now needs Ragnarok Offline 1.4.3 or newer. On an older app you keep 4.8.1 until you update the app.
+
+### Renewal only
+- Buffer: 18 new 4th class buffs, all level 5, in the settings window under Buffer -> Choose buffs: Cardinal (Argutus Vita, Argutus Telum, Presens Acies, Competentia, Religio, Benedictum, Mediale Votum), Imperial Guard (Guardian Shield), Elemental Master (Spell Enchanting), Troubadour/Trouvere (Musical Interlude, Jawaii Serenade, Pron March), Meister (Defense Machine), Soul Ascetic (Talisman of Warrior, Magician, Five Elements, Protection), Spirit Handler (Temporary Communion). They raise P.ATK, S.MATK, RES, MRES, C.RATE and trait stats, so they matter mostly for 4th classes.
+
+### Renewal and Pre-renewal
+- Settings window, new look: groups as cards with a short note, switches instead of checkboxes, light and dark theme.
+- Settings window: presets. NPCs: All on, Essentials (Warper, Buffer, Kafra, Job Master, Reset Girl, Stylist), All off. Buffer: Default, Acolyte line, Everything, 4th class (Renewal), Heal only. The preset that matches your switches is highlighted; your own mix is saved as it is.
+- Settings window: Revert button, back to what you last saved.
+- Settings window: Daily Rewards moved to "Travel and services".
+- Buffer: buff groups now go Acolyte / Priest, then 2nd, 3rd and 4th classes, in the settings window and in chat.
+- Training Dummies: two real dummies, a Medium-size and a Large-size one (before, both were the same Medium monster). Prontera (153,163) and (158,163).
+- Bounty Hunter: Area Purge for Lv 201-230 now really works (the 4.8.1 fix still stopped the script).
+- The mod is now under the MIT licence; Warper, Job Master, Reset Girl and Stylist stay under rAthena's GPL-3.0.
+
+### Pre-renewal only
+- No more "Unknown mob ID" and "Invalid sell item" lines from this mod in the server log.
+- Bounty Hunter: Illusion Dungeons and Target Hunt Lv 126+ are hidden (their monsters do not exist on Pre-renewal).
+- Cheffenia MVP Dungeon: 50 MVPs, now with Egnigem Cenia, Gopinich and Wounded Morocc.
+- Training Dummies now appear on Pre-renewal too (Lv 99, no DEF/MDEF, so you see raw damage).
+- Tool Dealer: no Blacksmith Blessing (the item does not exist on Pre-renewal).
+- Buffer: 3rd and 4th class buffs are hidden in the settings window and not cast.
