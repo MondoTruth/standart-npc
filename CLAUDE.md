@@ -62,7 +62,15 @@ README.md, assets/, CLAUDE.md  -- repo only, never in the release zip
   still load, so anything with spawns must be a folder toggle.
 - Scripts read settings with
   `callfunc("F_ModSetting", "standart-npc", "<key>", <default>)`.
-- Files in `db/` load even when the related NPC is switched off.
+- Files in `db/` load even when the related NPC is switched off. Since app
+  1.4.3 the same `when/<key>/` switch also works for `db/when/<key>/`
+  (table added to the mod's own copy) and `lua/when/<key>/`, and
+  `conf/when/<key>/` for `groups.yml`/`atcommands.yml`. Using `db/when/` or
+  `lua/when/` means `requires.app >= 1.4.3` (we are on 1.3.9).
+- A `db/` file only loads if its name is a table rAthena imports
+  (`mob_db.yml`, `item_db.yml`, ... — the stubs in rAthena's
+  `db/import-tmpl`). Any other name lands in `db/import/` and is never read
+  (see #25).
 
 ### Settings — 5 of max 20 used
 
@@ -71,6 +79,11 @@ App limits: `type` is `boolean`, `number` or `string`; max 20 settings;
 `settings/index.html`, const `GROUPS`): Travel and services, Character,
 Shops, Hunting quests, Dungeons, Equipment, Training, Other (keys not in a
 group land in Other).
+
+**Never rename a setting `key`.** Players' values are stored by key outside
+the mod folder; on update the app treats a renamed key as one option removed
+and another added, so every player silently loses that choice. If a key
+really must go, say so in Patch Notes.
 
 ## NPCs in Prontera (grepped from files, 4.8.1)
 
@@ -121,11 +134,29 @@ Before placing a new NPC, grep all `prontera,` lines to avoid collisions.
   pinned in the app's `config/VENDOR_PINS`), or mark them "to verify" and
   say how (server console, `@mobinfo`, `@iteminfo`).
 - Renewal-only features/items must be guarded: `checkre(0)` (1 = Renewal,
-  0 = Pre-renewal) or `getitemname(<id>) == "null"`.
+  0 = Pre-renewal) or `getitemname(<id>) == "null"`. `monster`, `shop` and
+  other header lines cannot be guarded that way; for them use era folders
+  (app >= 1.4.3): `"renewalFolder": "renewal"` / `"prerenewalFolder":
+  "pre-renewal"` in mod.json. An era folder is laid out like the mod
+  (`npc/`, `db/`, `npc/when/<key>/` ...), applied over it only in its era: a
+  file at the same path replaces the mod's copy, anything else is added.
+  Needs `requires.app >= 1.4.3`.
+- `a ? b : c` in rAthena evaluates **both** `b` and `c`, then picks one
+  (`op_3` in `script.cpp`). Never put a call with side effects or errors
+  (`rand`, `getitem`, `set`, ...) inside a ternary; use `if`. This is why the
+  4.8.1 Area Purge fix still crashed (#24).
+- NPC sprite names: a wrong constant is only a warning
+  (`npc_parseview: Invalid NPC constant ... Defaulting to INVISIBLE`) — the
+  NPC loads but nobody can see it. Use a name that is in use in the fork's
+  `npc/` folder, or a numeric sprite ID that exists.
 - Call user functions only via `callfunc("Name", ...)`. A direct call failed
   to parse here and dropped the whole NPC.
 - Character variables by default; `#var` only when deliberately
   account-wide; avoid permanent global `$var` for static data (use `.var`).
+  Variables have no namespace: another mod with a `progress` variable shares
+  it on the same character. New permanent variables get a prefix that says
+  whose they are (`SNPC_`, or the NPC's existing prefix like `BB_`). Do not
+  rename existing ones without a migration — players' progress is in them.
 - `db/*.yml` needs a real `Header: {Type, Version}` / `Body:` wrapper.
 - Coordinates in mod.json descriptions and README: always grep from the file.
 - New NPC: by default always loaded -- file in `npc/`, `OnInit` with
@@ -137,6 +168,36 @@ Before placing a new NPC, grep all `prontera,` lines to avoid collisions.
   keep the first lines of each type in their old order (progress migration
   depends on it); new hunting monsters also need spawn lines in
   `bounty_mobs.txt`.
+- Optional server behaviour that a script cannot do (new events, commands,
+  formulas) is a **server extension** in the rAthena fork: an entry in its
+  `db/extension_db.yml`, switched on by a mod shipping its own
+  `db/extension_db.yml`; scripts check `getextension("<id>")`. In game:
+  `@extensions`, `@extensioninfo <id>`. Guide: `doc/extensions.md` in
+  `Flux159/rathena` (branch `ragnarokoffline`). A mod using one needs an app
+  version whose pinned fork has it.
+
+## Checking a change
+
+The app's docs (`docs/MODDING.md`, `docs/MOD_REGISTRY.md` in
+`Flux159/ragnarokoffline.app`) are the reference for the mod format; read
+them before relying on a mod.json key or folder.
+
+- Did the mod load at all? The supervisor log prints `mods: ...` on start.
+  Not in that line = look for `... was not applied -- <reason>`.
+- Settings → Mods shows under the mod any `db/` table the server rejected,
+  with rAthena's message, file and line. No message ≠ the table was read;
+  look for `Loading 'N' entries in 'db/import/...'` in the server log.
+- Script errors: map-server log, `script error`, `npc_parse_*`,
+  `buildin_*`. `debugmes` in `OnInit` proves a script ran.
+- **Test in both eras.** Pre-renewal has its own binaries, database and
+  monster/item tables (#22).
+- Quick script iteration: edit the copy in `state/modbuild` and
+  `@reloadscript` on a test character, then copy the change back — modbuild
+  is rebuilt on every start.
+- Automated play-testing: the app's `scripts/rotest` (log in, `gm "@..."`,
+  `walk`, `attack`, `server logs map`, screenshots) against a throwaway
+  world; set-up in the app's `docs/AGENT_TESTING.md`. Not used here yet
+  (#8).
 
 ## Reviewing contributions
 
@@ -165,6 +226,23 @@ check it especially carefully.
    as description. Don't attach the zip by hand: the workflow builds it and
    attaches it to the release. If the tag is not `v<version>` from mod.json,
    the workflow fails and attaches nothing.
+
+What the app's registry expects (entry `registry/mods/standart-npc/mod.json`
+in the app repo points at our releases, asset `standart-npc-*.zip`):
+
+- Only a **full release** is offered to players (`releases/latest`); drafts
+  and pre-releases never are — use a pre-release to test with a few people.
+- Tags only go up; compared as dotted numbers.
+- `requires.app` in the release's mod.json is checked before installing: a
+  player on an older app keeps the old version and is told why. Raise it
+  whenever we use something new in the app.
+- Refused: zip over 50 MB, unpacked over 96 MB or 2000 files, links, `../`
+  paths, a mod.json the app cannot read (unknown `requires` keys, bad
+  settings).
+- Players see the first few hundred characters of the release notes in the
+  update dialog — write them for players.
+- A reviewer will ask for a licence. There is no `LICENSE` file yet (open
+  question: all contributors must agree to the licence for their code).
 
 Open questions and plans live in the repo's GitHub issues — check
 `gh issue list` before starting work.
