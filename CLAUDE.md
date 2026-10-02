@@ -98,7 +98,7 @@ the mod folder; on update the app treats a renamed key as one option removed
 and another added, so every player silently loses that choice. If a key
 really must go, say so in Patch Notes.
 
-## NPCs in Prontera (grepped from files, 4.8.1)
+## NPCs in Prontera (grepped from files, 4.9.0)
 
 | NPC | x,y | File / toggle |
 |---|---|---|
