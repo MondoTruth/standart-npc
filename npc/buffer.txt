@@ -141,7 +141,9 @@
 		if (compare(.@set4$, ",talwar,"))      { sc_start SC_TALISMAN_OF_WARRIOR,.dur,5; .@b$[getarraysize(.@b$)] = "Talisman of Warrior"; }	// +10 P.ATK, needs a weapon
 		if (compare(.@set4$, ",talmag,"))      { sc_start SC_TALISMAN_OF_MAGICIAN,.dur,5; .@b$[getarraysize(.@b$)] = "Talisman of Magician"; }	// +10 S.MATK, needs a weapon
 		if (compare(.@set4$, ",tal5,"))        { sc_start SC_TALISMAN_OF_FIVE_ELEMENTS,.dur,5; .@b$[getarraysize(.@b$)] = "Talisman of Five Elements"; }	// +20% damage to Fire/Water/Wind/Earth/Neutral targets
-		if (compare(.@set4$, ",talpro,"))      { sc_start SC_TALISMAN_OF_PROTECTION,.dur,5; .@b$[getarraysize(.@b$)] = "Talisman of Protection"; }	// heals you every 3 seconds
+		// val2 = the caster: the heal timer ends the status when it finds no
+		// caster (map_id2sd(val2), status.cpp), so the player is their own.
+		if (compare(.@set4$, ",talpro,"))      { sc_start4 SC_TALISMAN_OF_PROTECTION,.dur,5,getcharid(3),0,0; .@b$[getarraysize(.@b$)] = "Talisman of Protection"; }	// heals you every 3 seconds
 		// Spirit Handler
 		if (compare(.@set4$, ",tcomm,"))       { sc_start SC_TEMPORARY_COMMUNION,.dur,5; .@b$[getarraysize(.@b$)] = "Temporary Communion"; }	// +15 P.ATK, S.MATK, H.PLUS
 	}
