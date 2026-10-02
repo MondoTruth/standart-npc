@@ -241,8 +241,11 @@ in the app repo points at our releases, asset `standart-npc-*.zip`):
   settings).
 - Players see the first few hundred characters of the release notes in the
   update dialog — write them for players.
-- A reviewer will ask for a licence. There is no `LICENSE` file yet (open
-  question: all contributors must agree to the licence for their code).
+- Licence: MIT (`LICENSE`, PR #27). Exceptions are scripts based on
+  rAthena's own (`warper`, `jobmaster`, `resetnpc`, `stylist`): they stay
+  GPL-3.0 (`LICENSE-GPL-3.0`) and say so in their header. A new script
+  copied from rAthena's `npc/` gets the same header line and an entry in
+  `LICENSE`.
 
 Open questions and plans live in the repo's GitHub issues — check
 `gh issue list` before starting work.
