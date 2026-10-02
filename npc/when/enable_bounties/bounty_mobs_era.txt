@@ -5,11 +5,9 @@
 //= Spawns for contracts whose monsters exist only in Renewal:
 //= Target Hunt Lv 126+ and the Illusion Dungeons. Same format and
 //= rules as bounty_mobs.txt.
-//= On Pre-renewal (app 1.4.3+) this file is replaced by
+//= On Pre-renewal this file is replaced by
 //= pre-renewal/npc/when/enable_bounties/bounty_mobs_era.txt, so
-//= these lines do not log "Unknown mob ID" there. Older apps load
-//= this file in both eras; the Bounty Hunter hides contracts whose
-//= monsters are missing, so nothing breaks.
+//= these lines do not log "Unknown mob ID" there.
 //===== How to customize: ====================================
 //= Format: <map>,0,0,0,0<TAB>monster<TAB><name><TAB><id>,<amount>,<delay1>,<delay2>,<event>
 //= - Keep the event field BountyBoard::OnHuntKill on every line.

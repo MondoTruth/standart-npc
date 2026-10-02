@@ -3,7 +3,7 @@
 //===== By: MondoTruth, Claude =================================
 //===== Description: =========================================
 //= Replaces npc/when/enable_mvp/mvp_dun_spawns_era.txt on
-//= Pre-renewal (app 1.4.3+). Pre-renewal MVPs that the shared
+//= Pre-renewal ("prerenewalFolder" in mod.json). Pre-renewal MVPs that the shared
 //= mvp_dun_spawns.txt does not have yet (IDs checked in
 //= Flux159/rathena db/pre-re/mob_db.yml; all three also spawn in
 //= the stock Pre-renewal world).

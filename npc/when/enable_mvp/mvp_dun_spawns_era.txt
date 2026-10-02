@@ -2,8 +2,7 @@
 //= Cheffenia MVP Dungeon -- Renewal-only MVP spawns
 //===== By: Lil Art, split out by MondoTruth, Claude ===========
 //===== Description: =========================================
-//= MVPs that exist only in Renewal. On Pre-renewal (app 1.4.3+)
-//= this file is replaced by
+//= MVPs that exist only in Renewal. On Pre-renewal this file is replaced by
 //= pre-renewal/npc/when/enable_mvp/mvp_dun_spawns_era.txt, so
 //= these lines do not log "Unknown mob ID" there.
 //===== How to customize: ====================================
