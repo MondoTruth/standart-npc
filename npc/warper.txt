@@ -6,6 +6,8 @@
 //= Add/remove destinations using the Go/Disp/Pick/Restrict
 //= functions documented right below, inside the menu labels
 //= further down this file (Towns:, Fields:, Dungeons:, etc.).
+//= License: GPL-3.0, based on rAthena's npc/custom/warper.txt
+//=   (see LICENSE and LICENSE-GPL-3.0).
 //============================================================
 
 -	script	Warper	-1,{
