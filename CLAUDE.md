@@ -42,7 +42,7 @@ The repository root is the mod folder (the release zip wraps it in
 mod.json                 -- version, author, requires, settingsPage, settings[]
 Patch Notes.txt          -- full history, one ## <version> section per release
 settings/index.html      -- the mod's own settings window
-db/                      -- prontera_dummies.yml
+db/when/enable_dummies/  -- mob_db.yml, mob_avail.yml: the two Training Dummies
 npc/
   custom/snpc_settings.txt  -- F_SNPC_Off: switch for always-loaded NPCs
   *.txt                     -- always-loaded NPCs (Warper, Buffer, Job Master, ...)
@@ -50,6 +50,7 @@ npc/
                               (Bounty Hunter, MVP dungeon, Training Dummies)
     */*_era.txt            -- Renewal-only spawns
 pre-renewal/npc/when/...   -- Pre-renewal copies of the *_era.txt files
+pre-renewal/db/when/...    -- Pre-renewal copy of the dummies' mob_db.yml
                               ("prerenewalFolder" in mod.json, app 1.4.3+)
 README.md, assets/, CLAUDE.md  -- repo only, never in the release zip
 ```
@@ -114,7 +115,7 @@ really must go, say so in Patch Notes.
 | Universal Enchanter | 164,169 | npc_off `enchanter` |
 | Master Nokzin | 167,178 | npc_off `nokzin` |
 | Daily Rewards | 147,166 | npc_off `daily` |
-| Training Dummies | near 153-158,163 | enable_dummies |
+| Training Dummies | 153,163 and 158,163 | enable_dummies |
 
 Before placing a new NPC, grep all `prontera,` lines to avoid collisions.
 

@@ -1,0 +1,65 @@
+# standart-npc -- Training Dummies (Renewal)
+# Two target dummies of their own, so Medium and Large really are
+# Medium and Large size. Stats copied from rAthena's DUMMY_150 (2411,
+# db/re/mob_db.yml in Flux159/rathena @ 7b526e6), the monster the
+# dummies used before. IDs are in the range the app's modding guide
+# gives to mod monsters (25000-31998).
+# Loaded only while "Training Dummies" (enable_dummies) is on.
+# On Pre-renewal this file is replaced by
+# pre-renewal/db/when/enable_dummies/mob_db.yml.
+
+Header:
+  Type: MOB_DB
+  Version: 5
+
+Body:
+  - Id: 28412
+    AegisName: SNPC_DUMMY_MEDIUM
+    Name: Medium Dummy
+    Level: 150
+    Hp: 99999999
+    Defense: 120
+    MagicDefense: 120
+    Str: 0
+    Agi: 0
+    Vit: 0
+    Int: 0
+    Dex: 0
+    Luk: 0
+    SkillRange: 0
+    ChaseRange: 0
+    Size: Medium
+    Race: Formless
+    Element: Neutral
+    ElementLevel: 1
+    WalkSpeed: 200
+    ClientAttackMotion: 0
+    Ai: 06
+    Class: Boss
+    Modes:
+      TeleportBlock: true
+  - Id: 28413
+    AegisName: SNPC_DUMMY_LARGE
+    Name: Large Dummy
+    Level: 150
+    Hp: 99999999
+    Defense: 120
+    MagicDefense: 120
+    Str: 0
+    Agi: 0
+    Vit: 0
+    Int: 0
+    Dex: 0
+    Luk: 0
+    SkillRange: 0
+    ChaseRange: 0
+    Size: Large
+    Race: Formless
+    Element: Neutral
+    ElementLevel: 1
+    WalkSpeed: 200
+    ClientAttackMotion: 0
+    Ai: 06
+    Class: Boss
+    Modes:
+      TeleportBlock: true

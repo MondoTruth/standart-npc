@@ -2,24 +2,31 @@
 //= Prontera Training Dummies (Medium & Large)
 //===== By: Lil Art ===========================================
 //===== Description: =========================================
-//= Stationary target dummies for testing damage output.
-//===== Status: ================================================
-//= First release -- expect this to get refined further.
+//= Stationary target dummies for testing damage output: a
+//= Medium-size one at (153,163) and a Large-size one at
+//= (158,163). A dummy that dies comes back after 2 seconds.
+//===== How to customize: ====================================
+//= - Stats (level, HP, DEF, size, element): the monster table,
+//=   db/when/enable_dummies/mob_db.yml (Renewal) and
+//=   pre-renewal/db/when/enable_dummies/mob_db.yml (Pre-renewal).
+//= - Look: db/when/enable_dummies/mob_avail.yml.
+//= - Position: the x,y in the monster lines below (4 of them).
 //============================================================
 
 -	script	PrtDummyManager	-1,{
 OnInit:
-    // Dummy 2411 is Renewal only; on Pre-renewal spawn nothing (see #22, #25).
-    if (getmonsterinfo(2411, MOB_LV) < 0) {
-        debugmes "Training Dummies: monster 2411 not in this era's mob db, no dummies spawned.";
+    // 28412/28413 come from db/when/enable_dummies/mob_db.yml. If that
+    // table was not read, say so in the log instead of spawning nothing.
+    if (getmonsterinfo(28412, MOB_LV) < 0 || getmonsterinfo(28413, MOB_LV) < 0) {
+        debugmes "Training Dummies: monsters 28412/28413 not in the mob db, no dummies spawned.";
         end;
     }
     killmonster "prontera", "PrtDummyManager::OnDummyInfo2";
     killmonster "prontera", "PrtDummyManager::OnDummyInfo3";
 
     // Medium Dummy & Large Dummy
-    monster "prontera", 153, 163, "Medium Dummy", 2411, 1, "PrtDummyManager::OnDummyInfo2";
-    monster "prontera", 158, 163, "Large Dummy", 2411, 1, "PrtDummyManager::OnDummyInfo3";
+    monster "prontera", 153, 163, "Medium Dummy", 28412, 1, "PrtDummyManager::OnDummyInfo2";
+    monster "prontera", 158, 163, "Large Dummy", 28413, 1, "PrtDummyManager::OnDummyInfo3";
     end;
 
 OnDummyInfo2:
@@ -31,10 +38,10 @@ OnDummyInfo3:
     end;
 
 OnRespawn2:
-    monster "prontera", 153, 163, "Medium Dummy", 2411, 1, "PrtDummyManager::OnDummyInfo2";
+    monster "prontera", 153, 163, "Medium Dummy", 28412, 1, "PrtDummyManager::OnDummyInfo2";
     end;
 
 OnRespawn3:
-    monster "prontera", 158, 163, "Large Dummy", 2411, 1, "PrtDummyManager::OnDummyInfo3";
+    monster "prontera", 158, 163, "Large Dummy", 28413, 1, "PrtDummyManager::OnDummyInfo3";
     end;
 }
