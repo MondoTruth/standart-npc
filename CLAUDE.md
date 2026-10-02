@@ -81,6 +81,10 @@ README.md, assets/, CLAUDE.md  -- repo only, never in the release zip
 ### Settings — 5 of max 20 used
 
 App limits: `type` is `boolean`, `number` or `string`; max 20 settings;
+`label` up to 120 and `description` up to **400 bytes** (UTF-8; over that
+the whole mod is refused: "setting ... has an over-long label or
+description", `stack/src/mods.rs`); `key` up to 40 characters, a string
+value up to 200;
 `requires.mods` gates the whole mod only. Settings window groups (in
 `settings/index.html`, const `GROUPS`): Travel and services, Character,
 Shops, Hunting quests, Dungeons, Equipment, Training, Other (keys not in a

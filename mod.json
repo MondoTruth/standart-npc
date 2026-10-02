@@ -32,7 +32,7 @@
       "type": "boolean",
       "default": true,
       "label": "Bounty Hunter",
-      "description": "Hunting contracts in one NPC, the Bounty Hunter, Prontera (147,172); one contract per board at a time. Target Hunt (was Gramps): pick a map, Lv 70 to 231+ (Pre-renewal: up to Lv 125), EXP. Overlook Water Dungeon: Lv 30-85, 4 floors in order, each once; all 4 = a card of your choice. Illusion Dungeons (Renewal only): 9 dungeons from Lv 99, EXP. Daily Area Purge (was Lucky John): once a day, any 500 monsters in a random area, EXP and Zeny."
+      "description": "Hunting contracts at the Bounty Hunter, Prontera (147,172); one contract per board at a time. Target Hunt (was Gramps): pick a map, Lv 70-231+ (Pre-renewal: to 125), EXP. Overlook Water Dungeon: Lv 30-85, 4 floors in order; all 4 = a card of your choice. Illusion Dungeons (Renewal only): 9 dungeons, Lv 99+, EXP. Daily Area Purge (was Lucky John): 500 kills a day in a random area, EXP and Zeny."
     },
     {
       "key": "enable_mvp",
