@@ -5,6 +5,8 @@
 //===== How to customize: ====================================
 //= - Prices and usage limit: the setarray .@Reset line below
 //=   (skill cost, stat cost, both cost, usage limit / 0=unlimited).
+//= License: GPL-3.0, based on rAthena's npc/custom/resetnpc.txt
+//=   (see LICENSE and LICENSE-GPL-3.0).
 //============================================================
 
 prontera,154,195,5	script	Reset Girl	124,{
