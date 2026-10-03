@@ -32,6 +32,11 @@ document disagrees with the files, trust the files and say so.
 - Contributors without GitHub (Lil Art) send zips. Commit their files as they
   are first (message mentions the author), then our fixes in a separate
   commit, so the history shows who did what.
+- When the fix belongs in the app or its server/client, MondoTruth's forks
+  can take branches and PRs: `MondoTruth/ragnarokoffline.app`,
+  `MondoTruth/rathena`, `MondoTruth/roBrowserLegacy` (see "Changes outside
+  this repository"). The same rules hold there: issues only when asked,
+  never merge.
 
 ## Repository layout
 
@@ -125,6 +130,16 @@ really must go, say so in Patch Notes.
 | Training Dummies | 153,163 and 158,163 | enable_dummies |
 
 Before placing a new NPC, grep all `prontera,` lines to avoid collisions.
+Other things in Prontera since app 1.4.6:
+
+- **prontera-vendors** (BlaXun, registry mod): stalls at random in columns
+  x=147 and x=164 (y 52-111, ~135-173), buyers at x=140 and x=171
+  (y 136-172) and rows y=110 / y=125 (x 104-135). Until
+  Flux159/ragnarokoffline.app#294 is in a release, a stall can land on an
+  NPC there; after it, stalls keep 3 cells from any NPC.
+- **Companion Recruiter** (app): two cells east of each town's healer
+  (`prontera,164,193`, next to our Buffer), visible only when Companions
+  are "Hired from a Companion Recruiter".
 
 ## Script conventions
 
@@ -233,6 +248,38 @@ them before relying on a mod.json key or folder.
 - Both tests share `tests/world.cjs` (the world, its ports, installing the
   mod). After every script change run the smoke test; before a release
   run both.
+- The test world can also load someone else's mod for a check: copy it
+  into `<world>/state/mods/<name>`, add the name to `enabled.txt`, boot,
+  and take it out again afterwards so our tests stay ours.
+
+## Changes outside this repository
+
+Read the app's `CLAUDE.md` and `CONTRIBUTING.md` first. Where a change goes:
+
+| What | Repository | PR against |
+|---|---|---|
+| app, population engine (`third-party/population-engine`), bundled and registry mods | `Flux159/ragnarokoffline.app`, from `MondoTruth/ragnarokoffline.app` | `main` |
+| rAthena bug or server extension | `Flux159/rathena`, from `MondoTruth/rathena` | `ragnarokoffline` |
+| client (roBrowserLegacy) bug | `Flux159/roBrowserLegacy`, from `MondoTruth/roBrowserLegacy` | `ragnarokoffline` |
+
+- `MondoTruth/rathena` and `MondoTruth/roBrowserLegacy` are forks of the
+  upstream projects, in the same network as Flux159's, so they have no
+  `ragnarokoffline` branch of their own: branch from Flux159's
+  `ragnarokoffline` (add it as a remote), push to MondoTruth's fork, open
+  the PR against Flux159's `ragnarokoffline`, never `master`. A fork fix
+  then needs a second, small app PR moving `config/VENDOR_PINS`.
+- **Building on Windows.** The server images cannot be built locally, but
+  the fork's GitHub Actions can (tip from BlaXun): put the change on
+  `main` of `MondoTruth/ragnarokoffline.app` (for a rathena/roBrowserLegacy
+  change, point `config/VENDOR_PINS` at the commit on MondoTruth's fork).
+  A push touching `third-party/`, `containers/` or `VENDOR_PINS` runs
+  `images`, which publishes the fork's own `images` release. Then run
+  `build` by hand (Actions → build → Run workflow, `main`): its
+  `ragnarok-offline-win-x64` artifact installs over the app. The `images`
+  compile is also the first check that the C++ builds. Afterwards put the
+  fork's `main` back to upstream once the PR is merged.
+- The installed app's map-server log: `ragnarok-stack.exe logs map 500`
+  (`%APPDATA%\Ragnarok Offline\runtime\bin`).
 
 ## Reviewing contributions
 
