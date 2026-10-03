@@ -134,12 +134,16 @@ Other things in Prontera since app 1.4.6:
 
 - **prontera-vendors** (BlaXun, registry mod): stalls at random in columns
   x=147 and x=164 (y 52-111, ~135-173), buyers at x=140 and x=171
-  (y 136-172) and rows y=110 / y=125 (x 104-135). Until
-  Flux159/ragnarokoffline.app#294 is in a release, a stall can land on an
-  NPC there; after it, stalls keep 3 cells from any NPC.
+  (y 136-172) and rows y=110 / y=125 (x 104-135). From app 1.4.8
+  (Flux159/ragnarokoffline.app#294) stalls keep 3 cells from any NPC; on
+  older apps a stall can land on one of ours.
 - **Companion Recruiter** (app): two cells east of each town's healer
   (`prontera,164,193`, next to our Buffer), visible only when Companions
   are "Hired from a Companion Recruiter".
+- **card-remover** (BlaXun, registry mod, app 1.4.8): Card Remover at
+  `prontera,182,216`, also in geffen 115,73, alberta 104,61, morocc 155,64,
+  payon 166,99, izlude 119,157 and aldebaran 160,100. Its card extraction
+  overlaps our Card Exchanger's (#41).
 
 ## Script conventions
 
