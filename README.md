@@ -5,7 +5,7 @@
 <p align="center">
   <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/MondoTruth/standart-npc?style=for-the-badge&label=latest&color=d9a233" alt="Latest release"></a>
   <a href="../../releases"><img src="https://img.shields.io/github/downloads/MondoTruth/standart-npc/total?style=for-the-badge&color=5da9e0" alt="Downloads"></a>
-  <a href="https://github.com/Flux159/ragnarokoffline.app"><img src="https://img.shields.io/badge/Ragnarok%20Offline-%E2%89%A5%201.4.3-c8503f?style=for-the-badge" alt="Requires Ragnarok Offline 1.4.3 or newer"></a>
+  <a href="https://github.com/Flux159/ragnarokoffline.app"><img src="https://img.shields.io/badge/Ragnarok%20Offline-%E2%89%A5%201.4.8-c8503f?style=for-the-badge" alt="Requires Ragnarok Offline 1.4.8 or newer"></a>
 </p>
 
 <p align="center">
@@ -28,7 +28,7 @@
 3. **Settings → Mods** → tick **standart-npc** → **Apply**. This turns on every NPC in the pack.
 
 > [!IMPORTANT]
-> Requires app version **1.4.3 or newer** — the settings window, the per-NPC switches, Bounty Hunter credit for party bot kills and the separate Pre-renewal spawn files depend on it.
+> Requires app version **1.4.8 or newer** — the settings window, the per-NPC switches, Bounty Hunter credit for party bot kills, the separate Pre-renewal spawn files and the Card Exchanger pulling one card depend on it.
 
 ---
 
@@ -71,7 +71,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 |:-:|---|---|---|
 | 🧪 | **Tool Dealer** | Standard fixed-price shop — potions, wings, Blacksmith Blessing, and a few other staples. | Prontera (143, 178) |
 | 🕵️ | **Smuggler** | Buy any item by ID, as many as you want at once. Detects the server era automatically: on Renewal the price depends on item type, on Pre-renewal every item costs its normal price x2. | Prontera (144, 174) |
-| 🃏 | **Card Exchanger** | 10 cards → Old Card Album, 30 cards → Mystical Card Album. Also extracts a card out of equipped gear. | Prontera (151, 187) |
+| 🃏 | **Card Exchanger** | 10 cards → Old Card Album, 30 cards → Mystical Card Album. Also pulls one card of your choice out of equipped gear. | Prontera (151, 187) |
 | 🦅 | **Falcon Breeder** | Falcon for Hunters and Snipers, Wolf Flute for Rangers and Windhawks, Hawk Flute for Windhawks (Renewal only). | Prontera (128, 211) |
 
 #### ⚔️ Hunting & dungeons

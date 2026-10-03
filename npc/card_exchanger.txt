@@ -1,20 +1,19 @@
 //===== rAthena Script =======================================
 //= Card Exchanger
+//===== By: MondoTruth ========================================
 //===== Description: =========================================
-//= Trades cards in bulk for a Card Album, and extracts cards
-//= out of equipped gear.
+//= Trades cards in bulk for a Card Album, and pulls one card
+//= of your choice out of equipped gear.
 //=   10 cards -> Old Card Album
 //=   30 cards -> Mystical Card Album
+//= Pulling one card needs app 1.4.8+ (successremovecards with
+//= a card slot, Flux159/rathena#25). The item stays equipped
+//= and keeps its other cards, refine and options.
 //===== How to customize: ====================================
 //= - Card counts: appear in 3 places per option (menu text,
 //=   the "< 10"/"< 30" check, and .@need) -- change all 3.
 //= - Reward item IDs: the getitem lines (616 Old Card Album,
 //=   12246 Mystical Card Album).
-//= - Extraction: uses successremovecards()/getequipcardcnt(),
-//=   NOT independently verified against this server's own
-//=   src/map/script.cpp this session -- if the script fails to
-//=   load, this is the first thing to check (grep script.cpp or
-//=   doc/script_commands.txt for the exact command names).
 //= - Extraction fee: .@fee below (currently free, 0z).
 //============================================================
 
@@ -119,7 +118,7 @@ prontera,151,187,4	script	Card Exchanger	660,{
 			close;
 		}
 
-	case 3: // Extract a card from equipped gear
+	case 3: // Extract one card from equipped gear
 		setarray .@eqi[0], EQI_HEAD_TOP, EQI_HEAD_MID, EQI_HEAD_LOW, EQI_ARMOR, EQI_HAND_R, EQI_HAND_L, EQI_GARMENT, EQI_SHOES, EQI_ACC_L, EQI_ACC_R;
 		setarray .@eqi_name$[0], "Headgear (Top)", "Headgear (Mid)", "Headgear (Low)", "Armor", "Right Hand", "Left Hand", "Garment", "Shoes", "Accessory (Left)", "Accessory (Right)";
 
@@ -133,23 +132,53 @@ prontera,151,187,4	script	Card Exchanger	660,{
 
 		.@pick = select(.@menu2$) - 1;
 		if (.@pick >= getarraysize(.@eqi)) close; // "Never mind"
+		.@eq = .@eqi[.@pick];
 
-		if (!getequipisequiped(.@eqi[.@pick])) {
+		if (!getequipisequiped(.@eq)) {
 			mes "[Card Exchanger]";
 			mes "You don't have anything equipped there.";
 			close;
 		}
 
-		.@count = getequipcardcnt(.@eqi[.@pick]);
-		if (.@count < 1) {
+		// Forged, brewed and pet items keep other data in their card slots.
+		.@card0 = getequipcardid(.@eq, 0);
+		if (.@card0 == CARD0_FORGE || .@card0 == CARD0_CREATE || .@card0 == CARD0_PET) {
+			mes "[Card Exchanger]";
+			mes "That one was made by hand. There are no cards in it to pull out.";
+			close;
+		}
+
+		// The cards in the item's own slots, in slot order.
+		.@slots = getiteminfo(getequipid(.@eq), ITEMINFO_SLOT);
+		.@n = 0;
+		.@menu3$ = "";
+		for (.@s = 0; .@s < .@slots && .@s < 4; .@s++) {
+			.@cid = getequipcardid(.@eq, .@s);
+			if (.@cid > 0 && getiteminfo(.@cid, ITEMINFO_TYPE) == IT_CARD) {
+				.@cslot[.@n] = .@s;
+				.@ccard[.@n] = .@cid;
+				.@n++;
+				.@menu3$ += getitemname(.@cid) + ":";
+			}
+		}
+		.@menu3$ += "Never mind";
+
+		if (.@n < 1) {
 			mes "[Card Exchanger]";
 			mes "No cards in that one.";
 			close;
 		}
 
+		mes "[Card Exchanger]";
+		mes "That has "+.@n+" card(s) in it. Which one should I pull out?";
+		mes "The item and the other cards stay as they are.";
+		next;
+		.@c = select(.@menu3$) - 1;
+		if (.@c >= .@n) close; // "Never mind"
+
 		.@fee = 0; // Zeny cost for the extraction, if you want one
 		mes "[Card Exchanger]";
-		mes "That has "+.@count+" card(s) in it. Pull the first one out for "+.@fee+"z?";
+		mes "Pull out ^0000FF"+getitemname(.@ccard[.@c])+"^000000 for "+.@fee+"z?";
 		next;
 		if (select("Do it:Never mind") == 2) close;
 		if (Zeny < .@fee) {
@@ -157,9 +186,16 @@ prontera,151,187,4	script	Card Exchanger	660,{
 			mes "Come back with more money.";
 			close;
 		}
-		Zeny -= .@fee;
+		if (!checkweight(.@ccard[.@c], 1)) {
+			mes "[Card Exchanger]";
+			mes "You can't carry the card. Make some room first.";
+			close;
+		}
 
-		if (successremovecards(.@eqi[.@pick])) {
+		successremovecards .@eq, .@cslot[.@c];
+		// The command says nothing back: look at the slot to see whether it worked.
+		if (getequipcardid(.@eq, .@cslot[.@c]) == 0) {
+			Zeny -= .@fee;
 			mes "[Card Exchanger]";
 			mes "There you go.";
 		} else {
