@@ -54,37 +54,13 @@ const ev = js => {
 const gm = text => W.rotest('gm', text);
 const sqlRows = query => W.rotest('server', 'sql', query).out.split('\n').map(l => l.trim()).filter(l => /^\d+$/.test(l));
 
-// rotest's login waits for the newer login window's #user field. iRO client
-// data has no art for that window, so the client shows the classic one,
-// whose fields are .user/.pass, so that wait times out. Until rotest
-// knows the classic window too, fill it here.
-function login() {
-    const first = W.rotestJson('login');
-    if (first.ok || !/#user/.test(JSON.stringify(first))) return first;
-    ev(`(async () => {
-        const find = (sel, root = document) => root.querySelector(sel)
-            || [...root.querySelectorAll('*')].filter(e => e.shadowRoot).map(e => find(sel, e.shadowRoot)).find(Boolean);
-        const set = (el, v) => { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); };
-        set(find('input.user'), 'tester'); set(find('input.pass'), 'tester123');
-        find('button.connect').click();
-    })()`);
-    for (let i = 0; i < 30; i++) {
-        const seen = ev(`(() => { const find = (sel, root = document) => root.querySelector(sel)
-            || [...root.querySelectorAll('*')].filter(e => e.shadowRoot).map(e => find(sel, e.shadowRoot)).find(Boolean);
-            const s = find('#slot0'); return !!s && s.offsetParent !== null; })()`);
-        if (seen === true) return { ok: true, via: 'classic login window' };
-        Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1000);
-    }
-    return { ok: false, error: 'character select did not appear after the classic login' };
-}
-
 function setUpCharacter(era) {
     const e = EXPECT[era];
     const checks = [];
     let id = sqlRows(`SELECT char_id FROM \`char\` WHERE name='${CHAR}'`)[0];
     if (!id) {
         W.rotest('start');
-        const login_ = login();
+        const login_ = W.rotestJson('login');
         if (!login_.ok) return [{ ok: false, text: 'log in to create the character', detail: JSON.stringify(login_).slice(0, 300) }];
         W.rotest('create', '0', CHAR);
         W.rotest('stop');
@@ -102,7 +78,7 @@ function setUpCharacter(era) {
 
 function enterGame() {
     W.rotest('start');
-    const login_ = login();
+    const login_ = W.rotestJson('login');
     if (!login_.ok) return { ok: false, detail: JSON.stringify(login_).slice(0, 300) };
     const char = W.rotestJson('char', '0');
     if (!char.ok) return { ok: false, detail: JSON.stringify(char).slice(0, 300) };
