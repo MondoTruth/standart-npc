@@ -26,6 +26,14 @@ const ERAS = W.parseEras(args);
 const clean = text => text.replace(/\x1b\[[0-9;]*[A-Za-z]/g, '').replace(/\r/g, '\n')
     .replace(/(\[(?:Status|Info|Warning|Error|Debug|Notice|SQL)\])/g, '\n$1');
 
+// Errors from the app's own scripts, not this mod's. Listed under "note"
+// instead of failing the run.
+const APP_OWN = [
+    // Population engine's recruiter.txt (app 1.4.8): the floating template
+    // runs OnInit and tries to hide itself by a name no NPC on a map has.
+    /buildin_hide: Attempted to disablenpc a non-existing NPC 'Companion Recruiter'/,
+];
+
 function runEra(era) {
     const checks = [];
     const check = (ok, text, detail = '') => checks.push({ ok, text, detail });
@@ -45,8 +53,9 @@ function runEra(era) {
     check(log.some(l => /Server is 'ready'/.test(l)), 'map server ready');
 
     // Problems this mod has caused before (#22, #24, #25) or could.
-    const bad = log.filter(l => /script error|npc_parse|buildin_|Unknown mob ID|Invalid sell item|does not exists? in the item_db|parse_simpleexpr|Invalid NPC constant|was not applied/i.test(l)
-        || (l.includes(W.MOD) && /\[(Error|Warning)\]/.test(l)));
+    const bad = log.filter(l => !APP_OWN.some(re => re.test(l)) && (
+        /script error|npc_parse|buildin_|Unknown mob ID|Invalid sell item|does not exists? in the item_db|parse_simpleexpr|Invalid NPC constant|was not applied/i.test(l)
+        || (l.includes(W.MOD) && /\[(Error|Warning)\]/.test(l))));
     check(bad.length === 0, 'no script errors, unknown IDs or NPC parse problems', bad.slice(0, 15).join('\n'));
 
     // The mod's own tables (Training Dummies: 2 monsters, 2 looks).

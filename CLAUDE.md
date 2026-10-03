@@ -80,7 +80,7 @@ README.md, assets/, CLAUDE.md, tests/  -- repo only, never in the release zip
   1.4.3 the same `when/<key>/` switch also works for `db/when/<key>/`
   (table added to the mod's own copy) and `lua/when/<key>/`, and
   `conf/when/<key>/` for `groups.yml`/`atcommands.yml`. Using `db/when/` or
-  `lua/when/` needs app 1.4.3 (we require 1.4.3).
+  `lua/when/` needs app 1.4.3 (we require 1.4.8, for `successremovecards` with a card slot).
 - A `db/` file only loads if its name is a table rAthena imports
   (`mob_db.yml`, `item_db.yml`, ... — the stubs in rAthena's
   `db/import-tmpl`). Any other name lands in `db/import/` and is never read

@@ -16,7 +16,8 @@
 //= The test character is "Tester" on the tester account. Before each
 //= run it is set, through SQL, to a Dragon Knight Lv 210 (Renewal) or a
 //= Lord Knight Lv 99 (Pre-renewal), and its Bounty Hunter progress is
-//= cleared, so every run starts from the same place.
+//= cleared, so every run starts from the same place. It also gets a
+//= +5 Knife [4] with two cards, for the Card Exchanger check.
 //============================================================
 'use strict';
 const fs = require('node:fs');
@@ -28,6 +29,10 @@ const keep = args.includes('--keep');
 const ERAS = W.parseEras(args);
 const HELPER = fs.readFileSync(path.join(__dirname, 'play-helper.js'), 'utf8');
 const CHAR = 'Tester';
+// Card Exchanger (#41): item and card IDs checked in the fork's
+// db/re and db/pre-re item_db (Knife_ 1202 has 4 slots in both eras).
+const CARD_TEST = { knife: 1202, keep: 4001, pull: 4002 };   // Knife [4], Poring Card, Fabre Card
+let charId = null;
 
 // Per era: the character, and what the NPCs should show.
 const EXPECT = {
@@ -52,6 +57,7 @@ const ev = js => {
     return r.result !== undefined ? r.result : { error: r.error || JSON.stringify(r) };
 };
 const gm = text => W.rotest('gm', text);
+const sqlOne = query => sqlRows(query)[0];
 const sqlRows = query => W.rotest('server', 'sql', query).out.split('\n').map(l => l.trim()).filter(l => /^\d+$/.test(l));
 
 function setUpCharacter(era) {
@@ -67,12 +73,19 @@ function setUpCharacter(era) {
         id = sqlRows(`SELECT char_id FROM \`char\` WHERE name='${CHAR}'`)[0];
     }
     if (!id) return [{ ok: false, text: `character ${CHAR} exists` }];
+    charId = id;
     // Restarts the game servers, so before anyone is logged in.
+    // For the Card Exchanger: a +5 Knife [4] in the right hand with a Poring
+    // Card in slot 0 and a Fabre Card in slot 1, and no loose cards of either.
     const w = W.rotest('server', 'sql', '--write',
         `UPDATE \`char\` SET class=${e.job}, base_level=${e.level}, job_level=50, last_map='prontera', last_x=156, last_y=180 WHERE char_id=${id};`
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
-        + ` DELETE FROM char_reg_str WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`);
-    checks.push({ ok: w.ok, text: `character set to job ${e.job}, Lv ${e.level}, no Bounty progress`, detail: w.ok ? '' : w.out.slice(-300) });
+        + ` DELETE FROM char_reg_str WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
+        + ` UPDATE inventory SET equip=0 WHERE char_id=${id} AND (equip & 34) <> 0;`
+        + ` DELETE FROM inventory WHERE char_id=${id} AND nameid IN (${CARD_TEST.knife}, ${CARD_TEST.keep}, ${CARD_TEST.pull});`
+        + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify, refine, card0, card1)`
+        + ` VALUES (${id}, ${CARD_TEST.knife}, 1, 2, 1, 5, ${CARD_TEST.keep}, ${CARD_TEST.pull});`);
+    checks.push({ ok: w.ok, text: `character set to job ${e.job}, Lv ${e.level}, no Bounty progress, carded Knife equipped`, detail: w.ok ? '' : w.out.slice(-300) });
     return checks;
 }
 
@@ -140,8 +153,41 @@ function runEra(era) {
     check(items.includes('Blacksmith Blessing') === e.blessing, `Tool Dealer: Blacksmith Blessing ${e.blessing ? 'sold' : 'not sold'}`,
         items.includes('Blacksmith Blessing') ? 'listed' : 'not listed');
 
+    // Card Exchanger: pull the Fabre Card (slot 1) out of the Knife; the
+    // Poring Card in slot 0 and the refine must stay (#41).
+    gm('@warp prontera 151 185');
+    const talk = ev(`(async () => {
+        const said = [];
+        await snpc.talk('Card Exchanger');
+        let v = await snpc.go('Extract a card');
+        v = await snpc.pick('Right Hand');
+        said.push(v.text);
+        v = await snpc.go('Fabre Card');
+        v = await snpc.go('Do it');
+        said.push(v.text);
+        await snpc.close();
+        return said;
+    })()`);
+    const said = Array.isArray(talk) ? talk.join(' / ') : JSON.stringify(talk);
+    check(said.includes('That has 2 card(s)'), 'Card Exchanger: lists the 2 cards in the Knife', said.slice(-300));
+    check(said.includes('There you go.'), 'Card Exchanger: pulls the chosen card', said.slice(-300));
+
     const shot = W.rotestJson('shot', `play-${era}`);
     if (shot.file) checks.push({ ok: true, text: 'screenshot', detail: shot.file, info: true });
+
+    // Logging out saves the character; then the item is read from SQL.
+    W.rotest('stop');
+    let knife = null;
+    for (let i = 0; i < 10 && !knife; i++) {
+        const q = col => sqlOne(`SELECT ${col} FROM inventory WHERE char_id=${charId} AND nameid=${CARD_TEST.knife}`);
+        const row = { card0: q('card0'), card1: q('card1'), refine: q('refine') };
+        if (row.card1 === '0') knife = row;
+        else Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1000);
+    }
+    const loose = sqlOne(`SELECT COALESCE(SUM(amount),0) FROM inventory WHERE char_id=${charId} AND nameid=${CARD_TEST.pull} AND card0=0`);
+    check(knife && knife.card0 === String(CARD_TEST.keep) && knife.refine === '5',
+        'Card Exchanger: Knife keeps its Poring Card and +5, slot 1 empty', JSON.stringify(knife));
+    check(loose === '1', 'Card Exchanger: Fabre Card back in the inventory', `${loose} loose`);
     return checks;
 }
 
