@@ -263,11 +263,13 @@ Read the app's `CLAUDE.md` and `CONTRIBUTING.md` first. Where a change goes:
 | client (roBrowserLegacy) bug | `Flux159/roBrowserLegacy`, from `MondoTruth/roBrowserLegacy` | `ragnarokoffline` |
 
 - `MondoTruth/rathena` and `MondoTruth/roBrowserLegacy` are forks of the
-  upstream projects, in the same network as Flux159's, so they have no
-  `ragnarokoffline` branch of their own: branch from Flux159's
-  `ragnarokoffline` (add it as a remote), push to MondoTruth's fork, open
-  the PR against Flux159's `ragnarokoffline`, never `master`. A fork fix
-  then needs a second, small app PR moving `config/VENDOR_PINS`.
+  upstream projects, in the same network as Flux159's (one fork per
+  network, so they cannot be re-forked from Flux159). Each has a copy of
+  Flux159's `ragnarokoffline` branch, which does not follow Flux159's on
+  its own: bring it up to Flux159's before branching (add Flux159's
+  repository as a remote). Push the work branch to MondoTruth's fork and
+  open the PR against Flux159's `ragnarokoffline`, never `master`. A fork
+  fix then needs a second, small app PR moving `config/VENDOR_PINS`.
 - **Building on Windows.** The server images cannot be built locally, but
   the fork's GitHub Actions can (tip from BlaXun): put the change on
   `main` of `MondoTruth/ragnarokoffline.app` (for a rathena/roBrowserLegacy
