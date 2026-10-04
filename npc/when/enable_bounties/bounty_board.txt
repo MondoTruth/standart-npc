@@ -574,4 +574,4 @@ function	script	F_Bounty_GiveEXP	{
 }
 
 // The Bounty Hunter -- stands where Gramps used to.
-prontera,147,172,5	duplicate(BountyBoard)	Bounty Hunter#bb	733
+prontera,147,169,5	duplicate(BountyBoard)	Bounty Hunter#bb	733
