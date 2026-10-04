@@ -62,7 +62,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | 🎓 | **Job Master** | Full job changer up to 4th class, including job-change equipment (Wolf Flute for Ranger, etc.). | Prontera (157, 195) |
 | 🔄 | **Reset Girl** | Resets skills, stats, or both, for Zeny. | Prontera (154, 195) |
 | 💇 | **Stylist** | Hair style, hair color, cloth color changer. | Prontera (169, 180) |
-| 🛡️ | **Episode Valkyrie** | Redeems Episode Clear Tickets (Episodes 13-20), bought via the Cash Shop, for EXP and quest completion. | Prontera (128, 193) |
+| 🛡️ | **Episode Valkyrie** | Redeems Episode Clear Tickets (Episodes 13-20) for EXP. Tickets 16-18 are sold by [cash-shop-extended](https://github.com/LilArt420/cashshopmod)'s Cash Shop. Renewal only. | Prontera (128, 193) |
 | 🎭 | **Plagiarism Master** | Rogue, Stalker, Shadow Chaser and Abyss Chaser copy any skill Plagiarism can copy. The level goes up to your Plagiarism level. | Prontera (171, 182) |
 
 #### 🛒 Shops & cards
@@ -88,7 +88,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | ⚒️ | **Safe Refiner** | Refine gear to +7 through +15 using certificates (Pre-renewal: +7, +8, +9, +11). | Prontera (164, 172) |
 | 📊 | **Grade Refiner** | Opens the game's grading and refining windows. Renewal only. | Prontera (164, 166) |
 | 💎 | **Universal Enchanter** | Attach an Enchant/Class Stone (or similar item) to costume, shadow or regular gear, for free. Keeps the refine level. | Prontera (164, 169) |
-| 🔥 | **Master Nokzin** | Endows your weapon with an element for an hour, works on carded weapons too. Can also remove an endow for free. Portable Elemental Converter scrolls are sold in the Cash Shop instead. | Prontera (167, 178) |
+| 🔥 | **Master Nokzin** | Endows your weapon with an element for an hour, works on carded weapons too. Can also remove an endow for free. Portable Elemental Converter scrolls: the Cash Shop with cash-shop-extended, the Tool Dealer without it. | Prontera (167, 178) |
 
 #### 🥊 Training
 
@@ -104,7 +104,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | 👼 | **Welcoming** | A one-time starter gift for every new character: 150,000 Zeny, a Premium Booster Box and two costumes. Renewal only. | Izlude (189, 209) |
 
 > [!NOTE]
-> Some NPCs (Master Nokzin, Episode Valkyrie) may need the Cash Shop for full functionality.
+> Lil Art's **cash-shop-extended** (Find Mods, Renewal only) adds a Cash Shop and Cash Points. With it, the Cheffenia Gatekeeper also takes Cash Points, the Smuggler charges more (so it does not undercut the shop) and Master Nokzin points to the Cash Shop for converters. Without it, Zeny only, the Smuggler's lower prices, and the Tool Dealer sells the converters.
 
 ### 🏹 Bounty Hunter
 

@@ -143,7 +143,9 @@ prontera,128,193,4	script	Valkyrie#EpsClear	4_F_VALKYRIE,{
     end;
 
 OnInit:
-    // Switched off in the settings window? Hide.
-    if (callfunc("F_SNPC_Off", "epvalk")) disablenpc strnpcinfo(0);
+    // Off on Pre-renewal (checkre(0): 1 = Renewal, 0 = Pre-renewal): no
+    // Episode Clear Ticket is in its item db. And when switched off in the
+    // settings window.
+    if (!checkre(0) || callfunc("F_SNPC_Off", "epvalk")) disablenpc strnpcinfo(0);
     end;
 }

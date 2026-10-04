@@ -167,6 +167,32 @@ function runEra(era) {
     check(items.includes('Blacksmith Blessing') === e.blessing, `Tool Dealer: Blacksmith Blessing ${e.blessing ? 'sold' : 'not sold'}`,
         items.includes('Blacksmith Blessing') ? 'listed' : 'not listed');
 
+    // Without cash-shop-extended (it is not in the test world): the Tool
+    // Dealer sells the Elemental Converters, Master Nokzin sends players
+    // there, and the Cheffenia Gatekeeper offers Zeny only (#40).
+    check(items.some(n => /Converter/.test(n)), 'Tool Dealer: Elemental Converters sold without cash-shop-extended', items.filter(n => /Convert/.test(n)).join(', ') || 'none');
+    gm('@warp prontera 167 175');
+    const nokzin = ev(`(async () => { await snpc.talk('Master Nokzin'); const v = await snpc.go('What about converter scrolls?'); const t = v.text || ''; await snpc.close(); return t; })()`);
+    check(typeof nokzin === 'string' && nokzin.includes('Tool Dealer here in Prontera (143,178)'), 'Master Nokzin: points to the Tool Dealer (143,178)', String(nokzin).slice(-160));
+    gm('@warp prontera 140 177');
+    const gate = ev(`(async () => {
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+        await snpc.talk('Cheffenia Gatekeeper');
+        let v = snpc.view();
+        for (let i = 0; i < 20 && !v.menu.length; i++) { if (v.next) v = await snpc.next(); else { await sleep(200); v = snpc.view(); } }
+        const out = v.menu.map(m => m.text);
+        if (v.menu.some(m => m.text === 'Cancel')) await snpc.pick('Cancel');
+        await snpc.close();
+        return out;
+    })()`);
+    check(Array.isArray(gate) && gate.includes('Zeny') && !gate.includes('Cash Points') && !gate.some(t => /Reset My Pass/.test(t)),
+        'Cheffenia Gatekeeper: Zeny only, no testing reset', JSON.stringify(gate));
+    if (!e.welcome) {
+        gm('@warp prontera 128 190');
+        const valk = ev(`snpc.npcs(10).map(n => n.name)`);
+        check(Array.isArray(valk) && !valk.some(n => n.startsWith('Valkyrie')), 'Episode Valkyrie: not on Pre-renewal', JSON.stringify(valk));
+    }
+
     // Welcoming (Izlude, Renewal only): the gift once; on Pre-renewal no NPC.
     gm('@warp izlude 189 206');
     if (e.welcome) {
