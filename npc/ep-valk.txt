@@ -1,151 +1,178 @@
 //===== rAthena Script =======================================
-//= Valkyrie Episode Clear Ticket Redeemer (Verified DP IDs)
+//= Episode Valkyrie (Episode Clear Tickets)
+//===== By: Lil Art, rework MondoTruth ===========================
 //===== Description: =========================================
-//= Placed at Prontera (128, 193), this Valkyrie uses exact 
-//= Divine Pride item IDs for Episode Clear Tickets (13 - 20).
-//= Prompts players for Ep 17 (17.1 vs 17.2) and sets/completes
-//= all underlying rAthena quest flags properly.
+//= Prontera (128,193). Uses an Episode Clear Ticket to skip an
+//= episode's main story, as on the official servers: the
+//= episode's main quests are marked done, which opens what
+//= needs the finished story (instances, dailies, areas). No EXP
+//= and no quest rewards. Also sells the tickets for Zeny.
+//= Only episodes with a real skip are offered; other tickets are
+//= kept for later. Renewal only.
+//= Episode 18: ep18_main = 57 (its last step), the main quests
+//= that are done at the end are completed, the rest erased. This
+//= opens Villa of Deception (wolfvill 79,260) and the dailies.
+//===== How to customize: ====================================
+//= OnInit: .price[<episode>] is the ticket price in Zeny,
+//= .ready is the list of episodes with a skip.
 //============================================================
 
 prontera,128,193,4	script	Valkyrie#EpsClear	4_F_VALKYRIE,{
-    mes "[Valkyrie]";
-    mes "Greetings, traveler. I possess the power to grant you full completion of historical main story episodes.";
-    mes "Present your ^0055FFEpisode Clear Ticket^000000 and I shall fulfill your quest progression.";
-    next;
+	mes "[Valkyrie]";
+	mes "Greetings, traveler. With an ^0055FFEpisode Clear Ticket^000000 I can lift the weight of an episode's story from you.";
+	mes "Its main quests count as done, so whatever waits for the finished story opens to you. No rewards come with it.";
+	next;
+	switch (select("Use a ticket:Buy a ticket:Which episodes?:Cancel")) {
+	case 1:
+		.@ep = callsub(S_Pick, 0);
+		if (!.@ep)
+			close;
+		if (callsub(S_Done, .@ep)) {
+			mes "[Valkyrie]";
+			mes "You have already finished Episode " + .@ep + ". Keep your ticket.";
+			close;
+		}
+		if (countitem(.ticket[.@ep]) < 1) {
+			mes "[Valkyrie]";
+			mes "You have no ^0055FFEpisode " + .@ep + " Clear Ticket^000000.";
+			close;
+		}
+		mes "[Valkyrie]";
+		mes "Use your ^0055FFEpisode " + .@ep + " Clear Ticket^000000?";
+		mes "The main story of Episode " + .@ep + " will be marked as finished. Quests of it you have open are closed.";
+		next;
+		if (select("Yes, use it:Cancel") == 2)
+			close;
+		if (countitem(.ticket[.@ep]) < 1)
+			close;
+		delitem .ticket[.@ep], 1;
+		callsub S_Skip, .@ep;
+		specialeffect2 154;
+		mes "[Valkyrie]";
+		mes "It is done. Episode " + .@ep + " is behind you.";
+		close;
+	case 2:
+		.@ep = callsub(S_Pick, 1);
+		if (!.@ep)
+			close;
+		if (callsub(S_Done, .@ep)) {
+			mes "[Valkyrie]";
+			mes "You have already finished Episode " + .@ep + ". You do not need its ticket.";
+			close;
+		}
+		mes "[Valkyrie]";
+		mes "An ^0055FFEpisode " + .@ep + " Clear Ticket^000000 costs " + callfunc("F_InsertComma", .price[.@ep]) + " Zeny.";
+		next;
+		if (select("Buy it:Cancel") == 2)
+			close;
+		if (Zeny < .price[.@ep]) {
+			mes "[Valkyrie]";
+			mes "You do not have enough Zeny.";
+			close;
+		}
+		if (!checkweight(.ticket[.@ep], 1)) {
+			mes "[Valkyrie]";
+			mes "You are carrying too much.";
+			close;
+		}
+		Zeny -= .price[.@ep];
+		getitem .ticket[.@ep], 1;
+		mes "[Valkyrie]";
+		mes "Here is your ticket.";
+		close;
+	case 3:
+		mes "[Valkyrie]";
+		.@n = getarraysize(.ready);
+		for (.@i = 0; .@i < .@n; .@i++)
+			mes "Episode " + .ready[.@i] + ": ready.";
+		mes "Other episodes will follow. If you hold a ticket for one of them, keep it until then.";
+		close;
+	}
+	close;
 
-    // Direct Divine Pride Item IDs
-    .@ticket_ids[13] = 1000284; // Ep 13
-    .@ticket_ids[14] = 1000285; // Ep 14
-    .@ticket_ids[15] = 1000286; // Ep 15
-    .@ticket_ids[16] = 1000282; // Ep 16
-    .@ticket_ids[17] = 1000287; // Ep 17
-    .@ticket_ids[18] = 1000288; // Ep 18
-    .@ticket_ids[19] = 1000988; // Ep 19
-    .@ticket_ids[20] = 1001214; // Ep 20
+// Asks for an episode out of .ready. getarg(0): 1 = with prices.
+// Returns the episode, or 0 for Cancel.
+S_Pick:
+	.@n = getarraysize(.ready);
+	for (.@i = 0; .@i < .@n; .@i++) {
+		.@ep = .ready[.@i];
+		if (getarg(0))
+			.@menu$ += "Episode " + .@ep + " (" + callfunc("F_InsertComma", .price[.@ep]) + " z):";
+		else
+			.@menu$ += "Episode " + .@ep + " (tickets: " + countitem(.ticket[.@ep]) + "):";
+	}
+	.@menu$ += "Cancel";
+	.@c = select(.@menu$) - 1;
+	if (.@c >= .@n)
+		return 0;
+	return .ready[.@c];
 
-    // Base/Job EXP Rewards
-    .@b_exp[13] = 5000000;   .@j_exp[13] = 2500000;
-    .@b_exp[14] = 10000000;  .@j_exp[14] = 5000000;
-    .@b_exp[15] = 20000000;  .@j_exp[15] = 10000000;
-    .@b_exp[16] = 35000000;  .@j_exp[16] = 17500000;
-    .@b_exp[17] = 50000000;  .@j_exp[17] = 25000000;
-    .@b_exp[18] = 80000000;  .@j_exp[18] = 40000000;
-    .@b_exp[19] = 120000000; .@j_exp[19] = 60000000;
-    .@b_exp[20] = 200000000; .@j_exp[20] = 100000000;
+// Whether the episode's main story is finished.
+S_Done:
+	switch (getarg(0)) {
+	case 18:
+		return (ep18_main >= 57);
+	}
+	return 0;
 
-    .@menu$ = "";
-    .@has_tickets = 0;
-
-    for (.@ep = 13; .@ep <= 20; .@ep++) {
-        .@item_id = .@ticket_ids[.@ep];
-        if (countitem(.@item_id) > 0) {
-            .@menu$ += "Redeem Episode " + .@ep + " Clear Ticket:";
-            .@has_tickets = 1;
-        } else {
-            .@menu$ += "^777777Episode " + .@ep + " Ticket (Missing)^000000:";
-        }
-    }
-    .@menu$ += "Cancel";
-
-    if (!.@has_tickets) {
-        mes "[Valkyrie]";
-        mes "You do not have any Episode Clear Tickets (Ep 13 - 20) in your inventory.";
-        close;
-    }
-
-    .@choice = select(.@menu$);
-    if (.@choice > 8) close;
-
-    .@selected_ep = .@choice + 12;
-    .@selected_ticket = .@ticket_ids[.@selected_ep];
-
-    if (countitem(.@selected_ticket) < 1) {
-        mes "[Valkyrie]";
-        mes "You do not possess the Episode " + .@selected_ep + " Clear Ticket!";
-        close;
-    }
-
-    // Special selection prompt for Episode 17 (17.1 Illusion vs 17.2 Sage's Legacy)
-    .@sub_ep = 0;
-    if (.@selected_ep == 17) {
-        mes "[Valkyrie]";
-        mes "Episode 17 contains two distinct story lines. Which portion would you like to clear?";
-        next;
-        .@sub_choice = select("Episode 17.1 (Illusion):Episode 17.2 (Sage's Legacy & Varmundt):Both 17.1 & 17.2:Cancel");
-        if (.@sub_choice == 4) close;
-        .@sub_ep = .@sub_choice;
-    } else {
-        mes "[Valkyrie]";
-        mes "Are you sure you wish to consume your ^0055FFEpisode " + .@selected_ep + " Clear Ticket^000000?";
-        next;
-        if (select("Yes, complete the episode!:Cancel") == 2) close;
-    }
-
-    if (countitem(.@selected_ticket) < 1) close;
-
-    // Consume Ticket
-    delitem .@selected_ticket, 1;
-
-    // Complete Episode Quest Flags (Sets and completes so @checkquest shows 2)
-    switch (.@selected_ep) {
-        case 13:
-            setquest 7000; completequest 7000;
-            setquest 7001; completequest 7001;
-            break;
-        case 14:
-            setquest 7200; completequest 7200;
-            setquest 7201; completequest 7201;
-            break;
-        case 15:
-            setquest 9000; completequest 9000;
-            setquest 9001; completequest 9001;
-            break;
-        case 16:
-            // Banquet for Heroes (16.1) & Terra Gloria (16.2)
-            setquest 11200; completequest 11200;
-            setquest 11201; completequest 11201;
-            setquest 11333; completequest 11333;
-            setquest 11354; completequest 11354;
-            break;
-        case 17:
-            if (.@sub_ep == 1 || .@sub_ep == 3) {
-                // 17.1 Illusion
-                setquest 16000; completequest 16000;
-                setquest 16001; completequest 16001;
-            }
-            if (.@sub_ep == 2 || .@sub_ep == 3) {
-                // 17.2 Sage's Legacy / Varmundt
-                setquest 16010; completequest 16010;
-                setquest 16011; completequest 16011;
-            }
-            break;
-        case 18:
-            setquest 18000; completequest 18000;
-            setquest 18001; completequest 18001;
-            break;
-        case 19:
-            setquest 19000; completequest 19000;
-            setquest 19001; completequest 19001;
-            break;
-        case 20:
-            setquest 20000; completequest 20000;
-            setquest 20001; completequest 20001;
-            break;
-    }
-
-    // Grant EXP
-    getexp .@b_exp[.@selected_ep], .@j_exp[.@selected_ep];
-
-    specialeffect2 154;
-    mes "[Valkyrie]";
-    mes "It is done! Episode " + .@selected_ep + " has been marked as fully cleared, and your rewards have been granted.";
-    close;
-    end;
+// Marks the episode's main story as finished.
+S_Skip:
+	switch (getarg(0)) {
+	case 18:
+		// Main quests still open are closed, as the story would have.
+		.@n = getarraysize(.q18);
+		for (.@i = 0; .@i < .@n; .@i++) {
+			if (isbegin_quest(.q18[.@i]) == 1)
+				erasequest .q18[.@i];
+		}
+		// The ones a finished story leaves completed.
+		.@n = getarraysize(.q18_done);
+		for (.@i = 0; .@i < .@n; .@i++) {
+			if (isbegin_quest(.q18_done[.@i]) == 0)
+				setquest .q18_done[.@i];
+			if (isbegin_quest(.q18_done[.@i]) == 1)
+				completequest .q18_done[.@i];
+		}
+		ep18_main = 57;
+		break;
+	}
+	return;
 
 OnInit:
-    // Off on Pre-renewal (checkre(0): 1 = Renewal, 0 = Pre-renewal): no
-    // Episode Clear Ticket is in its item db. And when switched off in the
-    // settings window.
-    if (!checkre(0) || callfunc("F_SNPC_Off", "epvalk")) disablenpc strnpcinfo(0);
-    end;
+	// Off on Pre-renewal (checkre(0): 1 = Renewal, 0 = Pre-renewal): no
+	// Episode Clear Ticket is in its item db. And when switched off in the
+	// settings window.
+	if (!checkre(0) || callfunc("F_SNPC_Off", "epvalk")) {
+		disablenpc strnpcinfo(0);
+		end;
+	}
+	// Episodes with a real skip, in menu order.
+	setarray .ready[0], 18;
+	// Episode Clear Tickets (EpisodClear13 - EpisodClear18).
+	.ticket[13] = 1000284;
+	.ticket[14] = 1000285;
+	.ticket[15] = 1000286;
+	.ticket[16] = 1000282;
+	.ticket[17] = 1000287;
+	.ticket[18] = 1000288;
+	// Ticket prices in Zeny.
+	.price[13] = 1000000;
+	.price[14] = 2000000;
+	.price[15] = 3000000;
+	.price[16] = 4000000;
+	.price[17] = 5000000;
+	.price[18] = 6000000;
+	// Episode 18 (npc/re/quests/quests_18.txt): every main-story quest,
+	// ep18_main 1 to 57, and those a finished story leaves completed.
+	setarray .q18[0],
+		8681, 8682, 8683, 8684, 8685, 8686, 8687,
+		11696, 11697, 11698, 11699, 11700, 11701, 11702, 11703,
+		11704, 11705, 11706, 11707, 11708, 11709, 11710, 11711, 11712,
+		11713, 11714, 11715, 11716, 11717, 11719, 11720, 11721, 11722,
+		11723, 11724, 18082,
+		16567, 16568, 16569, 16570, 16571, 16572, 16573, 16574, 16575,
+		16576, 16577, 16578, 16579, 16580,
+		17517, 17518, 17519, 17520, 17521, 17525, 18083, 18084, 18085;
+	setarray .q18_done[0], 8681, 11720, 11724, 18085;
+	end;
 }

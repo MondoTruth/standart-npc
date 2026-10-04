@@ -62,7 +62,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | 🎓 | **Job Master** | Full job changer up to 4th class, including job-change equipment (Wolf Flute for Ranger, etc.). | Prontera (157, 195) |
 | 🔄 | **Reset Girl** | Resets skills, stats, or both, for Zeny. | Prontera (154, 195) |
 | 💇 | **Stylist** | Hair style, hair color, cloth color changer. | Prontera (169, 180) |
-| 🛡️ | **Episode Valkyrie** | Redeems Episode Clear Tickets (Episodes 13-20) for EXP. Tickets 16-18 are sold by [cash-shop-extended](https://github.com/LilArt420/cashshopmod)'s Cash Shop. Renewal only. | Prontera (128, 193) |
+| 🛡️ | **Episode Valkyrie** | Episode Clear Tickets skip an episode's main story, as on official servers: its instances and daily quests open, no rewards. Episode 18 for now (Villa of Deception opens). Sells the tickets for Zeny; [cash-shop-extended](https://github.com/LilArt420/cashshopmod)'s Cash Shop sells 16-18 too. Renewal only. | Prontera (128, 193) |
 | 🎭 | **Plagiarism Master** | Rogue, Stalker, Shadow Chaser and Abyss Chaser copy any skill Plagiarism can copy. The level goes up to your Plagiarism level. | Prontera (171, 182) |
 
 #### 🛒 Shops & cards
