@@ -8,6 +8,10 @@
 //= empty socket of equipped Costume, Shadow, or Regular gear.
 //= Regular gear: only the sockets after its card slots, so the
 //= card slots stay for cards.
+//= Offered: enchant-type items, the enchants the item db leaves
+//= typed as plain cards (headgear jewels, costume stones -- not
+//= monster cards or Tarot cards), and stones/essences; only the
+//= ones whose item db places include the chosen slot (#46).
 //= The item keeps its refine, grade, random options, bound type
 //= and broken state. Refused: rental items, forged/brewed/pet
 //= items (their card fields hold crafter data), and items the
@@ -179,16 +183,39 @@ prontera,164,169,4	script	Universal Enchanter	10182,{
             continue;
         }
 
+        // A card-type item without the Enchant subtype counts as a monster
+        // card to the server. Many enchants are like that (the headgear
+        // jewels 27421-27426, the costume stones such as ATK Stone (Upper)),
+        // so it is taken as an enchant when its name does not end in "Card"
+        // -- monster cards are all named "... Card" -- and is not a Tarot
+        // card ("The Justice", "Wheel Of Fortune Reversed", ...) (#46).
+        .@len = getstrlen(.@name$);
+        .@tail$ = "";
+        if (.@len >= 4) .@tail$ = substr(.@name$, .@len - 4, .@len - 1);	// not a ternary: it runs both sides
+        .@unmarked = 0;
+        if (.@type == IT_CARD && .@subtype == CARD_NORMAL && .@tail$ != "Card" && .@tail$ != "card") {
+            .@unmarked = 1;
+            if (strpos(.@name$, "The ") == 0 || strpos(.@name$, "Wheel Of Fortune") == 0) .@unmarked = 0;
+        }
+
         // Acceptance Criteria:
         // - Item of type IT_CARD that isn't a normal monster card (Nebula, Trait, Essences)
+        // - An enchant the item db leaves without the Enchant subtype (above)
         // - Item of type IT_ETC with explicit stone/enchantment sub-type designation
-        if ((.@type == IT_CARD && .@subtype != CARD_NORMAL) || 
+        if (!((.@type == IT_CARD && .@subtype != CARD_NORMAL) || .@unmarked ||
             (.@type == IT_ETC && .@subtype == CARD_ENCHANT) ||
-            (.@type == IT_ETC && (strpos(.@name$, "Stone") != -1 || strpos(.@name$, "Essence") != -1 || strpos(.@name$, "FixedCasting") != -1))) {
-            
-            .@valid_stone_id[.@stone_count] = .@id;
-            .@stone_count++;
+            (.@type == IT_ETC && (strpos(.@name$, "Stone") != -1 || strpos(.@name$, "Essence") != -1 || strpos(.@name$, "FixedCasting") != -1)))) {
+            continue;
         }
+
+        // Only what fits the chosen slot: an item whose db entry names its
+        // places must name this one (the jewels: headgear only). No places
+        // given (most stones) = any slot, as before.
+        .@where = getiteminfo(.@id, ITEMINFO_LOCATIONS);
+        if (.@where > 0 && !(.@where & .@EQ_POS[.@sel_slot])) continue;
+
+        .@valid_stone_id[.@stone_count] = .@id;
+        .@stone_count++;
     }
 
     if (.@stone_count == 0) {
