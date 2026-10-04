@@ -22,10 +22,12 @@ document disagrees with the files, trust the files and say so.
 ## Workflow
 
 - Create issues only when MondoTruth asks for it.
-- Otherwise go straight to a branch and a PR. If the work matches an existing
-  issue, put `Closes #<issue>` in the PR body.
+- Otherwise go straight to a branch. If the work matches an existing issue,
+  put `Closes #<issue>` in the PR body.
 - Work in a branch named after the task, never commit to `main` directly.
-- Open a PR with `gh pr create`.
+- **Ask before opening a PR.** Commit and push the branch, say what changed
+  and what was checked, name the PR's target and title, and wait for
+  MondoTruth's clear yes. Only then `gh pr create`.
 - **Don't merge PRs yourself.** MondoTruth merges after testing in game.
 - No links to Claude sessions (`claude.ai/code/session_...`, `Claude-Session:`
   trailers) in commits, issues, PRs or comments.
@@ -36,7 +38,7 @@ document disagrees with the files, trust the files and say so.
   can take branches and PRs: `MondoTruth/ragnarokoffline.app`,
   `MondoTruth/rathena`, `MondoTruth/roBrowserLegacy` (see "Changes outside
   this repository"). The same rules hold there: issues only when asked,
-  never merge.
+  PRs only after a yes, never merge.
 
 ## Repository layout
 
