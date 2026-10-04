@@ -17,7 +17,8 @@
 //= run it is set, through SQL, to a Dragon Knight Lv 210 (Renewal) or a
 //= Lord Knight Lv 99 (Pre-renewal), and its Bounty Hunter progress is
 //= cleared, so every run starts from the same place. It also gets a
-//= +5 Knife [4] with two cards, for the Card Exchanger check.
+//= +5 Knife [4] with two cards, for the Card Exchanger check, and
+//= its Welcoming gift is cleared.
 //============================================================
 'use strict';
 const fs = require('node:fs');
@@ -42,6 +43,7 @@ const EXPECT = {
         purgeMaps: ['sp_rudus4'],  // Lv 201-230: one map (#24)
         dummy: { 28412: ['Size:Medium', 'Lv:150'], 28413: ['Size:Large', 'Lv:150'] },
         blessing: true,            // Blacksmith Blessing in the Tool Dealer
+        welcome: true,             // Welcoming in Izlude: Renewal only
     },
     'pre-renewal': {
         job: 4008, level: 99,    // Lord Knight
@@ -49,6 +51,7 @@ const EXPECT = {
         purgeMaps: ['ice_dun01', 'gl_church', 'yuno_fild08', 'ra_fild12', 'mosk_dun02', 'gef_fild06', 'gef_fild08'],
         dummy: { 28412: ['Size:Medium', 'Lv:99', 'DEF:0'], 28413: ['Size:Large', 'Lv:99', 'DEF:0'] },
         blessing: false,
+        welcome: false,
     },
 };
 
@@ -81,6 +84,7 @@ function setUpCharacter(era) {
         `UPDATE \`char\` SET class=${e.job}, base_level=${e.level}, job_level=50, last_map='prontera', last_x=156, last_y=180 WHERE char_id=${id};`
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
         + ` DELETE FROM char_reg_str WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
+        + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\`='SNPC_WelcomeGift';`
         + ` UPDATE inventory SET equip=0 WHERE char_id=${id} AND (equip & 34) <> 0;`
         + ` DELETE FROM inventory WHERE char_id=${id} AND nameid IN (${CARD_TEST.knife}, ${CARD_TEST.keep}, ${CARD_TEST.pull});`
         + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify, refine, card0, card1)`
@@ -152,6 +156,26 @@ function runEra(era) {
     check(items.includes('Red Potion'), 'Tool Dealer: shop opens', `${items.length} items`);
     check(items.includes('Blacksmith Blessing') === e.blessing, `Tool Dealer: Blacksmith Blessing ${e.blessing ? 'sold' : 'not sold'}`,
         items.includes('Blacksmith Blessing') ? 'listed' : 'not listed');
+
+    // Welcoming (Izlude, Renewal only): the gift once; on Pre-renewal no NPC.
+    gm('@warp izlude 189 206');
+    if (e.welcome) {
+        const gift = ev(`(async () => {
+            await snpc.talk('Welcoming');
+            const v = await snpc.go('Yes, please!');
+            let t = v.text || '';
+            if (!t.includes('Here is')) { const w = await snpc.next(); t = w.text || t; }
+            await snpc.close();
+            return t;
+        })()`);
+        const giftText = typeof gift === 'string' ? gift : JSON.stringify(gift);
+        check(giftText.includes('150,000 Zeny') && giftText.includes('starter reward items'), 'Welcoming: 150,000 Zeny and the items', giftText.slice(-200));
+        const again = ev(`(async () => { const v = await snpc.talk('Welcoming'); const t = v.text || ''; await snpc.close(); return t; })()`);
+        check(typeof again === 'string' && again.includes('Welcome back'), 'Welcoming: only once per character', String(again).slice(-120));
+    } else {
+        const near = ev(`snpc.npcs(20).map(n => n.name)`);
+        check(Array.isArray(near) && !near.some(n => n.startsWith('Welcoming')), 'Welcoming: not on Pre-renewal', JSON.stringify(near));
+    }
 
     // Card Exchanger: pull the Fabre Card (slot 1) out of the Knife; the
     // Poring Card in slot 0 and the refine must stay (#41).

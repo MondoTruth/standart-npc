@@ -1,6 +1,7 @@
 // Injected into the game page by tests/play.cjs (rotest eval). Talks to NPCs
 // the way the client does -- the same packets its NPC windows send -- and
-// reads the NPC windows back, so a test needs no screen coordinates.
+// reads the NPC windows back, so a test needs no screen coordinates. An NPC
+// is an entity of type NPC or NPC2 (what the client reports for Welcoming).
 // Uses window.roAgent (the app's agent hook, docs/AGENT_TESTING.md).
 (() => {
     if (window.snpc) return 'ready';
@@ -42,9 +43,9 @@
 
     window.snpc = {
         view,
-        npcs: (radius = 10) => roAgent.entities({ type: 'NPC', radius }).map(e => ({ gid: e.gid, name: e.name, position: e.position })),
+        npcs: (radius = 10) => roAgent.entities({ radius }).filter(e => /^NPC/.test(e.type)).map(e => ({ gid: e.gid, name: e.name, position: e.position })),
         async talk(prefix) {
-            const npc = roAgent.entities({ type: 'NPC', radius: 14 }).find(e => e.name.startsWith(prefix));
+            const npc = roAgent.entities({ radius: 14 }).filter(e => /^NPC/.test(e.type)).find(e => e.name.startsWith(prefix));
             if (!npc) return { error: `no NPC named ${prefix}* within 14 cells` };
             const before = JSON.stringify(view());
             send('CONTACTNPC', { NAID: npc.gid, type: 1 });
@@ -80,7 +81,7 @@
         },
         // Opens a shop NPC's buy list and returns the item names in it.
         async shop(prefix) {
-            const npc = roAgent.entities({ type: 'NPC', radius: 14 }).find(e => e.name.startsWith(prefix));
+            const npc = roAgent.entities({ radius: 14 }).filter(e => /^NPC/.test(e.type)).find(e => e.name.startsWith(prefix));
             if (!npc) return { error: `no NPC named ${prefix}* within 14 cells` };
             send('CONTACTNPC', { NAID: npc.gid, type: 1 });
             await sleep(1000);

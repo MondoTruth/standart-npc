@@ -101,6 +101,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | | NPC | What it does | Location |
 |:-:|---|---|---|
 | 📅 | **Daily Rewards** | A daily attendance reward every 24 hours, 30 days in a row. | Prontera (147, 166) |
+| 👼 | **Welcoming** | A one-time starter gift for every new character: 150,000 Zeny, a Premium Booster Box and two costumes. Renewal only. | Izlude (189, 209) |
 
 > [!NOTE]
 > Some NPCs (Master Nokzin, Episode Valkyrie) may need the Cash Shop for full functionality.
@@ -151,7 +152,7 @@ Buffs that cancel each other in the game can't be ticked together. 3rd and 4th c
 ## 🏆 Credits
 
 - 👑 **MondoTruth** — pack owner/maintainer, and just a good guy.
-- 🎨 **Lil Art** — Safe Refiner, Grade Refiner, Universal Enchanter, Daily Rewards, Gramps, Overlook Fisherman, the 231+ Gramps bracket, Cheffenia MVP Dungeon, Illusion Dungeon bounties, Weight Maxxer, Training Dummies, Episode Valkyrie, and the Tool Dealer's Blacksmith Blessing.
+- 🎨 **Lil Art** — Safe Refiner, Grade Refiner, Universal Enchanter, Daily Rewards, Welcoming, Gramps, Overlook Fisherman, the 231+ Gramps bracket, Cheffenia MVP Dungeon, Illusion Dungeon bounties, Weight Maxxer, Training Dummies, Episode Valkyrie, and the Tool Dealer's Blacksmith Blessing.
 - ❄️ **IceGlaive** — Lucky John, Gramps per-character progress tracking, live kill notifications, the original 3 extended Gramps level brackets (with monster IDs verified live via `@mobinfo`), the bounty penalty/abandon system, the Gramps EXP rebalance, the reduced over-level penalty, the 231+ bracket monster fix, and the shared bounty rewards file with the EXP rebalance for Gramps, Lucky John, and Illusion Manager.
 - 🔥 **Nokzin** — Master Nokzin (elemental weapon endows).
 - 🎭 **iguera** — Plagiarism Master (from his arpg-equipments mod, used with permission).
