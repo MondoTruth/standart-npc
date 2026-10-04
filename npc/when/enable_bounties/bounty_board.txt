@@ -18,7 +18,8 @@
 //=   Area Purge -- random area for your level, once a day.
 //= Kills for types 1-3 come from the spawn lines in
 //= bounty_mobs.txt (OnHuntKill). Only type 4 listens to every
-//= kill on the server (OnNPCKillEvent).
+//= kill on the server (OnNPCKillEvent). In a party, a kill
+//= counts for every member on that map with a matching contract.
 //===== How to customize: ====================================
 //= - Contracts, maps, monsters, kill counts, rewards:
 //=   bounty_contracts.txt -- nothing to change here. A type with no
@@ -422,20 +423,42 @@ function BB_Migrate {
 // Kill counting
 //------------------------------------------------------------
 
+// A kill counts for every party member on the killer's map, not only
+// for the player the server ran the event on. A friend joined over the
+// network got no kills while the party leader was on the same map; the
+// server-side cause is not pinned down, and crediting the whole party on
+// the map settles it either way. Without a party, only the killer.
+// .@paid[] / .@pc: the account IDs to credit.
+
 // Types 1-3: fired by the spawn lines in bounty_mobs.txt.
 OnHuntKill:
 	.@k = killedrid;
 	.@m$ = strcharinfo(3);
-	for (.@c = 1; .@c <= 3; .@c++) {
-		.@r = getd("BB_Row_" + .@c) - 1;
-		if (.@r < 0) continue;	// separate check: || does not stop at the first true side
-		if (.map$[.@r] != .@m$) continue;
-		for (.@n = 0; .@n < 3; .@n++) {
-			if (.mob[.@r * 3 + .@n] != .@k) continue;
-			.@v$ = "BB_K" + .@c + "_" + (.@n + 1);
-			if (getd(.@v$) >= .cnt[.@r]) continue;
-			setd .@v$, getd(.@v$) + 1;
-			dispbottom "[Bounty] " + getmonsterinfo(.@k, MOB_NAME) + ": " + getd(.@v$) + "/" + .cnt[.@r];
+	.@pid = getcharid(1);
+	if (.@pid) {
+		getpartymember .@pid, 2;
+		.@pc = $@partymembercount;
+		copyarray .@paid[0], $@partymemberaid[0], .@pc;
+	} else {
+		.@pc = 1;
+		.@paid[0] = getcharid(3);
+	}
+	for (.@p = 0; .@p < .@pc; .@p++) {
+		if (!isloggedin(.@paid[.@p])) continue;
+		if (!attachrid(.@paid[.@p])) continue;
+		if (.@pid && getcharid(1) != .@pid) continue;	// another character of that account is online
+		if (strcharinfo(3) != .@m$) continue;
+		for (.@c = 1; .@c <= 3; .@c++) {
+			.@r = getd("BB_Row_" + .@c) - 1;
+			if (.@r < 0) continue;	// separate check: || does not stop at the first true side
+			if (.map$[.@r] != .@m$) continue;
+			for (.@n = 0; .@n < 3; .@n++) {
+				if (.mob[.@r * 3 + .@n] != .@k) continue;
+				.@v$ = "BB_K" + .@c + "_" + (.@n + 1);
+				if (getd(.@v$) >= .cnt[.@r]) continue;
+				setd .@v$, getd(.@v$) + 1;
+				dispbottom "[Bounty] " + getmonsterinfo(.@k, MOB_NAME) + ": " + getd(.@v$) + "/" + .cnt[.@r];
+			}
 		}
 	}
 	end;
@@ -444,11 +467,27 @@ OnHuntKill:
 // gets the event, so only the hidden original counts it.
 OnNPCKillEvent:
 	if (strnpcinfo(0) != "BountyBoard") end;
-	if (!BB_Row_4 || strcharinfo(3) != BB_PurgeMap$) end;
-	.@r = BB_Row_4 - 1;
-	if (BB_K4_1 >= .cnt[.@r]) end;
-	BB_K4_1++;
-	dispbottom "[Area Purge] " + BB_K4_1 + "/" + .cnt[.@r];
+	.@m$ = strcharinfo(3);
+	.@pid = getcharid(1);
+	if (.@pid) {
+		getpartymember .@pid, 2;
+		.@pc = $@partymembercount;
+		copyarray .@paid[0], $@partymemberaid[0], .@pc;
+	} else {
+		.@pc = 1;
+		.@paid[0] = getcharid(3);
+	}
+	for (.@p = 0; .@p < .@pc; .@p++) {
+		if (!isloggedin(.@paid[.@p])) continue;
+		if (!attachrid(.@paid[.@p])) continue;
+		if (.@pid && getcharid(1) != .@pid) continue;
+		if (strcharinfo(3) != .@m$) continue;
+		if (!BB_Row_4 || BB_PurgeMap$ != .@m$) continue;
+		.@r = BB_Row_4 - 1;
+		if (BB_K4_1 >= .cnt[.@r]) continue;
+		BB_K4_1++;
+		dispbottom "[Area Purge] " + BB_K4_1 + "/" + .cnt[.@r];
+	}
 	end;
 
 //------------------------------------------------------------
