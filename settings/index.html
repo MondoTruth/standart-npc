@@ -28,6 +28,13 @@
   4th class buffs go to a second string, "buffer_set4" (a string setting holds
   at most 200 characters), read by buffer.txt as .@set4$.
 
+  The Warper's options ("warp_fee", "warp_quests", WARP_KEYS) are on a page of
+  their own too: "Options..." next to the Warper.
+
+  There is one button, Save. The Mods tab's "Apply & restart server" does the
+  restart, and it is the one that knows whether the game must be reopened;
+  this page says so after saving.
+
   Presets (NPC_PRESETS, BUFF_PRESETS) set every switch on their page at
   once; the one that matches what is ticked is highlighted, and a mix that
   matches none is simply saved as it is. Revert puts back what was last
@@ -102,7 +109,7 @@
 <header>
   <h1>standart-npc</h1>
   <p id="about">Loading…</p>
-  <p class="hint">Switch off what you don't want in your world. Changes take effect after <b>Save and restart server</b>. A switched-off NPC is removed from the world; players' progress with it stays on their characters.</p>
+  <p class="hint">Switch off what you don't want in your world. Changes take effect after <b>Save</b>, then <b>Apply &amp; restart server</b> in Settings → Mods. A switched-off NPC is removed from the world; players' progress with it stays on their characters.</p>
 </header>
 <div class="tools">
   <button id="expand">Expand all</button>
@@ -119,11 +126,18 @@
   <div class="presets" id="buff-presets"></div>
   <div id="buff-groups"></div>
 </main>
+<main id="warper" hidden>
+  <div class="tools">
+    <button id="warper-back">← Back</button>
+  </div>
+  <h2>Warper — options</h2>
+  <p>Both are on by default. Each one applies to every Warper in every town, and to Last Warp.</p>
+  <div id="warper-opts"></div>
+</main>
 <footer>
   <span id="status"></span>
   <button id="revert">Revert</button>
-  <button id="save">Save</button>
-  <button id="apply" class="primary">Save and restart server</button>
+  <button id="save" class="primary">Save</button>
 </footer>
 
 <script>
@@ -131,7 +145,7 @@
 // "npc:<name>" keys are the always-loaded NPCs from ALWAYS_LOADED below.
 // note: one line under the group's name, shown even when it is folded.
 const GROUPS = [
-  { title: 'Travel and services', note: 'getting around, buffs, storage, rewards', keys: ['npc:warper', 'warp_fee', 'warp_quests', 'npc:buffer', 'npc:kafra', 'npc:weightmax', 'npc:daily', 'npc:welcome'] },
+  { title: 'Travel and services', note: 'getting around, buffs, storage, rewards', keys: ['npc:warper', 'npc:buffer', 'npc:kafra', 'npc:weightmax', 'npc:daily', 'npc:welcome'] },
   { title: 'Character',           note: 'jobs, resets, looks, skills',             keys: ['npc:jobmaster', 'npc:reset', 'npc:stylist', 'npc:epvalk', 'npc:plagiarism'] },
   { title: 'Shops',               note: 'items for Zeny',                          keys: ['npc:tooldealer', 'npc:smuggler', 'npc:cardexchanger', 'npc:falcon'] },
   { title: 'Hunting quests',      note: 'one NPC, four kinds of contracts',        keys: ['enable_bounties'] },
@@ -294,6 +308,9 @@ const buffBoxes = {}; // buff code -> checkbox (drawn buffs only)
 const buffExtra = {}; // setting key -> codes not drawn (unknown, or hidden on
                       // Pre-renewal); kept as they are
 let hasBuffKey = false;
+const WARP_KEYS = ['warp_fee', 'warp_quests'];
+const warpBoxes = {}; // Warper option key -> checkbox (on the Warper page)
+let hasWarpOpts = false;
 let preRenewal = false;
 
 function status(text, dirty = false) {
@@ -310,6 +327,7 @@ function values() {
     else out[k] = box.checked;
   }
   if (hasOffKey) out[OFF_KEY] = [...off, ...offExtra].join(',');
+  for (const [k, box] of Object.entries(warpBoxes)) out[k] = box.checked;
   for (const key of Object.keys(buffExtra))
     out[key] = [...Object.keys(buffBoxes).filter(c => BUFF_SETTING[c] === key && buffBoxes[c].checked), ...buffExtra[key]].join(',');
   return out;
@@ -346,6 +364,7 @@ function setValues(v) {
   for (const [k, box] of Object.entries(inputs))
     box.checked = k.startsWith('npc:') ? !off.includes(k.slice(4)) : v[k] === true;
   for (const [code, box] of Object.entries(buffBoxes)) box.checked = chosen.includes(code);
+  for (const [k, box] of Object.entries(warpBoxes)) box.checked = v[k] === true;
   groups.forEach(syncGroup);
   buffCount();
   markDirty();
@@ -403,7 +422,14 @@ function drawGroup(title, settings, note = '') {
     if (s.key === 'npc:buffer' && hasBuffKey) {
       const open = document.createElement('button');
       open.textContent = 'Choose buffs…';
+      open.id = 'buffs-open';
       open.onclick = e => { e.preventDefault(); showBuffs(true); };
+      text.append(open);
+    }
+    if (s.key === 'npc:warper' && hasWarpOpts) {
+      const open = document.createElement('button');
+      open.textContent = 'Options…';
+      open.onclick = e => { e.preventDefault(); showWarper(true); };
       text.append(open);
     }
     details.append(label);
@@ -437,7 +463,7 @@ function showBuffs(on) {
 }
 function buffCount() {
   const on = Object.values(buffBoxes).filter(b => b.checked).length;
-  const btn = document.querySelector('label.row button');
+  const btn = $('buffs-open');
   if (btn) btn.textContent = `Choose buffs… (${on})`;
 }
 function drawBuffs(chosen) {
@@ -494,6 +520,37 @@ function drawBuffs(chosen) {
 }
 $('buffs-back').onclick = () => showBuffs(false);
 
+// ---- Warper page --------------------------------------------------------
+function showWarper(on) {
+  $('warper').hidden = !on;
+  $('groups').hidden = on;
+  document.querySelector('body > .tools').hidden = on;
+  window.scrollTo(0, 0);
+}
+function drawWarperOpts(settings) {
+  for (const s of settings) {
+    const label = document.createElement('label');
+    label.className = 'row';
+    const box = document.createElement('input');
+    box.type = 'checkbox';
+    box.checked = s.value === true;
+    const text = document.createElement('span');
+    const title = document.createElement('b');
+    title.textContent = s.label || s.key;
+    text.append(title);
+    if (s.description) {
+      const hint = document.createElement('small');
+      hint.textContent = s.description;
+      text.append(hint);
+    }
+    box.onchange = markDirty;
+    label.append(box, text);
+    $('warper-opts').append(label);
+    warpBoxes[s.key] = box;
+  }
+}
+$('warper-back').onclick = () => showWarper(false);
+
 async function run(button, work) {
   for (const b of document.querySelectorAll('footer button')) b.disabled = true;
   try { await work(); }
@@ -549,6 +606,9 @@ async function save() {
       drawBuffs(chosen);
       buffPresets();
     }
+    const warpOpts = WARP_KEYS.filter(k => byKey.has(k)).map(k => byKey.get(k));
+    WARP_KEYS.forEach(k => byKey.delete(k));
+    if (warpOpts.length) { hasWarpOpts = true; drawWarperOpts(warpOpts); }
     for (const g of GROUPS) {
       const list = g.keys.filter(k => byKey.has(k)).map(k => byKey.get(k));
       g.keys.forEach(k => byKey.delete(k));
@@ -568,15 +628,11 @@ $('expand').onclick = () => document.querySelectorAll('details').forEach(d => { 
 $('collapse').onclick = () => document.querySelectorAll('details').forEach(d => { d.open = false; });
 
 $('revert').onclick = () => setValues(saved);
+// Only saves. The restart is the Mods tab's Apply, which also says when the
+// game has to be reopened -- this window cannot.
 $('save').onclick = () => run($('save'), async () => {
   await save();
-  status('Saved. Changes take effect when the server restarts.');
-});
-$('apply').onclick = () => run($('apply'), async () => {
-  await save();
-  status('Restarting the server…');
-  await window.modSettings.apply();
-  status('Saved and applied.');
+  status('Saved. Now press "Apply & restart server" in Settings → Mods.');
 });
 </script>
 </body>

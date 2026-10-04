@@ -171,6 +171,7 @@ function runEra(era) {
     // Dealer sells the Elemental Converters, Master Nokzin sends players
     // there, and the Cheffenia Gatekeeper offers Zeny only (#40).
     check(items.some(n => /Converter/.test(n)), 'Tool Dealer: Elemental Converters sold without cash-shop-extended', items.filter(n => /Convert/.test(n)).join(', ') || 'none');
+    check(items.includes('Gym Pass'), 'Tool Dealer: Gym Pass sold without cash-shop-extended', items.includes('Gym Pass') ? 'listed' : 'not listed');
     gm('@warp prontera 167 175');
     const nokzin = ev(`(async () => { await snpc.talk('Master Nokzin'); const v = await snpc.go('What about converter scrolls?'); const t = v.text || ''; await snpc.close(); return t; })()`);
     check(typeof nokzin === 'string' && nokzin.includes('Tool Dealer here in Prontera (143,178)'), 'Master Nokzin: points to the Tool Dealer (143,178)', String(nokzin).slice(-160));
@@ -270,16 +271,19 @@ function runEra(era) {
         }
         await sleep(1000);
         v = snpc.view();
-        const said = v.text;
-        const asked = said.includes('This warp costs');
+        // The price is a menu item ("Pay 5,000 Zeny and go"), not a window.
+        const price = v.menu.find(m => m.text.startsWith('Pay '));
+        const said = v.text || (price ? price.text : '');
+        const asked = !!price;
         if (asked && ${JSON.stringify(answer)}) {
-            for (let i = 0; i < 10 && !v.menu.length; i++) { if (v.next) v = await snpc.next(); else { await sleep(200); v = snpc.view(); } }
-            const item = v.menu.find(m => m.text === ${JSON.stringify(answer)});
+            const item = v.menu.find(m => m.text.startsWith(${JSON.stringify(answer)}));
             if (item) await snpc.choose(item.n);
         }
         await sleep(3000);
+        // Read before any Close: a paid warp must not wait for one.
+        const map = roAgent.player().map;
         await snpc.close();
-        return { said, asked, map: roAgent.player().map, zeny: roAgent.modules.Session.zeny };
+        return { said, asked, map, zeny: roAgent.modules.Session.zeny };
     })()`);
     gm('@warp prontera 160 189');
     const lab = warper(['Dungeons', 'Bio Labs', 'Bio Lab 1'], '');
@@ -290,9 +294,9 @@ function runEra(era) {
         const no = warper(['Towns', 'Izlude'], 'Cancel');
         check(no && no.asked && String(no.said).includes('5,000 Zeny') && /prontera/.test(no.map) && no.zeny === before,
             'Warper: a town costs 5,000 Zeny; Cancel keeps it', JSON.stringify(no).slice(-200));
-        const yes = warper(['Towns', 'Izlude'], 'Go');
+        const yes = warper(['Towns', 'Izlude'], 'Pay');
         check(yes && /izlude/.test(yes.map) && ev('roAgent.modules.Session.zeny') === before - 5000,
-            'Warper: Go takes 5,000 Zeny and warps', JSON.stringify(yes).slice(-200) + ` before ${before}`);
+            'Warper: paying takes 5,000 Zeny and warps at once', JSON.stringify(yes).slice(-200) + ` before ${before}`);
     } else {
         const free = warper(['Towns', 'Izlude'], '');
         check(free && !free.asked && /izlude/.test(free.map) && ev('roAgent.modules.Session.zeny') === before,
