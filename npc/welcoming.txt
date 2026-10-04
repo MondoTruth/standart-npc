@@ -1,13 +1,26 @@
-// ============================================================================
-// Welcoming NPC - Beginner Starter Package
-// Location: Izlude at (189, 209)
-// Sprite: Angeling (1096), Facing Left (6)
-// By: Lil Art
-// ============================================================================
+//===== rAthena Script =======================================
+//= Welcoming
+//===== By: Lil Art ============================================
+//===== Description: =========================================
+//= A one-time starter gift for every new character, in Izlude
+//= (189,209): 150,000 Zeny, a Premium Booster Box and two
+//= costumes. Shows a quest balloon and a minimap mark to a
+//= character who has not taken the gift yet, when it comes
+//= within 5 cells.
+//= Renewal only: Pre-renewal has none of the three items, and
+//= 189,209 is not walkable on its old Izlude.
+//===== How to customize: ====================================
+//= - Zeny: .zeny in OnInit.
+//= - Items: .items in OnInit (item IDs, one of each).
+//= - Location/sprite: the script line (1096 = Angeling; 5,5 is
+//=   the area that shows the balloon).
+//= - Per character: SNPC_WelcomeGift. Make it #SNPC_WelcomeGift
+//=   for once per account.
+//============================================================
 
 izlude,189,209,6	script	Welcoming#starter	1096,5,5,{
 	mes "[Welcoming]";
-	if (WelcomingGiftReceived) {
+	if (SNPC_WelcomeGift) {
 		mes "Welcome back, adventurer!";
 		mes "I hope your journey through Midgard is going smoothly.";
 		close;
@@ -27,29 +40,51 @@ izlude,189,209,6	script	Welcoming#starter	1096,5,5,{
 		close;
 	}
 
-	WelcomingGiftReceived = 1;
-	Zeny += 150000;
-	getitem 103048, 1;
-	getitem 400115, 1;
-	getitem 20512, 1;
+	for (.@i = 0; .@i < getarraysize(.items); .@i++) {
+		if (!checkweight(.items[.@i], 1)) {
+			mes "[Welcoming]";
+			mes "Your bag is too heavy to take the gift. Make some room and come back!";
+			close;
+		}
+	}
+	if (Zeny > MAX_ZENY - .zeny) {
+		mes "[Welcoming]";
+		mes "Your purse is too full to take the Zeny. Spend some and come back!";
+		close;
+	}
 
-	// Remove balloon and mini-map mark immediately
-	showevent 0;
+	SNPC_WelcomeGift = 1;
+	Zeny += .zeny;
+	for (.@i = 0; .@i < getarraysize(.items); .@i++) getitem .items[.@i], 1;
+
+	// Remove the balloon and the minimap mark at once.
+	showevent QTYPE_NONE;
 	viewpoint 2, 189, 209, 1, 0xFF0000;
 
 	mes "[Welcoming]";
-	mes "Here is ^0055FF150,000 Zeny^000000 and your starter reward items!";
+	mes "Here is ^0055FF" + callfunc("F_InsertComma", .zeny) + " Zeny^000000 and your starter reward items!";
+	// The box's item db entry has EquipLevelMax 10: it opens only up to Base Lv 10.
+	mes "Open the ^0055FFPremium Booster Box^000000 soon: it can only be opened up to Base Level 10!";
 	mes "Good luck on your adventures!";
 	close;
 
 OnTouch:
-	// Fires automatically when player walks within 5 cells
-	if (!WelcomingGiftReceived) {
-		showevent 1; // Displays quest balloon
-		viewpoint 1, 189, 209, 1, 0xFF0000; // Adds red mark on minimap
+	// Fires when a character walks within 5 cells.
+	if (!SNPC_WelcomeGift) {
+		showevent QTYPE_QUEST2;	// quest balloon
+		viewpoint 1, 189, 209, 1, 0xFF0000;	// red mark on the minimap
 	} else {
-		showevent 0;
+		showevent QTYPE_NONE;
 		viewpoint 2, 189, 209, 1, 0xFF0000;
 	}
+	end;
+
+OnInit:
+	// Off on Pre-renewal (checkre(0): 1 = Renewal, 0 = Pre-renewal),
+	// and when switched off in the settings window.
+	if (!checkre(0) || callfunc("F_SNPC_Off", "welcome")) disablenpc strnpcinfo(0);
+	.zeny = 150000;
+	// Premium Booster Box, Costume Angeling Bread Hat, Costume Adventurer's Backpack
+	setarray .items, 103048, 400115, 20512;
 	end;
 }

@@ -131,7 +131,7 @@
 // "npc:<name>" keys are the always-loaded NPCs from ALWAYS_LOADED below.
 // note: one line under the group's name, shown even when it is folded.
 const GROUPS = [
-  { title: 'Travel and services', note: 'getting around, buffs, storage, rewards', keys: ['npc:warper', 'npc:buffer', 'npc:kafra', 'npc:weightmax', 'npc:daily'] },
+  { title: 'Travel and services', note: 'getting around, buffs, storage, rewards', keys: ['npc:warper', 'npc:buffer', 'npc:kafra', 'npc:weightmax', 'npc:daily', 'npc:welcome'] },
   { title: 'Character',           note: 'jobs, resets, looks, skills',             keys: ['npc:jobmaster', 'npc:reset', 'npc:stylist', 'npc:epvalk', 'npc:plagiarism'] },
   { title: 'Shops',               note: 'items for Zeny',                          keys: ['npc:tooldealer', 'npc:smuggler', 'npc:cardexchanger', 'npc:falcon'] },
   { title: 'Hunting quests',      note: 'one NPC, four kinds of contracts',        keys: ['enable_bounties'] },
@@ -142,7 +142,7 @@ const GROUPS = [
 
 // Renewal-only NPCs: hidden on a Pre-renewal server (the NPC also hides
 // itself there). Their ticked/unticked state is kept for Renewal.
-const RENEWAL_ONLY = ['npc:grade'];
+const RENEWAL_ONLY = ['npc:grade', 'npc:welcome'];
 
 // NPCs without a setting of their own. The name after "npc:" is what goes
 // into "npc_off" and what the NPC passes to F_SNPC_Off.
@@ -166,6 +166,7 @@ const ALWAYS_LOADED = {
   'npc:enchanter': { label: 'Universal Enchanter', description: 'Attaches an Enchant/Class Stone to costume, shadow or regular gear, for free. By Lil Art. Prontera (164,169).' },
   'npc:nokzin':    { label: 'Master Nokzin',     description: 'Endows your weapon with an element for an hour, removable for free. Prontera (167,178).' },
   'npc:daily':     { label: 'Daily Rewards',     description: 'Distributes daily attendance rewards, once every 24 hours. By Lil Art. Prontera (147,166).' },
+  'npc:welcome':   { label: 'Welcoming',         description: 'A one-time starter gift per character: 150,000 Zeny, a Premium Booster Box and two costumes. Renewal only. By Lil Art. Izlude (189,209).' },
 };
 
 // The Buffer's buffs, in casting order. code = what buffer.txt checks.

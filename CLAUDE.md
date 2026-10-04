@@ -68,7 +68,7 @@ README.md, assets/, CLAUDE.md, tests/  -- repo only, never in the release zip
   start-up and hide themselves if listed in the string setting `npc_off`
   (comma list: `warper, buffer, jobmaster, reset, stylist, epvalk, falcon,
   kafra, weightmax, plagiarism, tooldealer, smuggler, cardexchanger, refiner,
-  grade, enchanter, nokzin, daily`; empty = all on).
+  grade, enchanter, nokzin, daily, welcome`; empty = all on).
 - Buffer: the chosen buffs are two string settings, `buffer_set` (1st-3rd
   class) and `buffer_set4` (4th class), comma lists of codes; a string
   holds at most 200 characters, so a new class group may need its own key. A `shop` has no OnInit, so
