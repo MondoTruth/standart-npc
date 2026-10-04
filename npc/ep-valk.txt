@@ -12,9 +12,14 @@
 //= real skip are offered; other tickets are kept for later.
 //= Renewal only.
 //= Parts are numbered episode * 10 + part: 172 = 17.2, 180 = 18.
-//= Episode 18: ep18_main = 57 (its last step), the main quests
-//= that are done at the end are completed, the rest erased. This
-//= opens Villa of Deception (wolfvill 79,260) and the dailies.
+//= Each skip sets the part's main variable to its last step,
+//= completes the main quests a finished story leaves completed and
+//= erases the others still open.
+//= Episode 17.2: ep17_2_main = 36. Opens the Mansion areas, Lost
+//= Farm, Hidden Garden, the Sage's Legacy enchanter and the side
+//= quests (bathhouse, library, basement, Water Garden ...).
+//= Episode 18: ep18_main = 57. Opens Villa of Deception
+//= (wolfvill 79,260) and the Wolfvill dailies.
 //===== How to customize: ====================================
 //= OnInit: .price[<episode>] is the ticket price in Zeny,
 //= .ready the parts with a skip, .order the story order.
@@ -141,6 +146,9 @@ S_Prev:
 // Whether the part's main story is finished.
 S_Done:
 	switch (getarg(0)) {
+	case 171:
+		// What the game itself checks before 17.2 begins.
+		return (isbegin_quest(16360) == 2);
 	case 172:
 		return (ep17_2_main >= 36);
 	case 180:
@@ -151,23 +159,30 @@ S_Done:
 // Marks the part's main story as finished.
 S_Skip:
 	switch (getarg(0)) {
+	case 172:
+		copyarray .@open[0], .q172[0], getarraysize(.q172);
+		copyarray .@done[0], .q172_done[0], getarraysize(.q172_done);
+		ep17_2_main = 36;
+		break;
 	case 180:
-		// Main quests still open are closed, as the story would have.
-		.@n = getarraysize(.q180);
-		for (.@i = 0; .@i < .@n; .@i++) {
-			if (isbegin_quest(.q180[.@i]) == 1)
-				erasequest .q180[.@i];
-		}
-		// The ones a finished story leaves completed.
-		.@n = getarraysize(.q180_done);
-		for (.@i = 0; .@i < .@n; .@i++) {
-			if (isbegin_quest(.q180_done[.@i]) == 0)
-				setquest .q180_done[.@i];
-			if (isbegin_quest(.q180_done[.@i]) == 1)
-				completequest .q180_done[.@i];
-		}
+		copyarray .@open[0], .q180[0], getarraysize(.q180);
+		copyarray .@done[0], .q180_done[0], getarraysize(.q180_done);
 		ep18_main = 57;
 		break;
+	}
+	// Main quests still open are closed, as the story would have.
+	.@n = getarraysize(.@open);
+	for (.@i = 0; .@i < .@n; .@i++) {
+		if (isbegin_quest(.@open[.@i]) == 1)
+			erasequest .@open[.@i];
+	}
+	// The ones a finished story leaves completed.
+	.@n = getarraysize(.@done);
+	for (.@i = 0; .@i < .@n; .@i++) {
+		if (isbegin_quest(.@done[.@i]) == 0)
+			setquest .@done[.@i];
+		if (isbegin_quest(.@done[.@i]) == 1)
+			completequest .@done[.@i];
 	}
 	return;
 
@@ -180,9 +195,9 @@ OnInit:
 		end;
 	}
 	// Parts with a real skip, in menu order.
-	setarray .ready[0], 180;
+	setarray .ready[0], 172, 180;
 	// Story order, as far as S_Done can tell a part is finished.
-	setarray .order[0], 172, 180;
+	setarray .order[0], 171, 172, 180;
 	// Episode Clear Tickets (EpisodClear13 - EpisodClear18).
 	.ticket[13] = 1000284;
 	.ticket[14] = 1000285;
@@ -204,6 +219,16 @@ OnInit:
 		if (inarray(.sell, .@ep) < 0)
 			.sell[getarraysize(.sell)] = .@ep;
 	}
+	// Episode 17.2 (npc/re/quests/quests_17_2.txt): every main-story
+	// quest, ep17_2_main 1 to 36 (1 and 2 are set at the end of 17.1),
+	// and those a finished story leaves completed.
+	setarray .q172[0],
+		18000, 18001, 11615, 11616, 11617, 11618, 11620,
+		17333, 17334, 17335, 17336, 17337, 17338, 17381,
+		16440, 16441, 16442, 16443, 16444, 16445, 16446, 16447, 16448,
+		16449, 16450, 16451, 16452, 16453,
+		18002, 18013, 18014, 18015, 18016, 18017, 18018, 18021, 18020;
+	setarray .q172_done[0], 11620, 16452, 18018, 18021, 18020;
 	// Episode 18 (npc/re/quests/quests_18.txt): every main-story quest,
 	// ep18_main 1 to 57, and those a finished story leaves completed.
 	setarray .q180[0],
