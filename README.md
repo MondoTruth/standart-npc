@@ -53,7 +53,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | 🌀 | **Warper** | Menu-based travel — towns, fields, dungeons, guild castles, instances. Duplicated in every major town. On by default, each can be switched off: a fee for 3rd/4th classes (5,000 / 15,000 Zeny) and quest-locked dungeons. | Every major town |
 | ✨ | **Buffer** | Free instant buffs + full heal on click, no dialog window. You choose the buffs (see below). Duplicated in every major town. | Every major town |
 | 📦 | **Kafra Employee** | Save point, storage, and free identify-all. | Prontera (160, 187) |
-| 🏋️ | **Weight Maxxer** | Trades a Gym Pass for +1 permanent carry capacity, up to 10 times. | Prontera (147, 169) |
+| 🏋️ | **Weight Maxxer** | Trades a Gym Pass for +1 permanent carry capacity, up to 10 times. Gym Pass: the Cash Shop with cash-shop-extended, the Tool Dealer (100,000 Zeny) without it. | Prontera (147, 169) |
 
 #### 🎓 Character
 
@@ -104,7 +104,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | 👼 | **Welcoming** | A one-time starter gift for every new character: 150,000 Zeny, a Premium Booster Box and two costumes. Renewal only. | Izlude (189, 209) |
 
 > [!NOTE]
-> Lil Art's **cash-shop-extended** (Find Mods, Renewal only) adds a Cash Shop and Cash Points. With it, the Cheffenia Gatekeeper also takes Cash Points, the Smuggler charges more (so it does not undercut the shop) and Master Nokzin points to the Cash Shop for converters. Without it, Zeny only, the Smuggler's lower prices, and the Tool Dealer sells the converters.
+> Lil Art's **cash-shop-extended** (Find Mods, Renewal only) adds a Cash Shop and Cash Points. With it, the Cheffenia Gatekeeper also takes Cash Points, the Smuggler charges more (so it does not undercut the shop) and Master Nokzin points to the Cash Shop for converters. Without it, Zeny only, the Smuggler's lower prices, and the Tool Dealer sells the converters and the Gym Pass.
 
 ### 🏹 Bounty Hunter
 

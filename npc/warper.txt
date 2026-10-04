@@ -1372,7 +1372,7 @@ glast_01,372,308,4	duplicate(Warper)	Warper#glh	651
 gonryun,162,122,4	duplicate(Warper)	Warper#gon	651
 hugel,101,151,4	duplicate(Warper)	Warper#hug	651
 izlu2dun,110,92,4	duplicate(Warper)	Warper#izd	651
-izlude,134,150,4	duplicate(Warper)	Warper#izl	651	//Pre-RE: (132,120)
+izlude,136,150,4	duplicate(Warper)	Warper#izl	651	//Pre-RE: (132,120); 2 cells east of rAthena's Guild Warehouse Manager (133,149)
 jawaii,253,138,4	duplicate(Warper)	Warper#jaw	651
 lighthalzen,162,102,4	duplicate(Warper)	Warper#lhz	651
 louyang,208,103,6	duplicate(Warper)	Warper#lou	651
@@ -1457,21 +1457,16 @@ function	script	F_SNPC_WarpCheck	{
 		if (.@pays) {
 			.@fee = 5000;
 			if (.@group == 2) .@fee = 15000;
-			mes "[Warper]";
-			mes "This warp costs ^0055FF" + callfunc("F_InsertComma", .@fee) + " Zeny^000000.";
-			next;
-			if (select("Go:Cancel") == 2) {
-				close2;
+			// The price is in the menu itself: no message window, so the warp
+			// happens the moment the player picks it (a window would wait for
+			// its Close button first).
+			if (select("Pay " + callfunc("F_InsertComma", .@fee) + " Zeny and go:Cancel") == 2)
 				return 1;
-			}
 			if (Zeny < .@fee) {
-				mes "[Warper]";
-				mes "You don't have enough Zeny.";
-				close2;
+				message strcharinfo(0), "This warp costs " + callfunc("F_InsertComma", .@fee) + " Zeny. You don't have enough.";
 				return 1;
 			}
 			Zeny -= .@fee;
-			close2;
 		}
 	}
 	return 0;
