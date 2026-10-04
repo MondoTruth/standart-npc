@@ -217,3 +217,8 @@ Warper, on by default (switch each off in Settings..., "Options..." next to the 
 ### Pre-renewal only
 - Episode Valkyrie is hidden (no Episode Clear Ticket exists in Pre-renewal).
 - The Warper fee never applies (no 3rd classes).
+
+## 4.9.2
+
+### Renewal and Pre-renewal
+- Warper in Izlude: moved to 138,150, so it no longer shares a cell with the Waypoint Keeper of BlaXun's waypoint-system (app 1.5.0).

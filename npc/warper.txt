@@ -1372,7 +1372,7 @@ glast_01,372,308,4	duplicate(Warper)	Warper#glh	651
 gonryun,162,122,4	duplicate(Warper)	Warper#gon	651
 hugel,101,151,4	duplicate(Warper)	Warper#hug	651
 izlu2dun,110,92,4	duplicate(Warper)	Warper#izd	651
-izlude,136,150,4	duplicate(Warper)	Warper#izl	651	//Pre-RE: (132,120); 2 cells east of rAthena's Guild Warehouse Manager (133,149)
+izlude,138,150,4	duplicate(Warper)	Warper#izl	651	//Pre-RE: (132,120); clear of rAthena's Guild Warehouse Manager (133,149) and of waypoint-system's Waypoint Keeper (136,150)
 jawaii,253,138,4	duplicate(Warper)	Warper#jaw	651
 lighthalzen,162,102,4	duplicate(Warper)	Warper#lhz	651
 louyang,208,103,6	duplicate(Warper)	Warper#lou	651
