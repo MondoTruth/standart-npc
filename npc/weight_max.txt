@@ -6,6 +6,9 @@
 //= for +1 permanent carry capacity (ALL_INCCARRY), up to 10 times.
 //= "my workouts wore off" restores the capacity for free if it
 //= was somehow lost (e.g. after a skill reset).
+//= Where to get a Gym Pass: the Cash Shop with Lil Art's
+//= cash-shop-extended loaded, the Tool Dealer (Prontera 143,178,
+//= 100,000z) without it; the NPC says which.
 //===== How to customize: ====================================
 //= - Max uses / capacity per use: the two 10s (cap check and menu
 //=   text) and the skill "ALL_INCCARRY", .@add_carry line.
@@ -44,6 +47,12 @@ prontera,147,169,5	script	Weight Maxxer#prontera	4_M_FAIRYANG,{
 			} else {
 				mes "[Maxxer]";
 				mes "Dude, bring me your ^FF0000Gym Pass^000000 if you wanna work out!";
+				// cash-shop-extended sells it; without it the Tool Dealer does
+				// (npc/tool_dealer.txt).
+				if (getnpcid(0, "CashPointRewards"))
+					mes "You can get one in the Cash Shop.";
+				else
+					mes "The Tool Dealer here in Prontera (143,178) sells them.";
 				close;
 			}
 		} else {
