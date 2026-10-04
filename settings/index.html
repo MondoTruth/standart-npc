@@ -31,10 +31,6 @@
   The Warper's options ("warp_fee", "warp_quests", WARP_KEYS) are on a page of
   their own too: "Options..." next to the Warper.
 
-  There is one button, Save. The Mods tab's "Apply & restart server" does the
-  restart, and it is the one that knows whether the game must be reopened;
-  this page says so after saving.
-
   Presets (NPC_PRESETS, BUFF_PRESETS) set every switch on their page at
   once; the one that matches what is ticked is highlighted, and a mix that
   matches none is simply saved as it is. Revert puts back what was last
@@ -109,7 +105,7 @@
 <header>
   <h1>standart-npc</h1>
   <p id="about">Loading…</p>
-  <p class="hint">Switch off what you don't want in your world. Changes take effect after <b>Save</b>, then <b>Apply &amp; restart server</b> in Settings → Mods. A switched-off NPC is removed from the world; players' progress with it stays on their characters.</p>
+  <p class="hint">Switch off what you don't want in your world. Changes take effect after <b>Save and restart server</b>. A switched-off NPC is removed from the world; players' progress with it stays on their characters.</p>
 </header>
 <div class="tools">
   <button id="expand">Expand all</button>
@@ -137,7 +133,8 @@
 <footer>
   <span id="status"></span>
   <button id="revert">Revert</button>
-  <button id="save" class="primary">Save</button>
+  <button id="save">Save</button>
+  <button id="apply" class="primary">Save and restart server</button>
 </footer>
 
 <script>
@@ -628,11 +625,15 @@ $('expand').onclick = () => document.querySelectorAll('details').forEach(d => { 
 $('collapse').onclick = () => document.querySelectorAll('details').forEach(d => { d.open = false; });
 
 $('revert').onclick = () => setValues(saved);
-// Only saves. The restart is the Mods tab's Apply, which also says when the
-// game has to be reopened -- this window cannot.
 $('save').onclick = () => run($('save'), async () => {
   await save();
-  status('Saved. Now press "Apply & restart server" in Settings → Mods.');
+  status('Saved. Changes take effect when the server restarts.');
+});
+$('apply').onclick = () => run($('apply'), async () => {
+  await save();
+  status('Restarting the server…');
+  await window.modSettings.apply();
+  status('Saved and applied.');
 });
 </script>
 </body>
