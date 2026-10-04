@@ -86,7 +86,7 @@ README.md, assets/, CLAUDE.md, tests/  -- repo only, never in the release zip
   `db/import-tmpl`). Any other name lands in `db/import/` and is never read
   (see #25).
 
-### Settings — 6 of max 20 used
+### Settings — 8 of max 20 used
 
 App limits: `type` is `boolean`, `number` or `string`; max 20 settings;
 `label` up to 120 and `description` up to **400 bytes** (UTF-8; over that

@@ -49,6 +49,7 @@ const EXPECT = {
         blessing: true,            // Blacksmith Blessing in the Tool Dealer
         welcome: true,             // Welcoming in Izlude: Renewal only
         jewel: true,               // headgear jewels exist (Enchanter check)
+        warpFee: true,             // a Dragon Knight is 4th class: the Warper charges
     },
     'pre-renewal': {
         job: 4008, level: 99,    // Lord Knight
@@ -58,6 +59,7 @@ const EXPECT = {
         blessing: false,
         welcome: false,
         jewel: false,
+        warpFee: false,            // a Lord Knight: no 3rd class here, no fee
     },
 };
 
@@ -87,7 +89,7 @@ function setUpCharacter(era) {
     // For the Card Exchanger: a +5 Knife [4] in the right hand with a Poring
     // Card in slot 0 and a Fabre Card in slot 1, and no loose cards of either.
     const w = W.rotest('server', 'sql', '--write',
-        `UPDATE \`char\` SET class=${e.job}, base_level=${e.level}, job_level=50, last_map='prontera', last_x=156, last_y=180 WHERE char_id=${id};`
+        `UPDATE \`char\` SET class=${e.job}, base_level=${e.level}, job_level=50, zeny=100000, last_map='prontera', last_x=156, last_y=180 WHERE char_id=${id};`
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
         + ` DELETE FROM char_reg_str WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\`='SNPC_WelcomeGift';`
@@ -221,6 +223,58 @@ function runEra(era) {
         check(Array.isArray(body) && !body.some(t => t.includes('Agility Jewel')), 'Universal Enchanter: not for the Armor', JSON.stringify(body).slice(-200));
     }
 
+    // Warper (#36), with warp_fee and warp_quests on for this run (see the
+    // bottom of this file): Bio Lab is locked without its quest; a town
+    // costs 5,000 Zeny for a 3rd/4th class and nothing otherwise, and
+    // Cancel at the price warps nowhere and keeps the Zeny.
+    // path: menu items to pick in order (a leading "~ " is ignored);
+    // answer: what to pick on the price question, if one comes.
+    const warper = (path, answer) => ev(`(async () => {
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+        const label = t => t.replace(/^~\\s*/, '');
+        await snpc.talk('Warper');
+        let v = snpc.view();
+        for (const want of ${JSON.stringify(path)}) {
+            for (let i = 0; i < 30 && !v.menu.some(m => label(m.text).startsWith(want)); i++) {
+                if (v.next) v = await snpc.next(); else { await sleep(200); v = snpc.view(); }
+            }
+            const item = v.menu.find(m => label(m.text).startsWith(want));
+            if (!item) break;
+            v = await snpc.choose(item.n);
+        }
+        await sleep(1000);
+        v = snpc.view();
+        const said = v.text;
+        const asked = said.includes('This warp costs');
+        if (asked && ${JSON.stringify(answer)}) {
+            for (let i = 0; i < 10 && !v.menu.length; i++) { if (v.next) v = await snpc.next(); else { await sleep(200); v = snpc.view(); } }
+            const item = v.menu.find(m => m.text === ${JSON.stringify(answer)});
+            if (item) await snpc.choose(item.n);
+        }
+        await sleep(3000);
+        await snpc.close();
+        return { said, asked, map: roAgent.player().map, zeny: roAgent.modules.Session.zeny };
+    })()`);
+    gm('@warp prontera 160 189');
+    const lab = warper(['Dungeons', 'Bio Labs', 'Bio Lab 1'], '');
+    check(lab && String(lab.said).includes('Bio Lab pass quest') && /prontera/.test(lab.map),
+        'Warper: Bio Lab locked without its quest', JSON.stringify(lab).slice(-200));
+    const before = ev('roAgent.modules.Session.zeny');
+    if (e.warpFee) {
+        const no = warper(['Towns', 'Izlude'], 'Cancel');
+        check(no && no.asked && String(no.said).includes('5,000 Zeny') && /prontera/.test(no.map) && no.zeny === before,
+            'Warper: a town costs 5,000 Zeny; Cancel keeps it', JSON.stringify(no).slice(-200));
+        const yes = warper(['Towns', 'Izlude'], 'Go');
+        check(yes && /izlude/.test(yes.map) && ev('roAgent.modules.Session.zeny') === before - 5000,
+            'Warper: Go takes 5,000 Zeny and warps', JSON.stringify(yes).slice(-200) + ` before ${before}`);
+    } else {
+        const free = warper(['Towns', 'Izlude'], '');
+        check(free && !free.asked && /izlude/.test(free.map) && ev('roAgent.modules.Session.zeny') === before,
+            'Warper: free for a class below 3rd', JSON.stringify(free).slice(-200));
+    }
+    // The warp to Izlude is still loading; a GM command typed now is lost.
+    W.rotest('wait', '4000');
+
     // Card Exchanger: pull the Fabre Card (slot 1) out of the Knife; the
     // Poring Card in slot 0 and the refine must stay (#41).
     gm('@warp prontera 151 185');
@@ -261,6 +315,19 @@ function runEra(era) {
 
 W.prepare();
 const count = W.installMod();
+// The Warper's optional rules (#36) on for this run, as the settings window
+// would save them; put back as they were at the end.
+const SETTINGS = path.join(W.WORLD, 'state', 'mod-settings.json');
+const savedSettings = fs.existsSync(SETTINGS) ? fs.readFileSync(SETTINGS, 'utf8') : null;
+{
+    const all = savedSettings ? JSON.parse(savedSettings) : {};
+    all[W.MOD] = { ...(all[W.MOD] || {}), warp_fee: true, warp_quests: true };
+    fs.writeFileSync(SETTINGS, JSON.stringify(all, null, 2));
+}
+process.on('exit', () => {
+    if (savedSettings === null) fs.rmSync(SETTINGS, { force: true });
+    else fs.writeFileSync(SETTINGS, savedSettings);
+});
 console.log(`standart-npc play test: ${count} files installed in ${W.WORLD}`);
 let failed = 0;
 for (const era of ERAS) {

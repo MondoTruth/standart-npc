@@ -6,6 +6,17 @@
 //= Add/remove destinations using the Go/Disp/Pick/Restrict
 //= functions documented right below, inside the menu labels
 //= further down this file (Towns:, Fields:, Dungeons:, etc.).
+//= Two optional rules, both on by default (#36), checked in
+//= F_SNPC_WarpCheck at the bottom of this file for every warp
+//= and for Last Warp:
+//= - "warp_fee": 3rd/4th class characters (and Kagerou, Oboro,
+//=   Rebellion, Spirit Handler) pay 5,000 Zeny for towns, fields
+//=   and castles, 15,000 for dungeons, instances and guild
+//=   dungeons; Special Areas stay free. Prices: .@fee in
+//=   F_SNPC_WarpCheck. Group of a menu: @snpc_wgroup at its label.
+//= - "warp_quests": dungeons whose official entrance needs a
+//=   quest stay closed until it is done (list in F_SNPC_WarpCheck,
+//=   conditions copied from rAthena's own entrance NPCs).
 //= License: GPL-3.0, based on rAthena's npc/custom/warper.txt
 //=   (see LICENSE and LICENSE-GPL-3.0).
 //============================================================
@@ -26,10 +37,16 @@ menu	"Last Warp ^777777["+lastwarp$+"]^000000",-,
     	" ~ Instances",Instances,
     	" ~ Special Areas",Special;
 
-	if (lastwarp$ == "")
+	if (lastwarp$ == "") {
 		message strcharinfo(0),"You haven't warped anywhere yet.";
-	else
-		warp lastwarp$,lastwarpx,lastwarpy;
+		end;
+	}
+	// Same rules as any other warp. SNPC_LastWarpGroup is the group + 1;
+	// 0 = a Last Warp saved before it existed, priced as a town.
+	.@group = SNPC_LastWarpGroup - 1;
+	if (.@group < 0) .@group = 1;
+	if (callfunc("F_SNPC_WarpCheck", lastwarp$, .@group)) end;
+	warp lastwarp$,lastwarpx,lastwarpy;
 	end;
 
 // ------------------- Functions -------------------
@@ -57,6 +74,8 @@ menu	"Last Warp ^777777["+lastwarp$+"]^000000",-,
 // --------------------------------------------------
 
 function Go {
+	if (callfunc("F_SNPC_WarpCheck", getarg(0), @snpc_wgroup)) end;
+	set SNPC_LastWarpGroup, @snpc_wgroup + 1;
 	set lastwarp$, getarg(0);
 	set lastwarpx, getarg(1,0);
 	set lastwarpy, getarg(2,0);
@@ -131,6 +150,7 @@ function Restrict {
 // --------------------------------------------------
 	Towns:
 // --------------------------------------------------
+@snpc_wgroup = 1;	// fee group: town price (F_SNPC_WarpCheck)
 menu	"Prontera",T1, "Alberta",T2, "Aldebaran",T3, "Amatsu",T4, "Ayothaya",T5,
     	"Brasilis",T6, "Comodo",T7, "Dewata",T8, "Eclage",T9, "Einbech",T10,
 		"Einbroch",T11, "El Dicastes",T12, "Geffen",T13, "Hugel",T14, "Ice Castle",T15,
@@ -203,6 +223,7 @@ T44: Restrict("RE");
 // --------------------------------------------------
 	Fields:
 // --------------------------------------------------
+@snpc_wgroup = 1;	// fee group: town price (F_SNPC_WarpCheck)
 @f = true;
 menu	"Amatsu Fields",F1, "Ayothaya Fields",F2, "Bifrost Fields", F3,
     	"Brasilis Fields",F4, "Comodo Fields",F5, "Dewata Fields",F6,
@@ -308,6 +329,7 @@ F32: Restrict("Pre-RE",5);
 // --------------------------------------------------
 	Dungeons:
 // --------------------------------------------------
+@snpc_wgroup = 2;	// fee group: dungeon price (F_SNPC_WarpCheck)
 @d = true;
 menu	"Abandoned Lab Amicitia",D1, "Abyss Lakes",D2, "Amatsu Dungeon",D3,
 		"Anthell",D4, "Ayothaya Dungeon",D5, "Beach Dungeon",D6,
@@ -490,6 +512,7 @@ D53: Restrict("RE");
 // --------------------------------------------------
 	Castles:
 // --------------------------------------------------
+@snpc_wgroup = 1;	// fee group: town price (F_SNPC_WarpCheck)
 menu	"[FE] Aldebaran Castles",C1, "[FE] Geffen Castles",C2, "[FE] Payon Castles",C3,
     	"[FE] Prontera Castles",C4, "[SE] Arunafeltz Castles",C5, "[SE] Schwarzwald Castles",C6,
 		"[TE] Aldebaran Castles",C7, "[TE] Prontera Castles",C8;
@@ -524,6 +547,7 @@ C8: Restrict("RE");
 // --------------------------------------------------
 	Guild_Dungeons:
 // --------------------------------------------------
+@snpc_wgroup = 2;	// fee group: dungeon price (F_SNPC_WarpCheck)
 menu	"Baldur",G1, "Luina",G2, "Valkyrie",G3, "Britoniah",G4,
     	"Arunafeltz",G5, "Schwarzwald",G6, "Kafragarten",G7,
 		"Gloria",G8;
@@ -554,6 +578,7 @@ G8: Restrict("RE");
 // --------------------------------------------------
 	Instances:
 // --------------------------------------------------
+@snpc_wgroup = 2;	// fee group: dungeon price (F_SNPC_WarpCheck)
 menu	"Bakonawa Lake",I1, "Bangungot Hospital 2F",I2, "Buwaya Cave",I3,
 		"Devil Tower",I4, "Eclage Interior",I5, "Endless Tower",I6,
 		"Faceworms Nest",I7, "Geffen Magic Tournament",I8, "Ghost Palace",I9,
@@ -602,6 +627,7 @@ I20: Restrict("RE");
 // --------------------------------------------------
 	Special:
 // --------------------------------------------------
+@snpc_wgroup = 0;	// fee group: free (F_SNPC_WarpCheck)
 menu	"Auction Hall",S1, "Battlegrounds",S2, "Casino",S3, "Dimensional Rift",S4,
 		"Eden Group Headquarters",S5, "Kunlun Arena",S6, "Izlude Arena",S7,
 		"Monster Race Arena",S8, "Para Market",S9, "Turbo Track",S10;
@@ -1381,3 +1407,72 @@ lasagna,196,187,4	duplicate(Warper)	Warper#las	651
 malangdo,134,117,6	duplicate(Warper)	Warper#mal	651
 malaya,231,204,4	duplicate(Warper)	Warper#ma	651
 mora,57,152,4	duplicate(Warper)	Warper#mora	651
+
+// Fee and quest rules for the Warper (#36), both on unless switched off in
+// the settings window. Returns 1 when the warp must not happen (refused, or
+// cancelled at the price), 0 to go ahead; any Zeny has been taken by then.
+// getarg(0): destination map, getarg(1): 0 = free, 1 = town price,
+// 2 = dungeon price.
+function	script	F_SNPC_WarpCheck	{
+	.@map$ = getarg(0);
+	.@group = getarg(1);
+
+	// Dungeons whose official entrance needs a quest. Each condition is the
+	// one rAthena's own entrance NPC checks (fork, app 1.4.8 pin):
+	//   Bio Lab         npc/cities/lighthalzen.txt     MISC_QUEST & 512
+	//   Culvert         npc/quests/quests_prontera.txt MISC_QUEST & 8
+	//   Dewata Dungeon  npc/re/quests/quests_dewata.txt dew_legend >= 8
+	//   Nidhoggur       npc/quests/quests_13_2.txt     ep13_mdrama >= 5
+	//   Rachel Sanct.   npc/quests/quests_rachel.txt   ra_tem_q > 21 or MISC_QUEST & 8192
+	if (callfunc("F_ModSetting", "standart-npc", "warp_quests", 1)) {
+		.@need$ = "";
+		if (strpos(.@map$, "lhz_dun") == 0) {
+			if (!(MISC_QUEST & 512)) .@need$ = "the Bio Lab pass quest in Lighthalzen";
+		} else if (strpos(.@map$, "prt_sewb") == 0) {
+			if (!(MISC_QUEST & 8)) .@need$ = "the Culvert quest of the Prontera Knights";
+		} else if (strpos(.@map$, "dew_dun") == 0) {
+			if (dew_legend < 8) .@need$ = "the Dewata legend quest, up to the Krakatau gatekeeper";
+		} else if (strpos(.@map$, "nyd_dun") == 0) {
+			if (ep13_mdrama < 5) .@need$ = "the Splendide quest that opens Nidhoggur's Dungeon";
+		} else if (strpos(.@map$, "ra_san") == 0) {
+			if (ra_tem_q <= 21 && !(MISC_QUEST & 8192)) .@need$ = "the Rachel temple quest that opens the Sanctuary";
+		}
+		if (.@need$ != "") {
+			mes "[Warper]";
+			mes "I can't take you there yet.";
+			mes "Finish ^0055FF" + .@need$ + "^000000 first.";
+			close2;
+			return 1;
+		}
+	}
+
+	// The fee: only 3rd and 4th classes. EAJL_THIRD is set on both; the
+	// expanded classes the server files as 2nd class (Kagerou, Oboro,
+	// Rebellion) or as Doram (Spirit Handler) are added by hand.
+	if (.@group > 0 && callfunc("F_ModSetting", "standart-npc", "warp_fee", 1)) {
+		.@pays = eaclass() & EAJL_THIRD;
+		if (Class == JOB_KAGEROU || Class == JOB_OBORO || Class == JOB_REBELLION || Class == JOB_SPIRIT_HANDLER
+			|| Class == JOB_BABY_KAGEROU || Class == JOB_BABY_OBORO || Class == JOB_BABY_REBELLION)
+			.@pays = 1;
+		if (.@pays) {
+			.@fee = 5000;
+			if (.@group == 2) .@fee = 15000;
+			mes "[Warper]";
+			mes "This warp costs ^0055FF" + callfunc("F_InsertComma", .@fee) + " Zeny^000000.";
+			next;
+			if (select("Go:Cancel") == 2) {
+				close2;
+				return 1;
+			}
+			if (Zeny < .@fee) {
+				mes "[Warper]";
+				mes "You don't have enough Zeny.";
+				close2;
+				return 1;
+			}
+			Zeny -= .@fee;
+			close2;
+		}
+	}
+	return 0;
+}

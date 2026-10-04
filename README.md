@@ -50,7 +50,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 
 | | NPC | What it does | Location |
 |:-:|---|---|---|
-| 🌀 | **Warper** | Menu-based travel — towns, fields, dungeons, guild castles, instances. Duplicated in every major town. | Every major town |
+| 🌀 | **Warper** | Menu-based travel — towns, fields, dungeons, guild castles, instances. Duplicated in every major town. On by default, each can be switched off: a fee for 3rd/4th classes (5,000 / 15,000 Zeny) and quest-locked dungeons. | Every major town |
 | ✨ | **Buffer** | Free instant buffs + full heal on click, no dialog window. You choose the buffs (see below). Duplicated in every major town. | Every major town |
 | 📦 | **Kafra Employee** | Save point, storage, and free identify-all. | Prontera (160, 187) |
 | 🏋️ | **Weight Maxxer** | Trades a Gym Pass for +1 permanent carry capacity, up to 10 times. | Prontera (147, 169) |

@@ -36,6 +36,20 @@
       "description": "Filled in by the Settings… window (Buffer → Choose buffs): the 4th class buffs the Buffer casts, as a comma-separated list of codes. Renewal only. Empty = none."
     },
     {
+      "key": "warp_fee",
+      "type": "boolean",
+      "default": true,
+      "label": "Warper: paid warps for 3rd and 4th classes",
+      "description": "Characters in a 3rd or 4th class (also Kagerou, Oboro, Rebellion, Spirit Handler) pay the Warper 5,000 Zeny for towns, fields and guild castles and 15,000 Zeny for dungeons, instances and guild dungeons. Special Areas stay free. Off = every warp is free."
+    },
+    {
+      "key": "warp_quests",
+      "type": "boolean",
+      "default": true,
+      "label": "Warper: quest-locked dungeons",
+      "description": "The Warper only takes a character to Bio Lab, the Culvert, Dewata Dungeon, Nidhoggur's Dungeon and Rachel Sanctuary after the quest that opens their official entrance. Off = every dungeon is open."
+    },
+    {
       "key": "enable_bounties",
       "type": "boolean",
       "default": true,
