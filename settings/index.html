@@ -28,6 +28,9 @@
   4th class buffs go to a second string, "buffer_set4" (a string setting holds
   at most 200 characters), read by buffer.txt as .@set4$.
 
+  The Warper's options ("warp_fee", "warp_quests", WARP_KEYS) are on a page of
+  their own too: "Options..." next to the Warper.
+
   Presets (NPC_PRESETS, BUFF_PRESETS) set every switch on their page at
   once; the one that matches what is ticked is highlighted, and a mix that
   matches none is simply saved as it is. Revert puts back what was last
@@ -119,6 +122,14 @@
   <div class="presets" id="buff-presets"></div>
   <div id="buff-groups"></div>
 </main>
+<main id="warper" hidden>
+  <div class="tools">
+    <button id="warper-back">← Back</button>
+  </div>
+  <h2>Warper — options</h2>
+  <p>Both are on by default. Each one applies to every Warper in every town, and to Last Warp.</p>
+  <div id="warper-opts"></div>
+</main>
 <footer>
   <span id="status"></span>
   <button id="revert">Revert</button>
@@ -131,7 +142,7 @@
 // "npc:<name>" keys are the always-loaded NPCs from ALWAYS_LOADED below.
 // note: one line under the group's name, shown even when it is folded.
 const GROUPS = [
-  { title: 'Travel and services', note: 'getting around, buffs, storage, rewards', keys: ['npc:warper', 'npc:buffer', 'npc:kafra', 'npc:weightmax', 'npc:daily'] },
+  { title: 'Travel and services', note: 'getting around, buffs, storage, rewards', keys: ['npc:warper', 'npc:buffer', 'npc:kafra', 'npc:weightmax', 'npc:daily', 'npc:welcome'] },
   { title: 'Character',           note: 'jobs, resets, looks, skills',             keys: ['npc:jobmaster', 'npc:reset', 'npc:stylist', 'npc:epvalk', 'npc:plagiarism'] },
   { title: 'Shops',               note: 'items for Zeny',                          keys: ['npc:tooldealer', 'npc:smuggler', 'npc:cardexchanger', 'npc:falcon'] },
   { title: 'Hunting quests',      note: 'one NPC, four kinds of contracts',        keys: ['enable_bounties'] },
@@ -142,7 +153,7 @@ const GROUPS = [
 
 // Renewal-only NPCs: hidden on a Pre-renewal server (the NPC also hides
 // itself there). Their ticked/unticked state is kept for Renewal.
-const RENEWAL_ONLY = ['npc:grade'];
+const RENEWAL_ONLY = ['npc:grade', 'npc:welcome', 'npc:epvalk'];
 
 // NPCs without a setting of their own. The name after "npc:" is what goes
 // into "npc_off" and what the NPC passes to F_SNPC_Off.
@@ -152,7 +163,7 @@ const ALWAYS_LOADED = {
   'npc:jobmaster': { label: 'Job Master',        description: 'Job changes up to 4th class, with job equipment. Prontera (157,195).' },
   'npc:reset':     { label: 'Reset Girl',        description: 'Resets skills, stats, or both. Prontera (154,195).' },
   'npc:stylist':   { label: 'Stylist',           description: 'Hair style, hair color and cloth color. Prontera (169,180).' },
-  'npc:epvalk':    { label: 'Episode Valkyrie',  description: 'Redeems Episode Clear Tickets from the Cash Shop. Prontera (128,193).' },
+  'npc:epvalk':    { label: 'Episode Valkyrie',  description: 'Redeems Episode Clear Tickets for EXP (tickets 16-18 from cash-shop-extended). Renewal only. Prontera (128,193).' },
   'npc:falcon':    { label: 'Falcon Breeder',    description: 'Falcon for Hunters/Snipers, Wolf Flute for Rangers/Windhawks, Hawk Flute for Windhawks. Prontera (128,211).' },
   'npc:buffer':    { label: 'Buffer',            description: 'Free instant buffs + full heal on click. Every major town.' },
   'npc:kafra':     { label: 'Kafra Employee',    description: 'Save point, storage, free identify. Prontera (160,187).' },
@@ -166,6 +177,7 @@ const ALWAYS_LOADED = {
   'npc:enchanter': { label: 'Universal Enchanter', description: 'Attaches an Enchant/Class Stone to costume, shadow or regular gear, for free. By Lil Art. Prontera (164,169).' },
   'npc:nokzin':    { label: 'Master Nokzin',     description: 'Endows your weapon with an element for an hour, removable for free. Prontera (167,178).' },
   'npc:daily':     { label: 'Daily Rewards',     description: 'Distributes daily attendance rewards, once every 24 hours. By Lil Art. Prontera (147,166).' },
+  'npc:welcome':   { label: 'Welcoming',         description: 'A one-time starter gift per character: 150,000 Zeny, a Premium Booster Box and two costumes. Renewal only. By Lil Art. Izlude (189,209).' },
 };
 
 // The Buffer's buffs, in casting order. code = what buffer.txt checks.
@@ -293,6 +305,9 @@ const buffBoxes = {}; // buff code -> checkbox (drawn buffs only)
 const buffExtra = {}; // setting key -> codes not drawn (unknown, or hidden on
                       // Pre-renewal); kept as they are
 let hasBuffKey = false;
+const WARP_KEYS = ['warp_fee', 'warp_quests'];
+const warpBoxes = {}; // Warper option key -> checkbox (on the Warper page)
+let hasWarpOpts = false;
 let preRenewal = false;
 
 function status(text, dirty = false) {
@@ -309,6 +324,7 @@ function values() {
     else out[k] = box.checked;
   }
   if (hasOffKey) out[OFF_KEY] = [...off, ...offExtra].join(',');
+  for (const [k, box] of Object.entries(warpBoxes)) out[k] = box.checked;
   for (const key of Object.keys(buffExtra))
     out[key] = [...Object.keys(buffBoxes).filter(c => BUFF_SETTING[c] === key && buffBoxes[c].checked), ...buffExtra[key]].join(',');
   return out;
@@ -345,6 +361,7 @@ function setValues(v) {
   for (const [k, box] of Object.entries(inputs))
     box.checked = k.startsWith('npc:') ? !off.includes(k.slice(4)) : v[k] === true;
   for (const [code, box] of Object.entries(buffBoxes)) box.checked = chosen.includes(code);
+  for (const [k, box] of Object.entries(warpBoxes)) box.checked = v[k] === true;
   groups.forEach(syncGroup);
   buffCount();
   markDirty();
@@ -402,7 +419,14 @@ function drawGroup(title, settings, note = '') {
     if (s.key === 'npc:buffer' && hasBuffKey) {
       const open = document.createElement('button');
       open.textContent = 'Choose buffs…';
+      open.id = 'buffs-open';
       open.onclick = e => { e.preventDefault(); showBuffs(true); };
+      text.append(open);
+    }
+    if (s.key === 'npc:warper' && hasWarpOpts) {
+      const open = document.createElement('button');
+      open.textContent = 'Options…';
+      open.onclick = e => { e.preventDefault(); showWarper(true); };
       text.append(open);
     }
     details.append(label);
@@ -436,7 +460,7 @@ function showBuffs(on) {
 }
 function buffCount() {
   const on = Object.values(buffBoxes).filter(b => b.checked).length;
-  const btn = document.querySelector('label.row button');
+  const btn = $('buffs-open');
   if (btn) btn.textContent = `Choose buffs… (${on})`;
 }
 function drawBuffs(chosen) {
@@ -493,6 +517,37 @@ function drawBuffs(chosen) {
 }
 $('buffs-back').onclick = () => showBuffs(false);
 
+// ---- Warper page --------------------------------------------------------
+function showWarper(on) {
+  $('warper').hidden = !on;
+  $('groups').hidden = on;
+  document.querySelector('body > .tools').hidden = on;
+  window.scrollTo(0, 0);
+}
+function drawWarperOpts(settings) {
+  for (const s of settings) {
+    const label = document.createElement('label');
+    label.className = 'row';
+    const box = document.createElement('input');
+    box.type = 'checkbox';
+    box.checked = s.value === true;
+    const text = document.createElement('span');
+    const title = document.createElement('b');
+    title.textContent = s.label || s.key;
+    text.append(title);
+    if (s.description) {
+      const hint = document.createElement('small');
+      hint.textContent = s.description;
+      text.append(hint);
+    }
+    box.onchange = markDirty;
+    label.append(box, text);
+    $('warper-opts').append(label);
+    warpBoxes[s.key] = box;
+  }
+}
+$('warper-back').onclick = () => showWarper(false);
+
 async function run(button, work) {
   for (const b of document.querySelectorAll('footer button')) b.disabled = true;
   try { await work(); }
@@ -548,6 +603,9 @@ async function save() {
       drawBuffs(chosen);
       buffPresets();
     }
+    const warpOpts = WARP_KEYS.filter(k => byKey.has(k)).map(k => byKey.get(k));
+    WARP_KEYS.forEach(k => byKey.delete(k));
+    if (warpOpts.length) { hasWarpOpts = true; drawWarperOpts(warpOpts); }
     for (const g of GROUPS) {
       const list = g.keys.filter(k => byKey.has(k)).map(k => byKey.get(k));
       g.keys.forEach(k => byKey.delete(k));

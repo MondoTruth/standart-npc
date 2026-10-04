@@ -1,13 +1,13 @@
 {
   "name": "standart-npc",
-  "version": "4.9.0",
+  "version": "4.9.1",
   "author": "MondoTruth, Lil Art, IceGlaive, Nokzin, iguera, Claude, and the Ragnarok Offline community",
-  "description": "⚠ Some NPCs may need the Cash Shop for full functionality. Turning the mod on turns on every NPC; switch single ones off with Settings… (Warper, Job Master, Reset Girl, Stylist, Episode Valkyrie and all the others).",
+  "description": "Works with or without Lil Art's cash-shop-extended (Find Mods): with it, some NPCs also take Cash Points. Turning the mod on turns on every NPC; switch single ones off with Settings… (Warper, Job Master, Reset Girl, Stylist, Episode Valkyrie and all the others).",
   "settingsPage": "settings/index.html",
   "prerenewalFolder": "pre-renewal",
   "default": "off",
   "requires": {
-    "app": ">=1.4.3",
+    "app": ">=1.4.8",
     "era": "any"
   },
   "settings": [
@@ -17,7 +17,7 @@
       "default": "",
       "max_length": 200,
       "label": "Switched-off NPCs",
-      "description": "Filled in by the Settings… window: the NPCs without a setting of their own (Warper, Buffer, Job Master, Reset Girl, Stylist, Episode Valkyrie, Falcon Breeder, Kafra Employee, Weight Maxxer, Plagiarism Master, Tool Dealer, Smuggler, Card Exchanger, Safe Refiner, Grade Refiner, Universal Enchanter, Master Nokzin, Daily Rewards) that are unticked there. Empty = all on."
+      "description": "Filled in by the Settings… window: the NPCs without a setting of their own (Warper, Buffer, Job Master, Reset Girl, Stylist, Episode Valkyrie, Falcon Breeder, Kafra Employee, Weight Maxxer, Plagiarism Master, Tool Dealer, Smuggler, Card Exchanger, Safe Refiner, Grade Refiner, Universal Enchanter, Master Nokzin, Daily Rewards, Welcoming) that are unticked there. Empty = all on."
     },
     {
       "key": "buffer_set",
@@ -34,6 +34,20 @@
       "max_length": 200,
       "label": "Buffer: 4th class buffs",
       "description": "Filled in by the Settings… window (Buffer → Choose buffs): the 4th class buffs the Buffer casts, as a comma-separated list of codes. Renewal only. Empty = none."
+    },
+    {
+      "key": "warp_fee",
+      "type": "boolean",
+      "default": true,
+      "label": "Warper: paid warps for 3rd and 4th classes",
+      "description": "Characters in a 3rd or 4th class (also Kagerou, Oboro, Rebellion, Spirit Handler) pay the Warper 5,000 Zeny for towns, fields and guild castles and 15,000 Zeny for dungeons, instances and guild dungeons. Special Areas stay free. Off = every warp is free."
+    },
+    {
+      "key": "warp_quests",
+      "type": "boolean",
+      "default": true,
+      "label": "Warper: quest-locked dungeons",
+      "description": "The Warper only takes a character to Bio Lab, the Culvert, Dewata Dungeon, Nidhoggur's Dungeon and Rachel Sanctuary after the quest that opens their official entrance. Off = every dungeon is open."
     },
     {
       "key": "enable_bounties",

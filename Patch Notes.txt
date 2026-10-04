@@ -193,3 +193,27 @@ Now needs Ragnarok Offline 1.4.3 or newer. On an older app you keep 4.8.1 until 
 - Training Dummies now appear on Pre-renewal too (Lv 99, no DEF/MDEF, so you see raw damage).
 - Tool Dealer: no Blacksmith Blessing (the item does not exist on Pre-renewal).
 - Buffer: 3rd and 4th class buffs are hidden in the settings window and not cast.
+
+## 4.9.1
+Now needs Ragnarok Offline 1.4.8 or newer. On an older app you keep 4.9.0 until you update the app.
+
+Warper, on by default (switch each off in Settings..., "Options..." next to the Warper):
+- 3rd and 4th classes (and Kagerou, Oboro, Rebellion, Spirit Handler) now pay for warps: 5,000 Zeny for towns, fields and guild castles, 15,000 for dungeons, instances and guild dungeons. Special Areas stay free. The price is in the menu ("Pay 5,000 Zeny and go"); picking it warps you at once.
+- Bio Lab, the Culvert, Dewata Dungeon, Nidhoggur's Dungeon and Rachel Sanctuary open only after the quest their official entrance needs; the Warper tells you which.
+
+### Renewal and Pre-renewal
+- Card Exchanger: pulls out the one card you pick; the item stays on with its other cards, refine and options. Before, it took every card.
+- Bounty Hunter: in a party, a kill counts for everyone on the same map who has that contract (a friend joined over the network could get none).
+- Without Lil Art's cash-shop-extended: the Cheffenia Gatekeeper takes Zeny only, the Tool Dealer sells Elemental Converters (5,000 Zeny) and the Gym Pass (100,000 Zeny), Master Nokzin and the Weight Maxxer send you to it (Prontera 143,178), and the Smuggler uses its lower prices.
+- Cheffenia Gatekeeper: the "Reset My Pass (testing only)" option is gone.
+- Weight Maxxer: new look.
+- Warper in Izlude: two cells east (136,150), no longer right next to the Guild Warehouse Manager.
+- Settings window: the Warper's two options are on their own page, "Options..." next to the Warper, like the Buffer's buffs.
+
+### Renewal only
+- New NPC by Lil Art: Welcoming, Izlude (189,209). A one-time starter gift for every new character: 150,000 Zeny, a Premium Booster Box and two costumes.
+- Universal Enchanter: now offers the headgear jewels (Shard of ... Jewel) and the costume stones it used to miss, and only for the slots they fit.
+
+### Pre-renewal only
+- Episode Valkyrie is hidden (no Episode Clear Ticket exists in Pre-renewal).
+- The Warper fee never applies (no 3rd classes).

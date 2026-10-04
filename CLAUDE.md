@@ -68,7 +68,7 @@ README.md, assets/, CLAUDE.md, tests/  -- repo only, never in the release zip
   start-up and hide themselves if listed in the string setting `npc_off`
   (comma list: `warper, buffer, jobmaster, reset, stylist, epvalk, falcon,
   kafra, weightmax, plagiarism, tooldealer, smuggler, cardexchanger, refiner,
-  grade, enchanter, nokzin, daily`; empty = all on).
+  grade, enchanter, nokzin, daily, welcome`; empty = all on).
 - Buffer: the chosen buffs are two string settings, `buffer_set` (1st-3rd
   class) and `buffer_set4` (4th class), comma lists of codes; a string
   holds at most 200 characters, so a new class group may need its own key. A `shop` has no OnInit, so
@@ -80,13 +80,13 @@ README.md, assets/, CLAUDE.md, tests/  -- repo only, never in the release zip
   1.4.3 the same `when/<key>/` switch also works for `db/when/<key>/`
   (table added to the mod's own copy) and `lua/when/<key>/`, and
   `conf/when/<key>/` for `groups.yml`/`atcommands.yml`. Using `db/when/` or
-  `lua/when/` needs app 1.4.3 (we require 1.4.3).
+  `lua/when/` needs app 1.4.3 (we require 1.4.8, for `successremovecards` with a card slot).
 - A `db/` file only loads if its name is a table rAthena imports
   (`mob_db.yml`, `item_db.yml`, ... — the stubs in rAthena's
   `db/import-tmpl`). Any other name lands in `db/import/` and is never read
   (see #25).
 
-### Settings — 6 of max 20 used
+### Settings — 8 of max 20 used
 
 App limits: `type` is `boolean`, `number` or `string`; max 20 settings;
 `label` up to 120 and `description` up to **400 bytes** (UTF-8; over that
@@ -103,7 +103,7 @@ the mod folder; on update the app treats a renamed key as one option removed
 and another added, so every player silently loses that choice. If a key
 really must go, say so in Patch Notes.
 
-## NPCs in Prontera (grepped from files, 4.9.0)
+## NPCs in Prontera (grepped from files, 4.9.1)
 
 | NPC | x,y | File / toggle |
 |---|---|---|
