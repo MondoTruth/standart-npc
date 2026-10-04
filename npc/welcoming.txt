@@ -1,0 +1,55 @@
+// ============================================================================
+// Welcoming NPC - Beginner Starter Package
+// Location: Izlude at (189, 209)
+// Sprite: Angeling (1096), Facing Left (6)
+// By: Lil Art
+// ============================================================================
+
+izlude,189,209,6	script	Welcoming#starter	1096,5,5,{
+	mes "[Welcoming]";
+	if (WelcomingGiftReceived) {
+		mes "Welcome back, adventurer!";
+		mes "I hope your journey through Midgard is going smoothly.";
+		close;
+	}
+
+	mes "Hello and welcome to Izlude!";
+	mes "I have a special starter gift to help you begin your journey.";
+	next;
+
+	mes "[Welcoming]";
+	mes "Would you like to receive your beginner starter pack?";
+	next;
+
+	if (select("Yes, please!:No, thank you.") == 2) {
+		mes "[Welcoming]";
+		mes "No problem! Speak to me whenever you are ready.";
+		close;
+	}
+
+	WelcomingGiftReceived = 1;
+	Zeny += 150000;
+	getitem 103048, 1;
+	getitem 400115, 1;
+	getitem 20512, 1;
+
+	// Remove balloon and mini-map mark immediately
+	showevent 0;
+	viewpoint 2, 189, 209, 1, 0xFF0000;
+
+	mes "[Welcoming]";
+	mes "Here is ^0055FF150,000 Zeny^000000 and your starter reward items!";
+	mes "Good luck on your adventures!";
+	close;
+
+OnTouch:
+	// Fires automatically when player walks within 5 cells
+	if (!WelcomingGiftReceived) {
+		showevent 1; // Displays quest balloon
+		viewpoint 1, 189, 209, 1, 0xFF0000; // Adds red mark on minimap
+	} else {
+		showevent 0;
+		viewpoint 2, 189, 209, 1, 0xFF0000;
+	}
+	end;
+}
