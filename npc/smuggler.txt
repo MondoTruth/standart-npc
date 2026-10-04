@@ -5,13 +5,14 @@
 //= Free-form buy: type any item ID, get it at a markup. No
 //= restrictions (private server) -- means ANY item in item_db
 //= can be bought this way, event/GM/quest items included.
-//= Pricing depends on the server era, detected automatically
-//= with checkre(0):
-//=   Renewal     -- fixed-price types below cost a flat price
-//=                  (tuned for use together with another mod),
-//=                  everything else uses item_db price x5.
-//=   Pre-renewal -- no flat price at all; EVERY item uses the
-//=                  item_db price x2.
+//= Pricing depends on whether there is a Cash Shop to compete
+//= with: Renewal with Lil Art's cash-shop-extended loaded (its
+//= CashPointRewards NPC), checked at talk time:
+//=   with it    -- fixed-price types below cost a flat price,
+//=                 everything else uses item_db price x5.
+//=   without it, and always on Pre-renewal (the mod is Renewal
+//=   only) -- no flat price at all; EVERY item uses the item_db
+//=   price x2.
 //===== How to customize: ====================================
 //= - Which item types get the flat high price on Renewal:
 //=   .@fixed_types below, values from getiteminfo(id,
@@ -45,7 +46,8 @@ prontera,144,174,4	script	Smuggler	494,{
 	}
 	.@type = getiteminfo(.@id,ITEMINFO_TYPE);
 	setarray .@fixed_types[0], 2,4,5,6,7,8,10,11,12,18;
-	.@is_renewal = checkre(0);
+	// The high prices only next to a Cash Shop that sells these things.
+	.@is_renewal = checkre(0) && getnpcid(0, "CashPointRewards");
 	if (.@is_renewal && inarray(.@fixed_types, .@type) != -1) {
 		.@fixed_price = 10000000;
 		.@price = .@fixed_price;

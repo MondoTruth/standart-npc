@@ -49,7 +49,12 @@ prontera,167,178,1	script	Master Nokzin#endowersage	86,{
 
 	case 3:
 		mes "[Master Nokzin]";
-		mes "Converter scrolls let you endow on the fly without coming to see me -- the Cash Shop sells those. Mine last much longer, though!";
+		// The Cash Shop sells them only with cash-shop-extended loaded; without
+		// it the Tool Dealer does (npc/tool_dealer.txt).
+		if (getnpcid(0, "CashPointRewards"))
+			mes "Converter scrolls let you endow on the fly without coming to see me -- the Cash Shop sells those. Mine last much longer, though!";
+		else
+			mes "Converter scrolls let you endow on the fly without coming to see me -- the Tool Dealer here in Prontera (143,178) sells those. Mine last much longer, though!";
 		close;
 
 	case 4:

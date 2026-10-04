@@ -6,8 +6,9 @@
 //= Pass expiry is a real absolute timestamp (character-bound,
 //= CHEFFENIA_EXPIRE), so it keeps ticking in real time whether
 //= the player is inside, outside, offline, or dead -- nothing in
-//= this script resets it on its own; only running out for real,
-//= or the testing menu option below, clears it.
+//= this script resets it; only running out for real clears it.
+//= Cash Points are offered only while Lil Art's cash-shop-extended
+//= is loaded (its CashPointRewards NPC); without it, Zeny only.
 //===== How to customize: ====================================
 //= - Duration/price tiers: the two switch(select(...)) blocks in
 //=   the Gatekeeper (Cash Points and Zeny). Keep the tier order
@@ -15,10 +16,6 @@
 //=   with the same case number.
 //= - Zeny/Cash Point exchange rate: the "150 CP = 1,000,000z"
 //=   ratio baked into the case values and .@zeny_cost formula.
-//= - "Reset My Pass" (case 2 under the active-pass menu) clears
-//=   CHEFFENIA_EXPIRE for free -- meant for testing only. Remove
-//=   this option before giving players real money-cost access,
-//=   or anyone can reset their own paid timer for free.
 //============================================================
 
 prontera,140,180,4	script	Cheffenia Gatekeeper	10068,{
@@ -35,23 +32,19 @@ prontera,140,180,4	script	Cheffenia Gatekeeper	10068,{
         mes "Your character's access pass is ^00FF00Active^000000.";
         mes "Time Remaining: ^0000FF" + (.@remaining_min > 0 ? .@remaining_min + " minutes" : .@remaining_sec + " seconds") + "^000000.";
         next;
-        switch(select("Enter Dungeon:Reset My Pass (testing only):Cancel")) {
-            case 1:
-                warp "bossnia_01", 100, 150;
-                end;
-            case 2:
-                CHEFFENIA_EXPIRE = 0;
-                mes "[Cheffenia Gatekeeper]";
-                mes "Your access pass has been reset for testing.";
-                close;
-            case 3:
-                close;
-        }
+        if (select("Enter Dungeon:Cancel") == 1)
+            warp "bossnia_01", 100, 150;
+        end;
     }
 
     mes "Select payment method:";
     next;
-    .@currency = select("Cash Points:Zeny:Cancel");
+    // Cash Points only with cash-shop-extended loaded: nothing else earns
+    // them. Without it the option is an empty entry, which is not shown
+    // and keeps the numbers of the others.
+    .@cash$ = "";
+    if (getnpcid(0, "CashPointRewards")) .@cash$ = "Cash Points";
+    .@currency = select(.@cash$ + ":Zeny:Cancel");
     if (.@currency == 3) close;
 
     mes "[Cheffenia Gatekeeper]";

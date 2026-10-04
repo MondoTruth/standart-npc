@@ -2,7 +2,7 @@
   "name": "standart-npc",
   "version": "4.9.0",
   "author": "MondoTruth, Lil Art, IceGlaive, Nokzin, iguera, Claude, and the Ragnarok Offline community",
-  "description": "⚠ Some NPCs may need the Cash Shop for full functionality. Turning the mod on turns on every NPC; switch single ones off with Settings… (Warper, Job Master, Reset Girl, Stylist, Episode Valkyrie and all the others).",
+  "description": "Works with or without Lil Art's cash-shop-extended (Find Mods): with it, some NPCs also take Cash Points. Turning the mod on turns on every NPC; switch single ones off with Settings… (Warper, Job Master, Reset Girl, Stylist, Episode Valkyrie and all the others).",
   "settingsPage": "settings/index.html",
   "prerenewalFolder": "pre-renewal",
   "default": "off",
