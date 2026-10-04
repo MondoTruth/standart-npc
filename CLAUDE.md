@@ -115,12 +115,12 @@ really must go, say so in Patch Notes.
 | Episode Valkyrie | 128,193 | npc_off `epvalk` |
 | Falcon Breeder | 128,211 | npc_off `falcon` |
 | Kafra Employee | 160,187 | npc_off `kafra` |
-| Weight Maxxer | 147,169 | npc_off `weightmax` |
+| Weight Maxxer | 147,172 | npc_off `weightmax` |
 | Plagiarism Master | 171,182 | npc_off `plagiarism` |
 | Tool Dealer | 143,178 | npc_off `tooldealer` |
 | Smuggler | 144,174 | npc_off `smuggler` |
 | Card Exchanger | 151,187 | npc_off `cardexchanger` |
-| Bounty Hunter | 147,172 | enable_bounties |
+| Bounty Hunter | 147,169 | enable_bounties |
 | Cheffenia Gatekeeper | 140,180 | enable_mvp |
 | Safe Refiner | 164,172 | npc_off `refiner` |
 | Grade Refiner | 164,166 | npc_off `grade` (Renewal only) |
