@@ -38,8 +38,9 @@ const CARD_TEST = { knife: 1202, keep: 4001, pull: 4002 };   // Knife [4], Porin
 // Shirt on the body, a Shard of Agility Jewel in the bag (Renewal only;
 // checked in the fork's re/pre-re item_db: Hat and Cotton Shirt in both).
 const ENCH_TEST = { hat: 2220, shirt: 2301, jewel: 27422 };
-// Episode Valkyrie (#51), Renewal: the character stands in the middle of
-// Episode 18 (ep18_main 41, quest 16573 open, 8681 done), buys the Episode 18
+// Episode Valkyrie (#51), Renewal: with Episode 17.2 finished (ep17_2_main
+// 36), the character stands in the middle of Episode 18 (ep18_main 41,
+// quest 16573 open, 8681 done), buys the Episode 18
 // Clear Ticket and uses it. Quest and item IDs from the fork's
 // npc/re/quests/quests_18.txt, db/re/quest_db.yml and db/re/item_db_etc.yml.
 const EP18_TEST = { ticket: 1000288, price: 6000000, open: 16573, done: [8681, 11720, 11724, 18085] };
@@ -98,10 +99,10 @@ function setUpCharacter(era) {
     // Card in slot 0 and a Fabre Card in slot 1, and no loose cards of either.
     const w = W.rotest('server', 'sql', '--write',
         `UPDATE \`char\` SET class=${e.job}, base_level=${e.level}, job_level=50, zeny=${100000 + EP18_TEST.price}, last_map='prontera', last_x=156, last_y=180 WHERE char_id=${id};`
-        + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\`='ep18_main';`
+        + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` IN ('ep18_main', 'ep17_2_main');`
         + ` DELETE FROM quest WHERE char_id=${id} AND quest_id IN (${EP18_TEST.open}, ${EP18_TEST.done.join(', ')});`
         + ` DELETE FROM inventory WHERE char_id=${id} AND nameid=${EP18_TEST.ticket};`
-        + (e.valkyrie ? ` INSERT INTO char_reg_num (char_id, \`key\`, \`index\`, value) VALUES (${id}, 'ep18_main', 0, 41);`
+        + (e.valkyrie ? ` INSERT INTO char_reg_num (char_id, \`key\`, \`index\`, value) VALUES (${id}, 'ep18_main', 0, 41), (${id}, 'ep17_2_main', 0, 36);`
             + ` INSERT INTO quest (char_id, quest_id, state) VALUES (${id}, ${EP18_TEST.open}, '1'), (${id}, ${EP18_TEST.done[0]}, '2');` : '')
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
         + ` DELETE FROM char_reg_str WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`

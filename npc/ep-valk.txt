@@ -2,19 +2,22 @@
 //= Episode Valkyrie (Episode Clear Tickets)
 //===== By: Lil Art, rework MondoTruth ===========================
 //===== Description: =========================================
-//= Prontera (128,193). Uses an Episode Clear Ticket to skip an
-//= episode's main story, as on the official servers: the
-//= episode's main quests are marked done, which opens what
-//= needs the finished story (instances, dailies, areas). No EXP
-//= and no quest rewards. Also sells the tickets for Zeny.
-//= Only episodes with a real skip are offered; other tickets are
-//= kept for later. Renewal only.
+//= Prontera (128,193). Uses an Episode Clear Ticket to skip the
+//= main story of one part of an episode (18, 17.2, ...), as on
+//= the official servers: its main quests are marked done, which
+//= opens what needs the finished story (instances, dailies,
+//= areas). No EXP and no quest rewards. One ticket per part, in
+//= story order: a part needs the one before it finished, played
+//= or skipped. Also sells the tickets for Zeny. Only parts with a
+//= real skip are offered; other tickets are kept for later.
+//= Renewal only.
+//= Parts are numbered episode * 10 + part: 172 = 17.2, 180 = 18.
 //= Episode 18: ep18_main = 57 (its last step), the main quests
 //= that are done at the end are completed, the rest erased. This
 //= opens Villa of Deception (wolfvill 79,260) and the dailies.
 //===== How to customize: ====================================
 //= OnInit: .price[<episode>] is the ticket price in Zeny,
-//= .ready is the list of episodes with a skip.
+//= .ready the parts with a skip, .order the story order.
 //============================================================
 
 prontera,128,193,4	script	Valkyrie#EpsClear	4_F_VALKYRIE,{
@@ -24,12 +27,20 @@ prontera,128,193,4	script	Valkyrie#EpsClear	4_F_VALKYRIE,{
 	next;
 	switch (select("Use a ticket:Buy a ticket:Which episodes?:Cancel")) {
 	case 1:
-		.@ep = callsub(S_Pick, 0);
-		if (!.@ep)
+		.@part = callsub(S_PickPart);
+		if (!.@part)
 			close;
-		if (callsub(S_Done, .@ep)) {
+		.@ep = .@part / 10;
+		.@name$ = callsub(S_Name, .@part);
+		if (callsub(S_Done, .@part)) {
 			mes "[Valkyrie]";
-			mes "You have already finished Episode " + .@ep + ". Keep your ticket.";
+			mes "You have already finished Episode " + .@name$ + ". Keep your ticket.";
+			close;
+		}
+		.@prev = callsub(S_Prev, .@part);
+		if (.@prev && !callsub(S_Done, .@prev)) {
+			mes "[Valkyrie]";
+			mes "First finish Episode " + callsub(S_Name, .@prev) + ", by playing it or with a ticket.";
 			close;
 		}
 		if (countitem(.ticket[.@ep]) < 1) {
@@ -38,30 +49,41 @@ prontera,128,193,4	script	Valkyrie#EpsClear	4_F_VALKYRIE,{
 			close;
 		}
 		mes "[Valkyrie]";
-		mes "Use your ^0055FFEpisode " + .@ep + " Clear Ticket^000000?";
-		mes "The main story of Episode " + .@ep + " will be marked as finished. Quests of it you have open are closed.";
+		mes "Use an ^0055FFEpisode " + .@ep + " Clear Ticket^000000 for Episode " + .@name$ + "?";
+		mes "Its main story will be marked as finished. Quests of it you have open are closed.";
 		next;
 		if (select("Yes, use it:Cancel") == 2)
 			close;
 		if (countitem(.ticket[.@ep]) < 1)
 			close;
 		delitem .ticket[.@ep], 1;
-		callsub S_Skip, .@ep;
+		callsub S_Skip, .@part;
 		specialeffect2 154;
 		mes "[Valkyrie]";
-		mes "It is done. Episode " + .@ep + " is behind you.";
+		mes "It is done. Episode " + .@name$ + " is behind you.";
 		close;
 	case 2:
-		.@ep = callsub(S_Pick, 1);
-		if (!.@ep)
+		.@n = getarraysize(.sell);
+		for (.@i = 0; .@i < .@n; .@i++)
+			.@menu$ += "Episode " + .sell[.@i] + " ticket (" + callfunc("F_InsertComma", .price[.sell[.@i]]) + " z):";
+		.@c = select(.@menu$ + "Cancel") - 1;
+		if (.@c >= .@n)
 			close;
-		if (callsub(S_Done, .@ep)) {
+		.@ep = .sell[.@c];
+		// Refused only when every part it can be used for is finished.
+		.@open = 0;
+		.@n = getarraysize(.ready);
+		for (.@i = 0; .@i < .@n; .@i++) {
+			if (.ready[.@i] / 10 == .@ep && !callsub(S_Done, .ready[.@i]))
+				.@open = 1;
+		}
+		if (!.@open) {
 			mes "[Valkyrie]";
-			mes "You have already finished Episode " + .@ep + ". You do not need its ticket.";
+			mes "You have already finished what an Episode " + .@ep + " ticket is good for.";
 			close;
 		}
 		mes "[Valkyrie]";
-		mes "An ^0055FFEpisode " + .@ep + " Clear Ticket^000000 costs " + callfunc("F_InsertComma", .price[.@ep]) + " Zeny.";
+		mes "An ^0055FFEpisode " + .@ep + " Clear Ticket^000000 costs " + callfunc("F_InsertComma", .price[.@ep]) + " Zeny. Each ticket skips one part.";
 		next;
 		if (select("Buy it:Cancel") == 2)
 			close;
@@ -84,54 +106,64 @@ prontera,128,193,4	script	Valkyrie#EpsClear	4_F_VALKYRIE,{
 		mes "[Valkyrie]";
 		.@n = getarraysize(.ready);
 		for (.@i = 0; .@i < .@n; .@i++)
-			mes "Episode " + .ready[.@i] + ": ready.";
-		mes "Other episodes will follow. If you hold a ticket for one of them, keep it until then.";
+			mes "Episode " + callsub(S_Name, .ready[.@i]) + ": ready.";
+		mes "One ticket skips one part, in story order. Other episodes will follow; if you hold a ticket for one of them, keep it until then.";
 		close;
 	}
 	close;
 
-// Asks for an episode out of .ready. getarg(0): 1 = with prices.
-// Returns the episode, or 0 for Cancel.
-S_Pick:
+// Asks for a part out of .ready. Returns it, or 0 for Cancel.
+S_PickPart:
 	.@n = getarraysize(.ready);
-	for (.@i = 0; .@i < .@n; .@i++) {
-		.@ep = .ready[.@i];
-		if (getarg(0))
-			.@menu$ += "Episode " + .@ep + " (" + callfunc("F_InsertComma", .price[.@ep]) + " z):";
-		else
-			.@menu$ += "Episode " + .@ep + " (tickets: " + countitem(.ticket[.@ep]) + "):";
-	}
-	.@menu$ += "Cancel";
-	.@c = select(.@menu$) - 1;
+	for (.@i = 0; .@i < .@n; .@i++)
+		.@menu$ += "Episode " + callsub(S_Name, .ready[.@i]) + " (tickets: " + countitem(.ticket[.ready[.@i] / 10]) + "):";
+	.@c = select(.@menu$ + "Cancel") - 1;
 	if (.@c >= .@n)
 		return 0;
 	return .ready[.@c];
 
-// Whether the episode's main story is finished.
+// "18" for 180, "17.2" for 172.
+S_Name:
+	if (getarg(0) % 10)
+		return (getarg(0) / 10) + "." + (getarg(0) % 10);
+	return "" + (getarg(0) / 10);
+
+// The part before this one in .order, or 0.
+S_Prev:
+	.@n = getarraysize(.order);
+	for (.@i = 1; .@i < .@n; .@i++) {
+		if (.order[.@i] == getarg(0))
+			return .order[.@i - 1];
+	}
+	return 0;
+
+// Whether the part's main story is finished.
 S_Done:
 	switch (getarg(0)) {
-	case 18:
+	case 172:
+		return (ep17_2_main >= 36);
+	case 180:
 		return (ep18_main >= 57);
 	}
 	return 0;
 
-// Marks the episode's main story as finished.
+// Marks the part's main story as finished.
 S_Skip:
 	switch (getarg(0)) {
-	case 18:
+	case 180:
 		// Main quests still open are closed, as the story would have.
-		.@n = getarraysize(.q18);
+		.@n = getarraysize(.q180);
 		for (.@i = 0; .@i < .@n; .@i++) {
-			if (isbegin_quest(.q18[.@i]) == 1)
-				erasequest .q18[.@i];
+			if (isbegin_quest(.q180[.@i]) == 1)
+				erasequest .q180[.@i];
 		}
 		// The ones a finished story leaves completed.
-		.@n = getarraysize(.q18_done);
+		.@n = getarraysize(.q180_done);
 		for (.@i = 0; .@i < .@n; .@i++) {
-			if (isbegin_quest(.q18_done[.@i]) == 0)
-				setquest .q18_done[.@i];
-			if (isbegin_quest(.q18_done[.@i]) == 1)
-				completequest .q18_done[.@i];
+			if (isbegin_quest(.q180_done[.@i]) == 0)
+				setquest .q180_done[.@i];
+			if (isbegin_quest(.q180_done[.@i]) == 1)
+				completequest .q180_done[.@i];
 		}
 		ep18_main = 57;
 		break;
@@ -146,8 +178,10 @@ OnInit:
 		disablenpc strnpcinfo(0);
 		end;
 	}
-	// Episodes with a real skip, in menu order.
-	setarray .ready[0], 18;
+	// Parts with a real skip, in menu order.
+	setarray .ready[0], 180;
+	// Story order, as far as S_Done can tell a part is finished.
+	setarray .order[0], 172, 180;
 	// Episode Clear Tickets (EpisodClear13 - EpisodClear18).
 	.ticket[13] = 1000284;
 	.ticket[14] = 1000285;
@@ -162,9 +196,16 @@ OnInit:
 	.price[16] = 4000000;
 	.price[17] = 5000000;
 	.price[18] = 6000000;
+	// Episodes whose tickets are sold: those of the ready parts.
+	.@n = getarraysize(.ready);
+	for (.@i = 0; .@i < .@n; .@i++) {
+		.@ep = .ready[.@i] / 10;
+		if (inarray(.sell, .@ep) < 0)
+			.sell[getarraysize(.sell)] = .@ep;
+	}
 	// Episode 18 (npc/re/quests/quests_18.txt): every main-story quest,
 	// ep18_main 1 to 57, and those a finished story leaves completed.
-	setarray .q18[0],
+	setarray .q180[0],
 		8681, 8682, 8683, 8684, 8685, 8686, 8687,
 		11696, 11697, 11698, 11699, 11700, 11701, 11702, 11703,
 		11704, 11705, 11706, 11707, 11708, 11709, 11710, 11711, 11712,
@@ -173,6 +214,6 @@ OnInit:
 		16567, 16568, 16569, 16570, 16571, 16572, 16573, 16574, 16575,
 		16576, 16577, 16578, 16579, 16580,
 		17517, 17518, 17519, 17520, 17521, 17525, 18083, 18084, 18085;
-	setarray .q18_done[0], 8681, 11720, 11724, 18085;
+	setarray .q180_done[0], 8681, 11720, 11724, 18085;
 	end;
 }
