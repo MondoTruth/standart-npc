@@ -33,6 +33,10 @@ const CHAR = 'Tester';
 // Card Exchanger (#41): item and card IDs checked in the fork's
 // db/re and db/pre-re item_db (Knife_ 1202 has 4 slots in both eras).
 const CARD_TEST = { knife: 1202, keep: 4001, pull: 4002 };   // Knife [4], Poring Card, Fabre Card
+// Universal Enchanter (#46): a slotless Hat on the head, a slotless Cotton
+// Shirt on the body, a Shard of Agility Jewel in the bag (Renewal only;
+// checked in the fork's re/pre-re item_db: Hat and Cotton Shirt in both).
+const ENCH_TEST = { hat: 2220, shirt: 2301, jewel: 27422 };
 let charId = null;
 
 // Per era: the character, and what the NPCs should show.
@@ -44,6 +48,7 @@ const EXPECT = {
         dummy: { 28412: ['Size:Medium', 'Lv:150'], 28413: ['Size:Large', 'Lv:150'] },
         blessing: true,            // Blacksmith Blessing in the Tool Dealer
         welcome: true,             // Welcoming in Izlude: Renewal only
+        jewel: true,               // headgear jewels exist (Enchanter check)
     },
     'pre-renewal': {
         job: 4008, level: 99,    // Lord Knight
@@ -52,6 +57,7 @@ const EXPECT = {
         dummy: { 28412: ['Size:Medium', 'Lv:99', 'DEF:0'], 28413: ['Size:Large', 'Lv:99', 'DEF:0'] },
         blessing: false,
         welcome: false,
+        jewel: false,
     },
 };
 
@@ -85,11 +91,13 @@ function setUpCharacter(era) {
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
         + ` DELETE FROM char_reg_str WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\`='SNPC_WelcomeGift';`
-        + ` UPDATE inventory SET equip=0 WHERE char_id=${id} AND (equip & 34) <> 0;`
-        + ` DELETE FROM inventory WHERE char_id=${id} AND nameid IN (${CARD_TEST.knife}, ${CARD_TEST.keep}, ${CARD_TEST.pull});`
+        + ` UPDATE inventory SET equip=0 WHERE char_id=${id} AND (equip & (34 | 256 | 16)) <> 0;`
+        + ` DELETE FROM inventory WHERE char_id=${id} AND nameid IN (${CARD_TEST.knife}, ${CARD_TEST.keep}, ${CARD_TEST.pull}, ${ENCH_TEST.hat}, ${ENCH_TEST.shirt}, ${ENCH_TEST.jewel});`
         + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify, refine, card0, card1)`
-        + ` VALUES (${id}, ${CARD_TEST.knife}, 1, 2, 1, 5, ${CARD_TEST.keep}, ${CARD_TEST.pull});`);
-    checks.push({ ok: w.ok, text: `character set to job ${e.job}, Lv ${e.level}, no Bounty progress, carded Knife equipped`, detail: w.ok ? '' : w.out.slice(-300) });
+        + ` VALUES (${id}, ${CARD_TEST.knife}, 1, 2, 1, 5, ${CARD_TEST.keep}, ${CARD_TEST.pull});`
+        + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify) VALUES (${id}, ${ENCH_TEST.hat}, 1, 256, 1), (${id}, ${ENCH_TEST.shirt}, 1, 16, 1);`
+        + (e.jewel ? ` INSERT INTO inventory (char_id, nameid, amount, equip, identify) VALUES (${id}, ${ENCH_TEST.jewel}, 1, 0, 1);` : ''));
+    checks.push({ ok: w.ok, text: `character set to job ${e.job}, Lv ${e.level}, no Bounty progress, carded Knife, Hat and Cotton Shirt equipped`, detail: w.ok ? '' : w.out.slice(-300) });
     return checks;
 }
 
@@ -175,6 +183,42 @@ function runEra(era) {
     } else {
         const near = ev(`snpc.npcs(20).map(n => n.name)`);
         check(Array.isArray(near) && !near.some(n => n.startsWith('Welcoming')), 'Welcoming: not on Pre-renewal', JSON.stringify(near));
+    }
+
+    // Universal Enchanter (#46): the headgear jewel is offered for the Hat,
+    // not for the Cotton Shirt.
+    if (e.jewel) {
+        gm('@warp prontera 164 167');
+        // Each step waits for its menu item (pressing Next as it comes),
+        // and the talk ends on Cancel, so no window is left open.
+        const stones = slot => ev(`(async () => {
+            const sleep = ms => new Promise(r => setTimeout(r, ms));
+            const step = async prefix => {
+                for (let i = 0; i < 30; i++) {
+                    const v = snpc.view();
+                    if (v.menu.some(m => m.text.startsWith(prefix))) return snpc.pick(prefix);
+                    if (v.next) await snpc.next(); else await sleep(200);
+                }
+                return snpc.view();
+            };
+            await snpc.talk('Universal Enchanter');
+            await step('Regular Gear');
+            await step('${slot}');
+            await step('Socket 1');
+            let v = snpc.view();
+            for (let i = 0; i < 30 && !v.menu.length; i++) {
+                if (v.next) v = await snpc.next(); else { await sleep(200); v = snpc.view(); }
+                if (!v.next && !v.menu.length && v.close) break;
+            }
+            const out = v.menu.length ? v.menu.map(m => m.text) : [v.text];
+            if (v.menu.some(m => m.text === 'Cancel')) await snpc.pick('Cancel');
+            await snpc.close();
+            return out;
+        })()`);
+        const head = stones('Top Headgear');
+        check(Array.isArray(head) && head.includes('Shard of Agility Jewel'), 'Universal Enchanter: offers the jewel for the Top Headgear', JSON.stringify(head).slice(-200));
+        const body = stones('Armor');
+        check(Array.isArray(body) && !body.some(t => t.includes('Agility Jewel')), 'Universal Enchanter: not for the Armor', JSON.stringify(body).slice(-200));
     }
 
     // Card Exchanger: pull the Fabre Card (slot 1) out of the Knife; the
