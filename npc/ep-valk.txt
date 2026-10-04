@@ -112,11 +112,12 @@ prontera,128,193,4	script	Valkyrie#EpsClear	4_F_VALKYRIE,{
 	}
 	close;
 
-// Asks for a part out of .ready. Returns it, or 0 for Cancel.
+// Asks for a part out of .ready. Returns it, or 0 for Cancel. No ':' in
+// an item's text: select() splits the menu at every ':'.
 S_PickPart:
 	.@n = getarraysize(.ready);
 	for (.@i = 0; .@i < .@n; .@i++)
-		.@menu$ += "Episode " + callsub(S_Name, .ready[.@i]) + " (tickets: " + countitem(.ticket[.ready[.@i] / 10]) + "):";
+		.@menu$ += "Episode " + callsub(S_Name, .ready[.@i]) + " (you have " + countitem(.ticket[.ready[.@i] / 10]) + "):";
 	.@c = select(.@menu$ + "Cancel") - 1;
 	if (.@c >= .@n)
 		return 0;
