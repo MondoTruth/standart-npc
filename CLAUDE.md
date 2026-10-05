@@ -22,10 +22,12 @@ document disagrees with the files, trust the files and say so.
 ## Workflow
 
 - Create issues only when MondoTruth asks for it.
-- Otherwise go straight to a branch and a PR. If the work matches an existing
-  issue, put `Closes #<issue>` in the PR body.
+- Otherwise go straight to a branch. If the work matches an existing issue,
+  put `Closes #<issue>` in the PR body.
 - Work in a branch named after the task, never commit to `main` directly.
-- Open a PR with `gh pr create`.
+- **Ask before opening a PR.** Commit and push the branch, say what changed
+  and what was checked, name the PR's target and title, and wait for
+  MondoTruth's clear yes. Only then `gh pr create`.
 - **Don't merge PRs yourself.** MondoTruth merges after testing in game.
 - No links to Claude sessions (`claude.ai/code/session_...`, `Claude-Session:`
   trailers) in commits, issues, PRs or comments.
@@ -36,7 +38,7 @@ document disagrees with the files, trust the files and say so.
   can take branches and PRs: `MondoTruth/ragnarokoffline.app`,
   `MondoTruth/rathena`, `MondoTruth/roBrowserLegacy` (see "Changes outside
   this repository"). The same rules hold there: issues only when asked,
-  never merge.
+  PRs only after a yes, never merge.
 
 ## Repository layout
 
@@ -103,7 +105,7 @@ the mod folder; on update the app treats a renamed key as one option removed
 and another added, so every player silently loses that choice. If a key
 really must go, say so in Patch Notes.
 
-## NPCs in Prontera (grepped from files, 4.9.1)
+## NPCs in Prontera (grepped from files, 4.9.2)
 
 | NPC | x,y | File / toggle |
 |---|---|---|
@@ -115,12 +117,12 @@ really must go, say so in Patch Notes.
 | Episode Valkyrie | 128,193 | npc_off `epvalk` |
 | Falcon Breeder | 128,211 | npc_off `falcon` |
 | Kafra Employee | 160,187 | npc_off `kafra` |
-| Weight Maxxer | 147,169 | npc_off `weightmax` |
+| Weight Maxxer | 147,172 | npc_off `weightmax` |
 | Plagiarism Master | 171,182 | npc_off `plagiarism` |
 | Tool Dealer | 143,178 | npc_off `tooldealer` |
 | Smuggler | 144,174 | npc_off `smuggler` |
 | Card Exchanger | 151,187 | npc_off `cardexchanger` |
-| Bounty Hunter | 147,172 | enable_bounties |
+| Bounty Hunter | 147,169 | enable_bounties |
 | Cheffenia Gatekeeper | 140,180 | enable_mvp |
 | Safe Refiner | 164,172 | npc_off `refiner` |
 | Grade Refiner | 164,166 | npc_off `grade` (Renewal only) |
