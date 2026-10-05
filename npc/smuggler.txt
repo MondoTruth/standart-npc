@@ -100,6 +100,13 @@ L_Pitch:
 	mes "[" + strcharinfo(0) + "]";
 	mes "Ten BILLION?! Nobody has that kind of money!";
 	next;
+	// The deal is on as soon as he names it: a talk closed on any window
+	// after this one goes to "Got my ...?" next time, not to the pitch.
+	SNPC_SmugglerPick = .@pick;
+	if (!SNPC_SmugglerReplay) {
+		SNPC_Smuggler = 1;
+		questinfo_refresh;
+	}
 	emotion ET_THINK;
 	mes "[Smuggler]";
 	mes "Hmm. Hmm-hmm... Fine. For a friend, I'll take a trade.";
@@ -108,15 +115,9 @@ L_Pitch:
 	emotion ET_MONEY;
 	mes "[Smuggler]";
 	mes "They say a certain ^0055FFSmile Assistance^000000 makes those masks to order. And the little diamonds... any jeweler in Lighthalzen or Morroc will sell you those.";
-	SNPC_SmugglerPick = .@pick;
-	if (!SNPC_SmugglerReplay) {
-		SNPC_Smuggler = 1;
-		questinfo_refresh;
-	}
-	if (countitem(.mask) - isequippedcnt(.mask) < 1 || countitem(.gems) < .gems_needed)
-		close;
-	next;
-	// Already carrying both: straight on.
+	// Always the end of this talk, even when the player already carries
+	// both: the trade is the next talk.
+	close;
 
 // The trade, the box and the scene.
 L_Bring:
