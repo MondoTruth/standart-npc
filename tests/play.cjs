@@ -19,8 +19,8 @@
 //= cleared, so every run starts from the same place. It also gets a
 //= +5 Knife [4] with two cards, for the Card Exchanger check, and
 //= its Welcoming gift is cleared. On Renewal it stands in the middle of
-//= Episodes 17.2 and 18, for the Episode Valkyrie check, with the Zeny
-//= for their tickets.
+//= Episodes 17.1, 17.2 and 18, for the Episode Valkyrie check, with the
+//= Zeny for their tickets.
 //============================================================
 'use strict';
 const fs = require('node:fs');
@@ -39,15 +39,17 @@ const CARD_TEST = { knife: 1202, keep: 4001, pull: 4002 };   // Knife [4], Porin
 // Shirt on the body, a Shard of Agility Jewel in the bag (Renewal only;
 // checked in the fork's re/pre-re item_db: Hat and Cotton Shirt in both).
 const ENCH_TEST = { hat: 2220, shirt: 2301, jewel: 27422 };
-// Episode Valkyrie (#51), Renewal: with Episode 17.1 finished (quest 16360
-// done, what the game checks before 17.2), the character stands in the
-// middle of 17.2 and of 18 (a quest of each open). It first tries to skip
-// 18 (refused: 17.2 is not finished), then buys and uses a ticket for 17.2,
-// then for 18. Quest and item IDs from the fork's npc/re/quests/
-// quests_17_2.txt and quests_18.txt, db/re/quest_db.yml, db/re/item_db_etc.yml.
+// Episode Valkyrie (#51), Renewal: with Episode 16.2 finished
+// (terra_gloria_main 25), the character stands in the middle of 17.1, 17.2
+// and 18 (a quest of each open). It first tries to skip 17.2 and 18
+// (refused: the part before is not finished), then buys and uses a ticket
+// for 17.1, 17.2, then 18. Quest and item IDs from the fork's npc/re/quests/
+// quests_17_1.txt, quests_17_2.txt and quests_18.txt, db/re/quest_db.yml,
+// db/re/item_db_etc.yml. `done` is a sample of what each skip completes.
 const VALK_TEST = {
-    before: 16360,   // 17.1 done
     parts: [
+        { name: '17.1', ep: 17, ticket: 1000287, price: 5000000, priceText: '5,000,000', key: 'terra_gloria_main', start: 25, end: 26,
+          open: 7852, done: [7850, 7862, 17014, 11603, 16354, 16360], doneBefore: 7850 },
         { name: '17.2', ep: 17, ticket: 1000287, price: 5000000, priceText: '5,000,000', key: 'ep17_2_main', start: 21, end: 36,
           open: 16449, done: [11620, 16452, 18018, 18021, 18020] },
         { name: '18', ep: 18, ticket: 1000288, price: 6000000, priceText: '6,000,000', key: 'ep18_main', start: 41, end: 57,
@@ -55,7 +57,7 @@ const VALK_TEST = {
     ],
 };
 const VALK_PRICE = VALK_TEST.parts.reduce((n, p) => n + p.price, 0);
-const VALK_QUESTS = [VALK_TEST.before, ...VALK_TEST.parts.flatMap(p => [p.open, ...p.done])];
+const VALK_QUESTS = [...VALK_TEST.parts.flatMap(p => [p.open, ...p.done])];
 // Smuggler's access quest: a Mr. Smile mask worn (does not count) and a
 // ten 1carat Diamonds in the bag; a second mask is given in game. The free item
 // asked for is a Red Potion. IDs from the fork's db/re and db/pre-re
@@ -122,7 +124,7 @@ function setUpCharacter(era) {
         + ` DELETE FROM quest WHERE char_id=${id} AND quest_id IN (${VALK_QUESTS.join(', ')});`
         + ` DELETE FROM inventory WHERE char_id=${id} AND nameid IN (${VALK_TEST.parts.map(p => p.ticket).join(', ')});`
         + (e.valkyrie ? ` INSERT INTO char_reg_num (char_id, \`key\`, \`index\`, value) VALUES ${VALK_TEST.parts.map(p => `(${id}, '${p.key}', 0, ${p.start})`).join(', ')};`
-            + ` INSERT INTO quest (char_id, quest_id, state) VALUES (${id}, ${VALK_TEST.before}, '2'), `
+            + ` INSERT INTO quest (char_id, quest_id, state) VALUES `
             + VALK_TEST.parts.map(p => `(${id}, ${p.open}, '1')` + (p.doneBefore ? `, (${id}, ${p.doneBefore}, '2')` : '')).join(', ') + ';' : '')
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
         + ` DELETE FROM char_reg_str WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
@@ -252,8 +254,10 @@ function runEra(era) {
             await snpc.close();
             return said.join(' / ');
         })()`);
-        const order = valkTalk(['Use a ticket', 'Episode 18 ']);
-        check(typeof order === 'string' && order.includes('First finish Episode 17.2'), 'Episode Valkyrie: 18 needs 17.2 finished first', String(order).slice(-200));
+        for (const [part, prev] of [['17.2', '17.1'], ['18', '17.2']]) {
+            const order = valkTalk(['Use a ticket', `Episode ${part} `]);
+            check(typeof order === 'string' && order.includes(`First finish Episode ${prev}`), `Episode Valkyrie: ${part} needs ${prev} finished first`, String(order).slice(-200));
+        }
         for (const p of VALK_TEST.parts) {
             const before = ev('roAgent.modules.Session.zeny');
             const bought = valkTalk(['Buy a ticket', `Episode ${p.ep} ticket`, 'Buy it']);

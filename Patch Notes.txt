@@ -229,6 +229,6 @@ Warper, on by default (switch each off in Settings..., "Options..." next to the 
 ## Next version
 
 ### Renewal only
-- Episode Valkyrie reworked: an Episode Clear Ticket now skips the episode's main story, as on official servers, instead of giving EXP. Episodes 17.2 and 18 for now. 17.2 opens the Mansion areas, Lost Farm, Hidden Garden and its side quests; 18 opens Villa of Deception and the Wolfvill dailies. No EXP or quest rewards.
+- Episode Valkyrie reworked: an Episode Clear Ticket now skips the episode's main story, as on official servers, instead of giving EXP. Episodes 17.1, 17.2 and 18 for now. 17.1 opens Rekenber, Rudus, Clana Nemieri, the Illusion enchanter and its dailies; 17.2 opens the Mansion areas, Lost Farm, Hidden Garden and its side quests; 18 opens Villa of Deception and the Wolfvill dailies. No EXP or quest rewards.
 - Episode Valkyrie no longer marks unrelated quests as done (old tickets set quests such as the Knight job change). Tickets for other episodes are kept until their skip is added; 19 and 20 are gone.
-- Episode Valkyrie sells the tickets for Zeny (Episode 17: 5,000,000, Episode 18: 6,000,000). One ticket skips one part of an episode (17.1, 17.2, ...), in story order: a part needs the one before it finished, played or skipped (18 needs 17.2, 17.2 needs 17.1).
+- Episode Valkyrie sells the tickets for Zeny (Episode 17: 5,000,000, Episode 18: 6,000,000). One ticket skips one part of an episode (17.1, 17.2, ...), in story order: a part needs the one before it finished, played or skipped (18 needs 17.2, 17.2 needs 17.1, 17.1 needs 16.2 played).
