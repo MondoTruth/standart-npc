@@ -53,7 +53,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | 🌀 | **Warper** | Menu-based travel — towns, fields, dungeons, guild castles, instances. Duplicated in every major town. On by default, each can be switched off: a fee for 3rd/4th classes (5,000 / 15,000 Zeny) and quest-locked dungeons. | Every major town |
 | ✨ | **Buffer** | Free instant buffs + full heal on click, no dialog window. You choose the buffs (see below). Duplicated in every major town. | Every major town |
 | 📦 | **Kafra Employee** | Save point, storage, and free identify-all. | Prontera (160, 187) |
-| 🏋️ | **Weight Maxxer** | Trades a Gym Pass for +1 permanent carry capacity, up to 10 times. Gym Pass: the Cash Shop with cash-shop-extended, the Tool Dealer (100,000 Zeny) without it. | Prontera (147, 169) |
+| 🏋️ | **Weight Maxxer** | Trades a Gym Pass for +1 permanent carry capacity, up to 10 times. Gym Pass: the Cash Shop with cash-shop-extended, the Tool Dealer (100,000 Zeny) without it. | Prontera (147, 172) |
 
 #### 🎓 Character
 
@@ -70,7 +70,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | | NPC | What it does | Location |
 |:-:|---|---|---|
 | 🧪 | **Tool Dealer** | Standard fixed-price shop — potions, wings, Blacksmith Blessing, and a few other staples. | Prontera (143, 178) |
-| 🕵️ | **Smuggler** | Buy any item by ID, as many as you want at once. Detects the server era automatically: on Renewal the price depends on item type, on Pre-renewal every item costs its normal price x2. | Prontera (144, 174) |
+| 🕵️ | **Smuggler** | Buy any item by ID, as many as you want at once. First earn his trust with a short quest, once per character (a quest bubble shows until it is done). Detects the server era automatically: on Renewal the price depends on item type, on Pre-renewal every item costs its normal price x2. | Prontera (144, 174) |
 | 🃏 | **Card Exchanger** | 10 cards → Old Card Album, 30 cards → Mystical Card Album. Also pulls one card of your choice out of equipped gear. | Prontera (151, 187) |
 | 🦅 | **Falcon Breeder** | Falcon for Hunters and Snipers, Wolf Flute for Rangers and Windhawks, Hawk Flute for Windhawks (Renewal only). | Prontera (128, 211) |
 
@@ -78,7 +78,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 
 | | NPC | What it does | Location |
 |:-:|---|---|---|
-| 🏹 | **Bounty Hunter** | All hunting contracts in one NPC — four kinds of work, one contract of each at a time (see below). | Prontera (147, 172) |
+| 🏹 | **Bounty Hunter** | All hunting contracts in one NPC — four kinds of work, one contract of each at a time (see below). | Prontera (147, 169) |
 | 🐉 | **Cheffenia Gatekeeper** | Timed access to the Cheffenia MVP Dungeon, paid in Zeny or Cash Points. | Prontera (140, 180) |
 
 #### 🔨 Gear upgrades

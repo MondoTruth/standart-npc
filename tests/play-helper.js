@@ -83,6 +83,21 @@
             }
             return { error: `no menu item ${prefix}* reached`, ...view() };
         },
+        // Whether the NPC's number/text input box is open. Its root is a
+        // shadow root, so its host element is the one on the page.
+        inputOpen() {
+            const r = root('InputBox');
+            const el = r && r.host ? r.host : r;
+            return !!el && el.isConnected && el instanceof Element && getComputedStyle(el).display !== 'none';
+        },
+        // Answers the input box the way the client does on OK.
+        async input(value) {
+            const box = ui('InputBox');
+            if (!box || !box.onSubmitRequest || !this.inputOpen()) return { error: 'no input box', ...view() };
+            const before = JSON.stringify(view());
+            box.onSubmitRequest(value);
+            return settle(before);
+        },
         // Opens a shop NPC's buy list and returns the item names in it.
         async shop(prefix) {
             const npc = roAgent.entities({ radius: 14 }).filter(e => /^NPC/.test(e.type)).find(e => e.name.startsWith(prefix));

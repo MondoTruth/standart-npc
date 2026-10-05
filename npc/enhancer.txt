@@ -14,7 +14,7 @@
 //=   arrays above.
 //= - Location/sprite: the first line (map,x,y,dir / sprite).
 //============================================================
-prontera,164,172,4	script	Safe Refiner	1930,{
+prontera,164,172,4	script	Safe Refiner	10077,{
     // Divine Pride Item IDs for Armor Certificates (+7 to +15)
     setarray .armor_certs[7],   6234,  // Safe to +7 Armor Certificate
                                 6233,  // Safe to +8 Armor Certificate

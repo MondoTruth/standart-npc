@@ -221,7 +221,12 @@ Warper, on by default (switch each off in Settings..., "Options..." next to the 
 ## 4.9.2
 
 ### Renewal and Pre-renewal
+- Smuggler: access now takes a short quest, once per character. Every character does it once, also those who used him before. A quest bubble over him shows until it is done; the quest can be replayed from his menu.
 - Warper in Izlude: moved to 138,150, so it no longer shares a cell with the Waypoint Keeper of BlaXun's waypoint-system (app 1.5.0).
+- Weight Maxxer and Bounty Hunter swap places: Weight Maxxer at Prontera (147,172), Bounty Hunter at (147,169). By Lil Art.
+- Safe Refiner has a new look (sprite 4_NASARIN). By Lil Art.
+
+## Next version
 
 ### Renewal only
 - Episode Valkyrie reworked: an Episode Clear Ticket now skips the episode's main story, as on official servers, instead of giving EXP. Episodes 17.2 and 18 for now. 17.2 opens the Mansion areas, Lost Farm, Hidden Garden and its side quests; 18 opens Villa of Deception and the Wolfvill dailies. No EXP or quest rewards.
