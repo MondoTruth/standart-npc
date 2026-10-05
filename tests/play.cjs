@@ -333,6 +333,8 @@ function runEra(era) {
         for (let i = 0; i < 20 && v.next; i++) { if (v.text) said.push(v.text); v = await snpc.next(); }
         if (v.text) said.push(v.text);
         const menu = v.menu.map(m => m.text);
+        // A menu left open would keep the next NPC from talking: cancel it.
+        if (v.menu.length) await snpc.choose(255);
         await snpc.close();
         return { said: [...new Set(said)].join(' / '), menu };
     })()`);
