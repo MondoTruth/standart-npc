@@ -70,7 +70,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | | NPC | What it does | Location |
 |:-:|---|---|---|
 | 🧪 | **Tool Dealer** | Standard fixed-price shop — potions, wings, Blacksmith Blessing, and a few other staples. | Prontera (143, 178) |
-| 🕵️ | **Smuggler** | Buy any item by ID, as many as you want at once. First earn his trust with a short quest, once per character: bring a Mr. Smile mask and ten 1carat Diamonds (a quest bubble shows until it is done). Detects the server era automatically: on Renewal the price depends on item type, on Pre-renewal every item costs its normal price x2. | Prontera (144, 174) |
+| 🕵️ | **Smuggler** | Buy any item by ID, as many as you want at once. First earn his trust with a short quest, once per character (a quest bubble shows until it is done). Detects the server era automatically: on Renewal the price depends on item type, on Pre-renewal every item costs its normal price x2. | Prontera (144, 174) |
 | 🃏 | **Card Exchanger** | 10 cards → Old Card Album, 30 cards → Mystical Card Album. Also pulls one card of your choice out of equipped gear. | Prontera (151, 187) |
 | 🦅 | **Falcon Breeder** | Falcon for Hunters and Snipers, Wolf Flute for Rangers and Windhawks, Hawk Flute for Windhawks (Renewal only). | Prontera (128, 211) |
 
