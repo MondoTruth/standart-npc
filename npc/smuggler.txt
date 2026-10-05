@@ -7,7 +7,7 @@
 //= can be bought this way, event/GM/quest items included.
 //= Access is earned once per character with a short quest:
 //= the Smuggler pitches impossible goods for 10 billion Zeny,
-//= settles for a Mr. Smile mask and a bar of Gold (only what is
+//= settles for a Mr. Smile mask and ten 1carat Diamonds (only what is
 //= in the bag counts, not a mask being worn), and after a little
 //= scene hands back the same mask, one free item of the
 //= player's choice and access to the shop. The quest can be
@@ -28,8 +28,9 @@
 //= SNPC_SmugglerPaid (items taken, box not opened yet: the next
 //= talk resumes there).
 //===== How to customize: ====================================
-//= - The quest items: .mask (Mr_Smile 2278) and .gold (Gold
-//=   969) in OnInit; the goods in the pitch: .goods$.
+//= - The quest items: .mask (Mr_Smile 2278), .gems (Crystal_Jewel
+//=   730, sold by the Jewelers of Lighthalzen and Morroc) and
+//=   .gems_needed (10) in OnInit; the goods in the pitch: .goods$.
 //= - Which item types get the flat high price on Renewal:
 //=   .@fixed_types below, values from getiteminfo(id,
 //=   ITEMINFO_TYPE) -- currently 2 Usable, 4 Armor, 5 Weapon,
@@ -96,17 +97,17 @@ L_Pitch:
 	emotion ET_THINK;
 	mes "[Smuggler]";
 	mes "Hmm. Hmm-hmm... Fine. For a friend, I'll take a trade.";
-	mes "Bring me a ^0055FF" + getitemname(.mask) + "^000000 mask and a bar of ^0055FF" + getitemname(.gold) + "^000000. In your bag, not on your face.";
+	mes "Bring me a ^0055FF" + getitemname(.mask) + "^000000 mask and ^0055FF" + .gems_needed + " " + getitemname(.gems) + "s^000000. In your bag, not on your face.";
 	next;
 	emotion ET_MONEY;
 	mes "[Smuggler]";
-	mes "They say a certain ^0055FFSmile Assistance^000000 makes those masks to order. The gold... you'll find it, I'm sure.";
+	mes "They say a certain ^0055FFSmile Assistance^000000 makes those masks to order. And the little diamonds... any jeweler in Lighthalzen or Morroc will sell you those.";
 	SNPC_SmugglerPick = .@pick;
 	if (!SNPC_SmugglerReplay) {
 		SNPC_Smuggler = 1;
 		questinfo_refresh;
 	}
-	if (countitem(.mask) - isequippedcnt(.mask) < 1 || countitem(.gold) < 1)
+	if (countitem(.mask) - isequippedcnt(.mask) < 1 || countitem(.gems) < .gems_needed)
 		close;
 	next;
 	// Already carrying both: straight on.
@@ -114,26 +115,26 @@ L_Pitch:
 // The trade, the box and the scene.
 L_Bring:
 	mes "[Smuggler]";
-	mes "Got my " + getitemname(.mask) + " and the " + getitemname(.gold) + "?";
+	mes "Got my " + getitemname(.mask) + " and the " + .gems_needed + " diamonds?";
 	// A worn mask does not count: only what is in the bag.
 	.@masks = countitem(.mask) - isequippedcnt(.mask);
-	if (.@masks < 1 || countitem(.gold) < 1) {
+	if (.@masks < 1 || countitem(.gems) < .gems_needed) {
 		if (.@masks < 1)
 			mes "No " + getitemname(.mask) + " in your bag.";
-		if (countitem(.gold) < 1)
-			mes "No " + getitemname(.gold) + " either.";
+		if (countitem(.gems) < .gems_needed)
+			mes "Only " + countitem(.gems) + " of the " + .gems_needed + " " + getitemname(.gems) + "s.";
 		mes "Come back when you have both.";
 		close;
 	}
 	next;
 	if (select("Hand them over:Not yet") == 2)
 		close;
-	if (countitem(.mask) - isequippedcnt(.mask) < 1 || countitem(.gold) < 1)
+	if (countitem(.mask) - isequippedcnt(.mask) < 1 || countitem(.gems) < .gems_needed)
 		close;
 	// delitem takes an item that is not worn first. From here on the
 	// payment is remembered, so a talk cut short resumes at the box.
 	delitem .mask, 1;
-	delitem .gold, 1;
+	delitem .gems, .gems_needed;
 	SNPC_SmugglerPaid = 1;
 
 L_Box:
@@ -330,11 +331,12 @@ OnInit:
 		end;
 	}
 	// A quest bubble until the access quest is done: "!" before it
-	// starts, "?" while the Smuggler waits for the mask and the gold.
+	// starts, "?" while the Smuggler waits for the mask and the diamonds.
 	questinfo QTYPE_QUEST, QMARK_NONE, "SNPC_Smuggler == 0";
 	questinfo QTYPE_QUEST2, QMARK_NONE, "SNPC_Smuggler == 1";
 	.mask = 2278;	// Mr_Smile (the fork's db/re and db/pre-re item_db)
-	.gold = 969;	// Gold
+	.gems = 730;	// Crystal_Jewel, 1carat Diamond
+	.gems_needed = 10;
 	.markup_re = 5;
 	.markup_pre = 2;
 	// The last one is the Mystic Box: the one the Smuggler "has".

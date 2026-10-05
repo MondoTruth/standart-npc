@@ -38,10 +38,10 @@ const CARD_TEST = { knife: 1202, keep: 4001, pull: 4002 };   // Knife [4], Porin
 // checked in the fork's re/pre-re item_db: Hat and Cotton Shirt in both).
 const ENCH_TEST = { hat: 2220, shirt: 2301, jewel: 27422 };
 // Smuggler's access quest: a Mr. Smile mask worn (does not count) and a
-// bar of Gold in the bag; a second mask is given in game. The free item
+// ten 1carat Diamonds in the bag; a second mask is given in game. The free item
 // asked for is a Red Potion. IDs from the fork's db/re and db/pre-re
 // item_db (Mr_Smile 2278 sits on Head_Low + Head_Mid: equip 1 | 512).
-const SMUG_TEST = { mask: 2278, gold: 969, free: 501, worn: 513 };
+const SMUG_TEST = { mask: 2278, gems: 730, gemsNeeded: 10, free: 501, worn: 513 };
 let charId = null;
 
 // Per era: the character, and what the NPCs should show.
@@ -101,9 +101,9 @@ function setUpCharacter(era) {
         + ` DELETE FROM char_reg_str WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\`='SNPC_WelcomeGift';`
         + ` UPDATE inventory SET equip=0 WHERE char_id=${id} AND (equip & (34 | 256 | 16)) <> 0;`
-        + ` DELETE FROM inventory WHERE char_id=${id} AND nameid IN (${CARD_TEST.knife}, ${CARD_TEST.keep}, ${CARD_TEST.pull}, ${ENCH_TEST.hat}, ${ENCH_TEST.shirt}, ${ENCH_TEST.jewel}, ${SMUG_TEST.mask}, ${SMUG_TEST.gold}, ${SMUG_TEST.free});`
+        + ` DELETE FROM inventory WHERE char_id=${id} AND nameid IN (${CARD_TEST.knife}, ${CARD_TEST.keep}, ${CARD_TEST.pull}, ${ENCH_TEST.hat}, ${ENCH_TEST.shirt}, ${ENCH_TEST.jewel}, ${SMUG_TEST.mask}, ${SMUG_TEST.gems}, ${SMUG_TEST.free});`
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` LIKE 'SNPC\\_Smuggler%';`
-        + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify) VALUES (${id}, ${SMUG_TEST.mask}, 1, ${SMUG_TEST.worn}, 1), (${id}, ${SMUG_TEST.gold}, 1, 0, 1);`
+        + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify) VALUES (${id}, ${SMUG_TEST.mask}, 1, ${SMUG_TEST.worn}, 1), (${id}, ${SMUG_TEST.gems}, ${SMUG_TEST.gemsNeeded}, 0, 1);`
         + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify, refine, card0, card1)`
         + ` VALUES (${id}, ${CARD_TEST.knife}, 1, 2, 1, 5, ${CARD_TEST.keep}, ${CARD_TEST.pull});`
         + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify) VALUES (${id}, ${ENCH_TEST.hat}, 1, 256, 1), (${id}, ${ENCH_TEST.shirt}, 1, 16, 1);`
@@ -341,7 +341,7 @@ function runEra(era) {
     check(no && String(no.said).includes('Your loss'), 'Smuggler: the pitch can be refused', JSON.stringify(no).slice(-200));
     const offer = smug(['Mystic Box']);
     check(offer && String(offer.said).includes('Smile Assistance') && String(offer.said).includes('Ten BILLION'),
-        'Smuggler: 10 billion is too much, he asks for the mask and the gold', JSON.stringify(offer).slice(-200));
+        'Smuggler: 10 billion is too much, he asks for the mask and the diamonds', JSON.stringify(offer).slice(-200));
     const worn = smug([]);
     check(worn && String(worn.said).includes('No Mr. Smile in your bag'), 'Smuggler: a worn mask does not count', JSON.stringify(worn).slice(-200));
     gm(`@item ${SMUG_TEST.mask} 1`);
@@ -395,9 +395,9 @@ function runEra(era) {
     const count = (item, extra = '') => sqlOne(`SELECT COALESCE(SUM(amount),0) FROM inventory WHERE char_id=${charId} AND nameid=${item}${extra}`);
     check(reg('SNPC_Smuggler') === '2' && reg('SNPC_SmugglerFree') === '0' && reg('SNPC_SmugglerPaid') === '0',
         'Smuggler: access open, free item used, nothing pending', `stage ${reg('SNPC_Smuggler')}, free ${reg('SNPC_SmugglerFree')}, paid ${reg('SNPC_SmugglerPaid')}`);
-    check(count(SMUG_TEST.gold) === '0' && count(SMUG_TEST.mask) === '2' && count(SMUG_TEST.mask, ` AND equip=${SMUG_TEST.worn}`) === '1' && count(SMUG_TEST.free) === '1',
-        'Smuggler: Gold taken, the bag mask back, the worn one untouched, one Red Potion',
-        `gold ${count(SMUG_TEST.gold)}, masks ${count(SMUG_TEST.mask)} (worn ${count(SMUG_TEST.mask, ` AND equip=${SMUG_TEST.worn}`)}), potions ${count(SMUG_TEST.free)}`);
+    check(count(SMUG_TEST.gems) === '0' && count(SMUG_TEST.mask) === '2' && count(SMUG_TEST.mask, ` AND equip=${SMUG_TEST.worn}`) === '1' && count(SMUG_TEST.free) === '1',
+        'Smuggler: diamonds taken, the bag mask back, the worn one untouched, one Red Potion',
+        `diamonds ${count(SMUG_TEST.gems)}, masks ${count(SMUG_TEST.mask)} (worn ${count(SMUG_TEST.mask, ` AND equip=${SMUG_TEST.worn}`)}), potions ${count(SMUG_TEST.free)}`);
     return checks;
 }
 

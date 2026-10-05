@@ -83,12 +83,17 @@
             }
             return { error: `no menu item ${prefix}* reached`, ...view() };
         },
-        // Whether the NPC's number/text input box is open.
-        inputOpen: () => shown(root('InputBox')),
+        // Whether the NPC's number/text input box is open. Its root is a
+        // shadow root, so its host element is the one on the page.
+        inputOpen() {
+            const r = root('InputBox');
+            const el = r && r.host ? r.host : r;
+            return !!el && el.isConnected && el instanceof Element && getComputedStyle(el).display !== 'none';
+        },
         // Answers the input box the way the client does on OK.
         async input(value) {
             const box = ui('InputBox');
-            if (!box || !box.onSubmitRequest || !shown(root('InputBox'))) return { error: 'no input box', ...view() };
+            if (!box || !box.onSubmitRequest || !this.inputOpen()) return { error: 'no input box', ...view() };
             const before = JSON.stringify(view());
             box.onSubmitRequest(value);
             return settle(before);

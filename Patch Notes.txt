@@ -224,4 +224,4 @@ Warper, on by default (switch each off in Settings..., "Options..." next to the 
 - Warper in Izlude: moved to 138,150, so it no longer shares a cell with the Waypoint Keeper of BlaXun's waypoint-system (app 1.5.0).
 - Weight Maxxer and Bounty Hunter swap places: Weight Maxxer at Prontera (147,172), Bounty Hunter at (147,169). By Lil Art.
 - Safe Refiner has a new look (sprite 4_NASARIN). By Lil Art.
-- Smuggler: access now takes a short quest, once per character: he wants a Mr. Smile mask (Smile Assistance makes them) and a bar of Gold, and has a surprise for you. Every character does it once, also those who used him before. A quest bubble over him shows until it is done; the quest can be replayed from his menu.
+- Smuggler: access now takes a short quest, once per character: he wants a Mr. Smile mask (Smile Assistance makes them) and ten 1carat Diamonds (Jewelers in Lighthalzen and Morroc), and has a surprise for you. Every character does it once, also those who used him before. A quest bubble over him shows until it is done; the quest can be replayed from his menu.
