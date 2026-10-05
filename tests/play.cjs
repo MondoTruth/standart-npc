@@ -173,8 +173,11 @@ function runEra(era) {
     const shop = ev(`snpc.shop('Tool Dealer')`);
     const items = shop && Array.isArray(shop.items) ? shop.items : [];
     check(items.includes('Red Potion'), 'Tool Dealer: shop opens', `${items.length} items`);
-    check(items.includes('Blacksmith Blessing') === e.blessing, `Tool Dealer: Blacksmith Blessing ${e.blessing ? 'sold' : 'not sold'}`,
-        items.includes('Blacksmith Blessing') ? 'listed' : 'not listed');
+    // iRO's item table calls it "Blacksmith Blessing", the English
+    // translation "Blacksmith's Blessing"; the client shows whichever it has.
+    const blessing = items.some(n => /^Blacksmith('s)? Blessing$/.test(n));
+    check(blessing === e.blessing, `Tool Dealer: Blacksmith Blessing ${e.blessing ? 'sold' : 'not sold'}`,
+        blessing ? 'listed' : 'not listed');
 
     // Without cash-shop-extended (it is not in the test world): the Tool
     // Dealer sells the Elemental Converters, Master Nokzin sends players
