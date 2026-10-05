@@ -19,7 +19,8 @@
 //= cleared, so every run starts from the same place. It also gets a
 //= +5 Knife [4] with two cards, for the Card Exchanger check, and
 //= its Welcoming gift is cleared. On Renewal it stands in the middle of
-//= Episode 18, for the Episode Valkyrie check, with the Zeny for its ticket.
+//= Episodes 17.2 and 18, for the Episode Valkyrie check, with the Zeny
+//= for their tickets.
 //============================================================
 'use strict';
 const fs = require('node:fs');
@@ -38,12 +39,23 @@ const CARD_TEST = { knife: 1202, keep: 4001, pull: 4002 };   // Knife [4], Porin
 // Shirt on the body, a Shard of Agility Jewel in the bag (Renewal only;
 // checked in the fork's re/pre-re item_db: Hat and Cotton Shirt in both).
 const ENCH_TEST = { hat: 2220, shirt: 2301, jewel: 27422 };
-// Episode Valkyrie (#51), Renewal: with Episode 17.2 finished (ep17_2_main
-// 36), the character stands in the middle of Episode 18 (ep18_main 41,
-// quest 16573 open, 8681 done), buys the Episode 18
-// Clear Ticket and uses it. Quest and item IDs from the fork's
-// npc/re/quests/quests_18.txt, db/re/quest_db.yml and db/re/item_db_etc.yml.
-const EP18_TEST = { ticket: 1000288, price: 6000000, open: 16573, done: [8681, 11720, 11724, 18085] };
+// Episode Valkyrie (#51), Renewal: with Episode 17.1 finished (quest 16360
+// done, what the game checks before 17.2), the character stands in the
+// middle of 17.2 and of 18 (a quest of each open). It first tries to skip
+// 18 (refused: 17.2 is not finished), then buys and uses a ticket for 17.2,
+// then for 18. Quest and item IDs from the fork's npc/re/quests/
+// quests_17_2.txt and quests_18.txt, db/re/quest_db.yml, db/re/item_db_etc.yml.
+const VALK_TEST = {
+    before: 16360,   // 17.1 done
+    parts: [
+        { name: '17.2', ep: 17, ticket: 1000287, price: 5000000, priceText: '5,000,000', key: 'ep17_2_main', start: 21, end: 36,
+          open: 16449, done: [11620, 16452, 18018, 18021, 18020] },
+        { name: '18', ep: 18, ticket: 1000288, price: 6000000, priceText: '6,000,000', key: 'ep18_main', start: 41, end: 57,
+          open: 16573, done: [8681, 11720, 11724, 18085], doneBefore: 8681 },
+    ],
+};
+const VALK_PRICE = VALK_TEST.parts.reduce((n, p) => n + p.price, 0);
+const VALK_QUESTS = [VALK_TEST.before, ...VALK_TEST.parts.flatMap(p => [p.open, ...p.done])];
 // Smuggler's access quest: a Mr. Smile mask worn (does not count) and a
 // ten 1carat Diamonds in the bag; a second mask is given in game. The free item
 // asked for is a Red Potion. IDs from the fork's db/re and db/pre-re
@@ -105,12 +117,13 @@ function setUpCharacter(era) {
     // For the Card Exchanger: a +5 Knife [4] in the right hand with a Poring
     // Card in slot 0 and a Fabre Card in slot 1, and no loose cards of either.
     const w = W.rotest('server', 'sql', '--write',
-        `UPDATE \`char\` SET class=${e.job}, base_level=${e.level}, job_level=50, zeny=${100000 + EP18_TEST.price}, last_map='prontera', last_x=156, last_y=180 WHERE char_id=${id};`
-        + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` IN ('ep18_main', 'ep17_2_main');`
-        + ` DELETE FROM quest WHERE char_id=${id} AND quest_id IN (${EP18_TEST.open}, ${EP18_TEST.done.join(', ')});`
-        + ` DELETE FROM inventory WHERE char_id=${id} AND nameid=${EP18_TEST.ticket};`
-        + (e.valkyrie ? ` INSERT INTO char_reg_num (char_id, \`key\`, \`index\`, value) VALUES (${id}, 'ep18_main', 0, 41), (${id}, 'ep17_2_main', 0, 36);`
-            + ` INSERT INTO quest (char_id, quest_id, state) VALUES (${id}, ${EP18_TEST.open}, '1'), (${id}, ${EP18_TEST.done[0]}, '2');` : '')
+        `UPDATE \`char\` SET class=${e.job}, base_level=${e.level}, job_level=50, zeny=${100000 + VALK_PRICE}, last_map='prontera', last_x=156, last_y=180 WHERE char_id=${id};`
+        + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` IN (${VALK_TEST.parts.map(p => `'${p.key}'`).join(', ')});`
+        + ` DELETE FROM quest WHERE char_id=${id} AND quest_id IN (${VALK_QUESTS.join(', ')});`
+        + ` DELETE FROM inventory WHERE char_id=${id} AND nameid IN (${VALK_TEST.parts.map(p => p.ticket).join(', ')});`
+        + (e.valkyrie ? ` INSERT INTO char_reg_num (char_id, \`key\`, \`index\`, value) VALUES ${VALK_TEST.parts.map(p => `(${id}, '${p.key}', 0, ${p.start})`).join(', ')};`
+            + ` INSERT INTO quest (char_id, quest_id, state) VALUES (${id}, ${VALK_TEST.before}, '2'), `
+            + VALK_TEST.parts.map(p => `(${id}, ${p.open}, '1')` + (p.doneBefore ? `, (${id}, ${p.doneBefore}, '2')` : '')).join(', ') + ';' : '')
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
         + ` DELETE FROM char_reg_str WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\`='SNPC_WelcomeGift';`
@@ -219,8 +232,9 @@ function runEra(era) {
         const valk = ev(`snpc.npcs(10).map(n => n.name)`);
         check(Array.isArray(valk) && !valk.some(n => n.startsWith('Valkyrie')), 'Episode Valkyrie: not on Pre-renewal', JSON.stringify(valk));
     } else {
-        // Buy the Episode 18 ticket, then use it (#51). Zeny is read after
-        // the talk; the quest log and ep18_main from SQL after logging out.
+        // 18 before 17.2 is refused; then per part: buy its episode's
+        // ticket and use it (#51). Zeny is read after each talk; the quest
+        // log and the main variables from SQL after logging out.
         const valkTalk = steps => ev(`(async () => {
             const sleep = ms => new Promise(r => setTimeout(r, ms));
             const said = [];
@@ -238,15 +252,20 @@ function runEra(era) {
             await snpc.close();
             return said.join(' / ');
         })()`);
-        const before = ev('roAgent.modules.Session.zeny');
-        const bought = valkTalk(['Buy a ticket', 'Episode 18', 'Buy it']);
-        check(typeof bought === 'string' && bought.includes('6,000,000 Zeny') && bought.includes('Here is your ticket'),
-            'Episode Valkyrie: sells the Episode 18 ticket for 6,000,000 Zeny', String(bought).slice(-200));
-        check(ev('roAgent.modules.Session.zeny') === before - EP18_TEST.price, 'Episode Valkyrie: takes the Zeny', `${before} -> ${ev('roAgent.modules.Session.zeny')}`);
-        const used = valkTalk(['Use a ticket', 'Episode 18', 'Yes, use it']);
-        check(typeof used === 'string' && used.includes('Episode 18 is behind you'), 'Episode Valkyrie: uses the Episode 18 ticket', String(used).slice(-200));
-        const again = valkTalk(['Use a ticket', 'Episode 18']);
-        check(typeof again === 'string' && again.includes('already finished Episode 18'), 'Episode Valkyrie: a finished episode keeps the ticket', String(again).slice(-200));
+        const order = valkTalk(['Use a ticket', 'Episode 18 ']);
+        check(typeof order === 'string' && order.includes('First finish Episode 17.2'), 'Episode Valkyrie: 18 needs 17.2 finished first', String(order).slice(-200));
+        for (const p of VALK_TEST.parts) {
+            const before = ev('roAgent.modules.Session.zeny');
+            const bought = valkTalk(['Buy a ticket', `Episode ${p.ep} ticket`, 'Buy it']);
+            check(typeof bought === 'string' && bought.includes(`${p.priceText} Zeny`) && bought.includes('Here is your ticket'),
+                `Episode Valkyrie: sells the Episode ${p.ep} ticket for ${p.priceText} Zeny`, String(bought).slice(-200));
+            const after = ev('roAgent.modules.Session.zeny');
+            check(after === before - p.price, `Episode Valkyrie: takes the Zeny for ${p.ep}`, `${before} -> ${after}`);
+            const used = valkTalk(['Use a ticket', `Episode ${p.name} `, 'Yes, use it']);
+            check(typeof used === 'string' && used.includes(`Episode ${p.name} is behind you`), `Episode Valkyrie: skips Episode ${p.name}`, String(used).slice(-200));
+        }
+        const again = valkTalk(['Use a ticket', 'Episode 18 ']);
+        check(typeof again === 'string' && again.includes('already finished Episode 18'), 'Episode Valkyrie: a finished part keeps the ticket', String(again).slice(-200));
     }
 
     // Welcoming (Izlude, Renewal only): the gift once; on Pre-renewal no NPC.
@@ -440,14 +459,16 @@ function runEra(era) {
         'Card Exchanger: Knife keeps its Poring Card and +5, slot 1 empty', JSON.stringify(knife));
     check(loose === '1', 'Card Exchanger: Fabre Card back in the inventory', `${loose} loose`);
     if (e.valkyrie) {
-        const main = sqlOne(`SELECT value FROM char_reg_num WHERE char_id=${charId} AND \`key\`='ep18_main'`);
-        const open = sqlOne(`SELECT COUNT(*) FROM quest WHERE char_id=${charId} AND quest_id=${EP18_TEST.open}`);
-        const done = sqlOne(`SELECT COUNT(*) FROM quest WHERE char_id=${charId} AND state='2' AND quest_id IN (${EP18_TEST.done.join(', ')})`);
-        const tickets = sqlOne(`SELECT COALESCE(SUM(amount),0) FROM inventory WHERE char_id=${charId} AND nameid=${EP18_TEST.ticket}`);
-        check(main === '57', 'Episode Valkyrie: ep18_main 57 (Villa of Deception opens)', `ep18_main ${main}`);
-        check(open === '0' && done === String(EP18_TEST.done.length), 'Episode Valkyrie: open Episode 18 quest closed, the finished ones completed',
-            `${EP18_TEST.open}: ${open} rows, completed ${done} of ${EP18_TEST.done.length}`);
-        check(tickets === '0', 'Episode Valkyrie: the ticket is used up', `${tickets} left`);
+        for (const p of VALK_TEST.parts) {
+            const main = sqlOne(`SELECT value FROM char_reg_num WHERE char_id=${charId} AND \`key\`='${p.key}'`);
+            const open = sqlOne(`SELECT COUNT(*) FROM quest WHERE char_id=${charId} AND quest_id=${p.open}`);
+            const done = sqlOne(`SELECT COUNT(*) FROM quest WHERE char_id=${charId} AND state='2' AND quest_id IN (${p.done.join(', ')})`);
+            check(main === String(p.end), `Episode Valkyrie: ${p.key} ${p.end}, the last step of ${p.name}`, `${p.key} ${main}`);
+            check(open === '0' && done === String(p.done.length), `Episode Valkyrie: open ${p.name} quest closed, the finished ones completed`,
+                `${p.open}: ${open} rows, completed ${done} of ${p.done.length}`);
+        }
+        const tickets = sqlOne(`SELECT COALESCE(SUM(amount),0) FROM inventory WHERE char_id=${charId} AND nameid IN (${VALK_TEST.parts.map(p => p.ticket).join(', ')})`);
+        check(tickets === '0', 'Episode Valkyrie: the tickets are used up', `${tickets} left`);
     }
     const reg = k => sqlOne(`SELECT COALESCE(SUM(value),0) FROM char_reg_num WHERE char_id=${charId} AND \`key\`='${k}'`);
     const count = (item, extra = '') => sqlOne(`SELECT COALESCE(SUM(amount),0) FROM inventory WHERE char_id=${charId} AND nameid=${item}${extra}`);
