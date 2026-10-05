@@ -37,6 +37,11 @@ const CARD_TEST = { knife: 1202, keep: 4001, pull: 4002 };   // Knife [4], Porin
 // Shirt on the body, a Shard of Agility Jewel in the bag (Renewal only;
 // checked in the fork's re/pre-re item_db: Hat and Cotton Shirt in both).
 const ENCH_TEST = { hat: 2220, shirt: 2301, jewel: 27422 };
+// Smuggler's access quest: a Mr. Smile mask worn (does not count) and a
+// ten 1carat Diamonds in the bag; a second mask is given in game. The free item
+// asked for is a Red Potion. IDs from the fork's db/re and db/pre-re
+// item_db (Mr_Smile 2278 sits on Head_Low + Head_Mid: equip 1 | 512).
+const SMUG_TEST = { mask: 2278, gems: 730, gemsNeeded: 10, free: 501, worn: 513 };
 let charId = null;
 
 // Per era: the character, and what the NPCs should show.
@@ -50,6 +55,7 @@ const EXPECT = {
         welcome: true,             // Welcoming in Izlude: Renewal only
         jewel: true,               // headgear jewels exist (Enchanter check)
         warpFee: true,             // a Dragon Knight is 4th class: the Warper charges
+        smugglerMarkup: 2,         // no cash-shop-extended in the test world
     },
     'pre-renewal': {
         job: 4008, level: 99,    // Lord Knight
@@ -60,6 +66,7 @@ const EXPECT = {
         welcome: false,
         jewel: false,
         warpFee: false,            // a Lord Knight: no 3rd class here, no fee
+        smugglerMarkup: 2,
     },
 };
 
@@ -94,7 +101,9 @@ function setUpCharacter(era) {
         + ` DELETE FROM char_reg_str WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\`='SNPC_WelcomeGift';`
         + ` UPDATE inventory SET equip=0 WHERE char_id=${id} AND (equip & (34 | 256 | 16)) <> 0;`
-        + ` DELETE FROM inventory WHERE char_id=${id} AND nameid IN (${CARD_TEST.knife}, ${CARD_TEST.keep}, ${CARD_TEST.pull}, ${ENCH_TEST.hat}, ${ENCH_TEST.shirt}, ${ENCH_TEST.jewel});`
+        + ` DELETE FROM inventory WHERE char_id=${id} AND nameid IN (${CARD_TEST.knife}, ${CARD_TEST.keep}, ${CARD_TEST.pull}, ${ENCH_TEST.hat}, ${ENCH_TEST.shirt}, ${ENCH_TEST.jewel}, ${SMUG_TEST.mask}, ${SMUG_TEST.gems}, ${SMUG_TEST.free});`
+        + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` LIKE 'SNPC\\_Smuggler%';`
+        + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify) VALUES (${id}, ${SMUG_TEST.mask}, 1, ${SMUG_TEST.worn}, 1), (${id}, ${SMUG_TEST.gems}, ${SMUG_TEST.gemsNeeded}, 0, 1);`
         + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify, refine, card0, card1)`
         + ` VALUES (${id}, ${CARD_TEST.knife}, 1, 2, 1, 5, ${CARD_TEST.keep}, ${CARD_TEST.pull});`
         + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify) VALUES (${id}, ${ENCH_TEST.hat}, 1, 256, 1), (${id}, ${ENCH_TEST.shirt}, 1, 16, 1);`
@@ -164,8 +173,11 @@ function runEra(era) {
     const shop = ev(`snpc.shop('Tool Dealer')`);
     const items = shop && Array.isArray(shop.items) ? shop.items : [];
     check(items.includes('Red Potion'), 'Tool Dealer: shop opens', `${items.length} items`);
-    check(items.includes('Blacksmith Blessing') === e.blessing, `Tool Dealer: Blacksmith Blessing ${e.blessing ? 'sold' : 'not sold'}`,
-        items.includes('Blacksmith Blessing') ? 'listed' : 'not listed');
+    // iRO's item table calls it "Blacksmith Blessing", the English
+    // translation "Blacksmith's Blessing"; the client shows whichever it has.
+    const blessing = items.some(n => /^Blacksmith('s)? Blessing$/.test(n));
+    check(blessing === e.blessing, `Tool Dealer: Blacksmith Blessing ${e.blessing ? 'sold' : 'not sold'}`,
+        blessing ? 'listed' : 'not listed');
 
     // Without cash-shop-extended (it is not in the test world): the Tool
     // Dealer sells the Elemental Converters, Master Nokzin sends players
@@ -305,6 +317,50 @@ function runEra(era) {
     // The warp to Izlude is still loading; a GM command typed now is lost.
     W.rotest('wait', '4000');
 
+    // Smuggler's access quest. steps: menu items to pick in order, or a
+    // number for the input box; the talk ends on its last window.
+    const smug = steps => ev(`(async () => {
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+        const said = [];
+        await snpc.talk('Smuggler');
+        let v = snpc.view();
+        for (const want of ${JSON.stringify(steps)}) {
+            const ready = () => typeof want === 'number' ? snpc.inputOpen() : v.menu.some(m => m.text.startsWith(want));
+            for (let i = 0; i < 30 && !ready(); i++) {
+                if (v.text) said.push(v.text);
+                if (v.next) v = await snpc.next(); else { await sleep(200); v = snpc.view(); }
+            }
+            if (v.text) said.push(v.text);
+            v = typeof want === 'number' ? await snpc.input(want) : await snpc.pick(want);
+        }
+        for (let i = 0; i < 20 && v.next; i++) { if (v.text) said.push(v.text); v = await snpc.next(); }
+        if (v.text) said.push(v.text);
+        const menu = v.menu.map(m => m.text);
+        // A menu left open would keep the next NPC from talking: cancel it.
+        if (v.menu.length) await snpc.choose(255);
+        await snpc.close();
+        return { said: [...new Set(said)].join(' / '), menu };
+    })()`);
+    gm('@warp prontera 144 172');
+    const no = smug(['Not interested']);
+    check(no && String(no.said).includes('Your loss'), 'Smuggler: the pitch can be refused', JSON.stringify(no).slice(-200));
+    const offer = smug(['Mystic Box']);
+    check(offer && String(offer.said).includes('Smile Assistance') && String(offer.said).includes('Ten BILLION'),
+        'Smuggler: 10 billion is too much, he asks for the mask and the diamonds', JSON.stringify(offer).slice(-200));
+    const worn = smug([]);
+    check(worn && String(worn.said).includes('No Mr. Smile in your bag'), 'Smuggler: a worn mask does not count', JSON.stringify(worn).slice(-200));
+    gm(`@item ${SMUG_TEST.mask} 1`);
+    W.rotest('wait', '1000');
+    const deal = smug(['Hand them over', 'Open the box', 'Take my free item now', SMUG_TEST.free, 'That one']);
+    const dealSaid = deal ? String(deal.said) : '';
+    check(dealSaid.includes('around the corner') && dealSaid.includes('Ta-daa') && dealSaid.includes('GUAAAARDS'),
+        'Smuggler: the box (he had it), the mask and the scene', dealSaid.slice(-200));
+    check(dealSaid.includes(`just x${e.smugglerMarkup}`), `Smuggler: the "price coefficient" is the real markup, x${e.smugglerMarkup}`, (dealSaid.match(/just x\d+/) || [dealSaid.slice(-120)])[0]);
+    check(dealSaid.includes("Now we're even"), 'Smuggler: the free item', dealSaid.slice(-120));
+    const after = smug([]);
+    check(after && after.menu.includes('Buy an item') && after.menu.includes('Repeat the deal (no free item)') && !after.menu.some(t => /free item$/.test(t) && !/no free/.test(t)),
+        'Smuggler: then the shop menu, free item gone, replay offered', JSON.stringify(after && after.menu));
+
     // Card Exchanger: pull the Fabre Card (slot 1) out of the Knife; the
     // Poring Card in slot 0 and the refine must stay (#41).
     gm('@warp prontera 151 185');
@@ -340,6 +396,13 @@ function runEra(era) {
     check(knife && knife.card0 === String(CARD_TEST.keep) && knife.refine === '5',
         'Card Exchanger: Knife keeps its Poring Card and +5, slot 1 empty', JSON.stringify(knife));
     check(loose === '1', 'Card Exchanger: Fabre Card back in the inventory', `${loose} loose`);
+    const reg = k => sqlOne(`SELECT COALESCE(SUM(value),0) FROM char_reg_num WHERE char_id=${charId} AND \`key\`='${k}'`);
+    const count = (item, extra = '') => sqlOne(`SELECT COALESCE(SUM(amount),0) FROM inventory WHERE char_id=${charId} AND nameid=${item}${extra}`);
+    check(reg('SNPC_Smuggler') === '2' && reg('SNPC_SmugglerFree') === '0' && reg('SNPC_SmugglerPaid') === '0',
+        'Smuggler: access open, free item used, nothing pending', `stage ${reg('SNPC_Smuggler')}, free ${reg('SNPC_SmugglerFree')}, paid ${reg('SNPC_SmugglerPaid')}`);
+    check(count(SMUG_TEST.gems) === '0' && count(SMUG_TEST.mask) === '2' && count(SMUG_TEST.mask, ` AND equip=${SMUG_TEST.worn}`) === '1' && count(SMUG_TEST.free) === '1',
+        'Smuggler: diamonds taken, the bag mask back, the worn one untouched, one Red Potion',
+        `diamonds ${count(SMUG_TEST.gems)}, masks ${count(SMUG_TEST.mask)} (worn ${count(SMUG_TEST.mask, ` AND equip=${SMUG_TEST.worn}`)}), potions ${count(SMUG_TEST.free)}`);
     return checks;
 }
 
