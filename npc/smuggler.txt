@@ -81,7 +81,7 @@ L_Pitch:
 	next;
 	.@n = getarraysize(.goods$);
 	for (.@i = 0; .@i < .@n; .@i++)
-		.@menu$ += .goods$[.@i] + " - 10,000,000,000 z:";
+		.@menu$ += .goods$[.@i] + ":";
 	.@pick = select(.@menu$ + "Not interested");
 	if (.@pick > .@n) {
 		// A refused replay goes back to the shop menu next time.
@@ -90,6 +90,12 @@ L_Pitch:
 		mes "Your loss. The offer stands... for now.";
 		close;
 	}
+	// The price comes after the choice: in the menu it made each line
+	// too long to read.
+	emotion ET_MONEY;
+	mes "[Smuggler]";
+	mes "Ah, a connoisseur! ^0055FF" + .goods$[.@pick - 1] + "^000000... For you, a special price: just ^FF000010,000,000,000 Zeny^000000.";
+	next;
 	emotion ET_SURPRISE, getcharid(3);
 	mes "[" + strcharinfo(0) + "]";
 	mes "Ten BILLION?! Nobody has that kind of money!";
@@ -97,7 +103,7 @@ L_Pitch:
 	emotion ET_THINK;
 	mes "[Smuggler]";
 	mes "Hmm. Hmm-hmm... Fine. For a friend, I'll take a trade.";
-	mes "Bring me a ^0055FF" + getitemname(.mask) + "^000000 mask and ^0055FF" + .gems_needed + " " + getitemname(.gems) + "s^000000. In your bag, not on your face.";
+	mes "Bring me a ^0055FF" + getitemname(.mask) + "^000000 mask and ^0055FF" + .gems_needed + " " + getitemname(.gems) + "s^000000.";
 	next;
 	emotion ET_MONEY;
 	mes "[Smuggler]";
