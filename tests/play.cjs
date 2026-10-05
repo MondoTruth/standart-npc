@@ -18,7 +18,8 @@
 //= Lord Knight Lv 99 (Pre-renewal), and its Bounty Hunter progress is
 //= cleared, so every run starts from the same place. It also gets a
 //= +5 Knife [4] with two cards, for the Card Exchanger check, and
-//= its Welcoming gift is cleared.
+//= its Welcoming gift is cleared. On Renewal it stands in the middle of
+//= Episode 18, for the Episode Valkyrie check, with the Zeny for its ticket.
 //============================================================
 'use strict';
 const fs = require('node:fs');
@@ -37,6 +38,12 @@ const CARD_TEST = { knife: 1202, keep: 4001, pull: 4002 };   // Knife [4], Porin
 // Shirt on the body, a Shard of Agility Jewel in the bag (Renewal only;
 // checked in the fork's re/pre-re item_db: Hat and Cotton Shirt in both).
 const ENCH_TEST = { hat: 2220, shirt: 2301, jewel: 27422 };
+// Episode Valkyrie (#51), Renewal: with Episode 17.2 finished (ep17_2_main
+// 36), the character stands in the middle of Episode 18 (ep18_main 41,
+// quest 16573 open, 8681 done), buys the Episode 18
+// Clear Ticket and uses it. Quest and item IDs from the fork's
+// npc/re/quests/quests_18.txt, db/re/quest_db.yml and db/re/item_db_etc.yml.
+const EP18_TEST = { ticket: 1000288, price: 6000000, open: 16573, done: [8681, 11720, 11724, 18085] };
 // Smuggler's access quest: a Mr. Smile mask worn (does not count) and a
 // ten 1carat Diamonds in the bag; a second mask is given in game. The free item
 // asked for is a Red Potion. IDs from the fork's db/re and db/pre-re
@@ -53,6 +60,7 @@ const EXPECT = {
         dummy: { 28412: ['Size:Medium', 'Lv:150'], 28413: ['Size:Large', 'Lv:150'] },
         blessing: true,            // Blacksmith Blessing in the Tool Dealer
         welcome: true,             // Welcoming in Izlude: Renewal only
+        valkyrie: true,            // Episode Valkyrie: Renewal only
         jewel: true,               // headgear jewels exist (Enchanter check)
         warpFee: true,             // a Dragon Knight is 4th class: the Warper charges
         smugglerMarkup: 2,         // no cash-shop-extended in the test world
@@ -64,6 +72,7 @@ const EXPECT = {
         dummy: { 28412: ['Size:Medium', 'Lv:99', 'DEF:0'], 28413: ['Size:Large', 'Lv:99', 'DEF:0'] },
         blessing: false,
         welcome: false,
+        valkyrie: false,
         jewel: false,
         warpFee: false,            // a Lord Knight: no 3rd class here, no fee
         smugglerMarkup: 2,
@@ -96,7 +105,12 @@ function setUpCharacter(era) {
     // For the Card Exchanger: a +5 Knife [4] in the right hand with a Poring
     // Card in slot 0 and a Fabre Card in slot 1, and no loose cards of either.
     const w = W.rotest('server', 'sql', '--write',
-        `UPDATE \`char\` SET class=${e.job}, base_level=${e.level}, job_level=50, zeny=100000, last_map='prontera', last_x=156, last_y=180 WHERE char_id=${id};`
+        `UPDATE \`char\` SET class=${e.job}, base_level=${e.level}, job_level=50, zeny=${100000 + EP18_TEST.price}, last_map='prontera', last_x=156, last_y=180 WHERE char_id=${id};`
+        + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` IN ('ep18_main', 'ep17_2_main');`
+        + ` DELETE FROM quest WHERE char_id=${id} AND quest_id IN (${EP18_TEST.open}, ${EP18_TEST.done.join(', ')});`
+        + ` DELETE FROM inventory WHERE char_id=${id} AND nameid=${EP18_TEST.ticket};`
+        + (e.valkyrie ? ` INSERT INTO char_reg_num (char_id, \`key\`, \`index\`, value) VALUES (${id}, 'ep18_main', 0, 41), (${id}, 'ep17_2_main', 0, 36);`
+            + ` INSERT INTO quest (char_id, quest_id, state) VALUES (${id}, ${EP18_TEST.open}, '1'), (${id}, ${EP18_TEST.done[0]}, '2');` : '')
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
         + ` DELETE FROM char_reg_str WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\`='SNPC_WelcomeGift';`
@@ -200,10 +214,39 @@ function runEra(era) {
     })()`);
     check(Array.isArray(gate) && gate.includes('Zeny') && !gate.includes('Cash Points') && !gate.some(t => /Reset My Pass/.test(t)),
         'Cheffenia Gatekeeper: Zeny only, no testing reset', JSON.stringify(gate));
-    if (!e.welcome) {
-        gm('@warp prontera 128 190');
+    gm('@warp prontera 128 190');
+    if (!e.valkyrie) {
         const valk = ev(`snpc.npcs(10).map(n => n.name)`);
         check(Array.isArray(valk) && !valk.some(n => n.startsWith('Valkyrie')), 'Episode Valkyrie: not on Pre-renewal', JSON.stringify(valk));
+    } else {
+        // Buy the Episode 18 ticket, then use it (#51). Zeny is read after
+        // the talk; the quest log and ep18_main from SQL after logging out.
+        const valkTalk = steps => ev(`(async () => {
+            const sleep = ms => new Promise(r => setTimeout(r, ms));
+            const said = [];
+            await snpc.talk('Valkyrie');
+            let v = snpc.view();
+            for (const want of ${JSON.stringify(steps)}) {
+                for (let i = 0; i < 20 && !v.menu.some(m => m.text.startsWith(want)); i++) {
+                    if (v.next) v = await snpc.next(); else { await sleep(200); v = snpc.view(); }
+                }
+                if (v.text) said.push(v.text);
+                v = await snpc.pick(want);
+            }
+            for (let i = 0; i < 10 && v.next; i++) { if (v.text) said.push(v.text); v = await snpc.next(); }
+            if (v.text) said.push(v.text);
+            await snpc.close();
+            return said.join(' / ');
+        })()`);
+        const before = ev('roAgent.modules.Session.zeny');
+        const bought = valkTalk(['Buy a ticket', 'Episode 18', 'Buy it']);
+        check(typeof bought === 'string' && bought.includes('6,000,000 Zeny') && bought.includes('Here is your ticket'),
+            'Episode Valkyrie: sells the Episode 18 ticket for 6,000,000 Zeny', String(bought).slice(-200));
+        check(ev('roAgent.modules.Session.zeny') === before - EP18_TEST.price, 'Episode Valkyrie: takes the Zeny', `${before} -> ${ev('roAgent.modules.Session.zeny')}`);
+        const used = valkTalk(['Use a ticket', 'Episode 18', 'Yes, use it']);
+        check(typeof used === 'string' && used.includes('Episode 18 is behind you'), 'Episode Valkyrie: uses the Episode 18 ticket', String(used).slice(-200));
+        const again = valkTalk(['Use a ticket', 'Episode 18']);
+        check(typeof again === 'string' && again.includes('already finished Episode 18'), 'Episode Valkyrie: a finished episode keeps the ticket', String(again).slice(-200));
     }
 
     // Welcoming (Izlude, Renewal only): the gift once; on Pre-renewal no NPC.
@@ -396,6 +439,16 @@ function runEra(era) {
     check(knife && knife.card0 === String(CARD_TEST.keep) && knife.refine === '5',
         'Card Exchanger: Knife keeps its Poring Card and +5, slot 1 empty', JSON.stringify(knife));
     check(loose === '1', 'Card Exchanger: Fabre Card back in the inventory', `${loose} loose`);
+    if (e.valkyrie) {
+        const main = sqlOne(`SELECT value FROM char_reg_num WHERE char_id=${charId} AND \`key\`='ep18_main'`);
+        const open = sqlOne(`SELECT COUNT(*) FROM quest WHERE char_id=${charId} AND quest_id=${EP18_TEST.open}`);
+        const done = sqlOne(`SELECT COUNT(*) FROM quest WHERE char_id=${charId} AND state='2' AND quest_id IN (${EP18_TEST.done.join(', ')})`);
+        const tickets = sqlOne(`SELECT COALESCE(SUM(amount),0) FROM inventory WHERE char_id=${charId} AND nameid=${EP18_TEST.ticket}`);
+        check(main === '57', 'Episode Valkyrie: ep18_main 57 (Villa of Deception opens)', `ep18_main ${main}`);
+        check(open === '0' && done === String(EP18_TEST.done.length), 'Episode Valkyrie: open Episode 18 quest closed, the finished ones completed',
+            `${EP18_TEST.open}: ${open} rows, completed ${done} of ${EP18_TEST.done.length}`);
+        check(tickets === '0', 'Episode Valkyrie: the ticket is used up', `${tickets} left`);
+    }
     const reg = k => sqlOne(`SELECT COALESCE(SUM(value),0) FROM char_reg_num WHERE char_id=${charId} AND \`key\`='${k}'`);
     const count = (item, extra = '') => sqlOne(`SELECT COALESCE(SUM(amount),0) FROM inventory WHERE char_id=${charId} AND nameid=${item}${extra}`);
     check(reg('SNPC_Smuggler') === '2' && reg('SNPC_SmugglerFree') === '0' && reg('SNPC_SmugglerPaid') === '0',
