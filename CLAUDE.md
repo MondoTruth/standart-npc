@@ -256,6 +256,14 @@ them before relying on a mod.json key or folder.
 - Both tests share `tests/world.cjs` (the world, its ports, installing the
   mod). After every script change run the smoke test; before a release
   run both.
+- After the installed app is updated: put the app clone on the new tag,
+  `cargo build` in its `stack/`, and copy from the installed runtime
+  (`%APPDATA%\Ragnarok Offline\runtime`) into the clone the build outputs
+  `world prepare` takes: `bin/robrowser-remoteclient.exe`,
+  `vendor/roBrowserLegacy/dist/Web`, `vendor/ROenglishRE/Translation` and
+  `dist/images.tar.gz` (a stale one in the clone wins over the runtime's).
+  `tests/world.cjs` then sees `runtime/APP_VERSION` differ and makes the
+  world again. Before 1.5.1 the world kept running 1.4.8's server.
 - The test world can also load someone else's mod for a check: copy it
   into `<world>/state/mods/<name>`, add the name to `enabled.txt`, boot,
   and take it out again afterwards so our tests stay ours.
