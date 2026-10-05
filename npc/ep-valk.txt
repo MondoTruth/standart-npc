@@ -11,10 +11,14 @@
 //= or skipped. Also sells the tickets for Zeny. Only parts with a
 //= real skip are offered; other tickets are kept for later.
 //= Renewal only.
-//= Parts are numbered episode * 10 + part: 172 = 17.2, 180 = 18.
+//= Parts are numbered episode * 10 + part: 171 = 17.1, 180 = 18.
 //= Each skip sets the part's main variable to its last step,
 //= completes the main quests a finished story leaves completed and
 //= erases the others still open.
+//= Episode 17.1: terra_gloria_main = 26, quest 16360 done. Opens
+//= Rekenber, the Rudus areas, Clana Nemieri, the Illusion enchanter,
+//= the repeatable Cor Operation and the 17.1 dailies (Morning,
+//= Pure Backward, farm and mercenary work).
 //= Episode 17.2: ep17_2_main = 36. Opens the Mansion areas, Lost
 //= Farm, Hidden Garden, the Sage's Legacy enchanter and the side
 //= quests (bathhouse, library, basement, Water Garden ...).
@@ -146,6 +150,9 @@ S_Prev:
 // Whether the part's main story is finished.
 S_Done:
 	switch (getarg(0)) {
+	case 162:
+		// The end of 16.2 (quests_16_2.txt); 17.1 begins at 25.
+		return (terra_gloria_main >= 25);
 	case 171:
 		// What the game itself checks before 17.2 begins.
 		return (isbegin_quest(16360) == 2);
@@ -159,6 +166,13 @@ S_Done:
 // Marks the part's main story as finished.
 S_Skip:
 	switch (getarg(0)) {
+	case 171:
+		copyarray .@open[0], .q171[0], getarraysize(.q171);
+		copyarray .@done[0], .q171_done[0], getarraysize(.q171_done);
+		// Set by Nihil in Prontera Castle when 17.1 begins.
+		if (terra_gloria_main < 26)
+			terra_gloria_main = 26;
+		break;
 	case 172:
 		copyarray .@open[0], .q172[0], getarraysize(.q172);
 		copyarray .@done[0], .q172_done[0], getarraysize(.q172_done);
@@ -195,9 +209,9 @@ OnInit:
 		end;
 	}
 	// Parts with a real skip, in menu order.
-	setarray .ready[0], 172, 180;
+	setarray .ready[0], 171, 172, 180;
 	// Story order, as far as S_Done can tell a part is finished.
-	setarray .order[0], 171, 172, 180;
+	setarray .order[0], 162, 171, 172, 180;
 	// Episode Clear Tickets (EpisodClear13 - EpisodClear18).
 	.ticket[13] = 1000284;
 	.ticket[14] = 1000285;
@@ -219,6 +233,20 @@ OnInit:
 		if (inarray(.sell, .@ep) < 0)
 			.sell[getarraysize(.sell)] = .@ep;
 	}
+	// Episode 17.1 (npc/re/quests/quests_17_1.txt, and the instances
+	// Regenschirm, SealedOs and CorOperation in npc/re/instances): the
+	// quests the story leaves erased or that may still be open (16352
+	// comes from the Illusion enchanter), and those it leaves completed,
+	// in story order. 17000-17014 are 17.1's here, whatever their titles
+	// in quest_db say. Side quests and dailies are left alone.
+	setarray .q171[0], 7851, 7852, 7854, 7855, 7856, 16352, 16355, 16356, 16376;
+	setarray .q171_done[0],
+		7850, 7853, 7857, 7858, 7859, 7860, 7861, 7862, 7864,
+		17000, 17001, 17002, 17003, 17004, 17005, 17006, 17007, 17008,
+		17009, 17010, 17011, 17012, 17013, 17014, 7865,
+		11596, 11597, 11598, 11599, 11600, 11601, 11602, 11603,
+		17015, 17016, 17017, 17018, 17019,
+		16353, 16354, 16357, 16358, 16359, 16360;
 	// Episode 17.2 (npc/re/quests/quests_17_2.txt): every main-story
 	// quest, ep17_2_main 1 to 36 (1 and 2 are set at the end of 17.1),
 	// and those a finished story leaves completed.
