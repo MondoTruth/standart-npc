@@ -1,6 +1,7 @@
 # Builds standart-npc-<version>.zip (files inside a standart-npc/ folder).
 # - Release published: tag must be v<version> from mod.json, zip is attached to the release.
 # - Manual run (Actions tab -> Build release zip -> Run workflow): zip is only uploaded as an artifact.
+# - CHANGELOG.md must have a '## <version>' section (a warning on a manual run).
 
 name: Build release zip
 
@@ -42,6 +43,20 @@ jobs:
             exit 1
           fi
           echo "Tag $TAG matches mod.json version $VERSION."
+
+      # The app shows players the CHANGELOG.md section of every version an
+      # update skips, found by its "## <version>" heading.
+      - name: Check CHANGELOG.md has a section for this version
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          LEVEL: ${{ github.event_name == 'release' && 'error' || 'warning' }}
+        run: |
+          if ! grep -qxF "## $VERSION" CHANGELOG.md; then
+            echo "::$LEVEL file=CHANGELOG.md::No '## $VERSION' section in CHANGELOG.md."
+            [ "$LEVEL" = warning ] || exit 1
+          else
+            echo "CHANGELOG.md has a '## $VERSION' section."
+          fi
 
       - name: Build zip
         env:
