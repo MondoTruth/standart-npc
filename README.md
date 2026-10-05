@@ -145,7 +145,7 @@ Can be switched on in the settings window:
 
 Buffs that cancel each other in the game can't be ticked together. 3rd and 4th class buffs work on Renewal only; 4th class buffs (level 5) raise P.ATK, S.MATK, RES, MRES, C.RATE and trait stats, so they matter mostly for 4th classes.
 
-📜 Full version history: [`Patch Notes.txt`](./Patch%20Notes.txt)
+📜 Full version history: [`CHANGELOG.md`](./CHANGELOG.md)
 
 ---
 

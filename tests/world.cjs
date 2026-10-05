@@ -29,7 +29,8 @@ const ENV = {
     ...process.env, RO_E2E_WORLD: WORLD,
     RAGNAROK_OFFLINE_ASSET_PORT: '13338', RAGNAROK_OFFLINE_LOGIN_PORT: '16900',
     RAGNAROK_OFFLINE_CHAR_PORT: '16121', RAGNAROK_OFFLINE_MAP_PORT: '15121',
-    RAGNAROK_OFFLINE_AGENT_PORT: '17490', ROTEST_PORT: '17480',
+    RAGNAROK_OFFLINE_AGENT_PORT: '17490', RAGNAROK_OFFLINE_WEB_PORT: '18888',
+    ROTEST_PORT: '17480',
 };
 
 function die(text) { console.error('test: ' + text); process.exit(2); }
@@ -48,6 +49,17 @@ function rotestJson(...words) {
 
 function prepare() {
     if (!fs.existsSync(ROTEST)) die(`no app clone at ${APP} (set SNPC_APP)`);
+    const installed = process.env.RO_E2E_RUNTIME || path.join(process.env.APPDATA || '', 'Ragnarok Offline', 'runtime');
+    // world prepare copies the installed app's runtime (server, supervisor)
+    // once. After the app is updated the world would go on testing the old
+    // server, so a world from another app version is made again.
+    const version = dir => { try { return fs.readFileSync(path.join(dir, 'APP_VERSION'), 'utf8').trim(); } catch { return ''; } };
+    const want = version(installed), have = version(path.join(WORLD, 'runtime'));
+    if (fs.existsSync(WORLD) && want && have !== want) {
+        console.log(`test world is from app ${have || '?'}, the installed app is ${want}: making it again`);
+        rotest('world', 'down');
+        fs.rmSync(WORLD, { recursive: true, force: true });
+    }
     if (!fs.existsSync(WORLD)) {
         const r = rotest('world', 'prepare');
         if (!r.ok) die('world prepare failed:\n' + r.out);
@@ -55,7 +67,6 @@ function prepare() {
     // Before Flux159/ragnarokoffline.app#265, world prepare copied only bin/
     // and guest/ from the installed app; on Windows the engine also needs
     // runtime/lib (krun.dll), and mod tables want db-import.
-    const installed = process.env.RO_E2E_RUNTIME || path.join(process.env.APPDATA || '', 'Ragnarok Offline', 'runtime');
     for (const name of ['lib', 'db-import']) {
         const from = path.join(installed, name), to = path.join(WORLD, 'runtime', name);
         if (fs.existsSync(from) && !fs.existsSync(to)) fs.cpSync(from, to, { recursive: true });
