@@ -2,14 +2,14 @@
 
 All-in-one NPC pack (rAthena scripts) for [Ragnarok Offline](https://github.com/Flux159/ragnarokoffline.app).
 Owner/maintainer: **MondoTruth** — use this name everywhere (mod.json author,
-script headers, README, patch notes). Repo: `MondoTruth/standart-npc`.
+script headers, README, CHANGELOG). Repo: `MondoTruth/standart-npc`.
 
 The files in this repository are the source of truth. If anything in this
 document disagrees with the files, trust the files and say so.
 
 ## Talking to MondoTruth
 
-- Reply in **Russian**. Code, script comments, Patch Notes, README, commit
+- Reply in **Russian**. Code, script comments, CHANGELOG, README, commit
   messages, issue and PR texts — in **English**.
 - Short and to the point. If something is not verified, say so plainly —
   never present a guess as a fact.
@@ -47,7 +47,9 @@ The repository root is the mod folder (the release zip wraps it in
 
 ```
 mod.json                 -- version, author, requires, settingsPage, settings[]
-Patch Notes.txt          -- full history, one ## <version> section per release
+CHANGELOG.md             -- full history, one ## <version> section per release
+                            (shipped; the app shows players the sections an
+                            update skips)
 settings/index.html      -- the mod's own settings window
 db/when/enable_dummies/  -- mob_db.yml, mob_avail.yml: the two Training Dummies
 npc/
@@ -103,7 +105,7 @@ group land in Other).
 **Never rename a setting `key`.** Players' values are stored by key outside
 the mod folder; on update the app treats a renamed key as one option removed
 and another added, so every player silently loses that choice. If a key
-really must go, say so in Patch Notes.
+really must go, say so in CHANGELOG.md.
 
 ## NPCs in Prontera (grepped from files, 4.9.2)
 
@@ -254,6 +256,14 @@ them before relying on a mod.json key or folder.
 - Both tests share `tests/world.cjs` (the world, its ports, installing the
   mod). After every script change run the smoke test; before a release
   run both.
+- After the installed app is updated: put the app clone on the new tag,
+  `cargo build` in its `stack/`, and copy from the installed runtime
+  (`%APPDATA%\Ragnarok Offline\runtime`) into the clone the build outputs
+  `world prepare` takes: `bin/robrowser-remoteclient.exe`,
+  `vendor/roBrowserLegacy/dist/Web`, `vendor/ROenglishRE/Translation` and
+  `dist/images.tar.gz` (a stale one in the clone wins over the runtime's).
+  `tests/world.cjs` then sees `runtime/APP_VERSION` differ and makes the
+  world again. Before 1.5.1 the world kept running 1.4.8's server.
 - The test world can also load someone else's mod for a check: copy it
   into `<world>/state/mods/<name>`, add the name to `enabled.txt`, boot,
   and take it out again afterwards so our tests stay ours.
@@ -301,18 +311,20 @@ check it especially carefully.
 1. Changes merged into `main` via PRs.
 2. Bump `version` in `mod.json` (and `requires.app` if new app features are
    used).
-3. Add a `## <version>` section to `Patch Notes.txt` — short plain bullets,
+3. Add a `## <version>` section to `CHANGELOG.md` — short plain bullets,
    credit the authors.
 4. Update README.md if NPCs, coordinates or credits changed.
 5. The zip is built automatically by `.github/workflows/release.yml`:
    `standart-npc-<version>.zip`, files inside a `standart-npc/` folder,
    **without** README.md, assets/, CLAUDE.md, tests/, .git, .github, .gitattributes.
    To check the build before a release: Actions → "Build release zip" → Run
-   workflow, then download the zip from the run's Artifacts.
+   workflow, then download the zip from the run's Artifacts. CHANGELOG.md
+   ships in the zip; the workflow fails a release whose version has no
+   `## <version>` section in it (only a warning on a manual run).
 6. Before tagging: `node tests/smoke.cjs` and `node tests/play.cjs` pass in
    both eras, tabs check,
    same version everywhere, README coordinates, credits.
-7. Publish a GitHub release with tag `v<version>` and the Patch Notes section
+7. Publish a GitHub release with tag `v<version>` and the CHANGELOG.md section
    as description. Don't attach the zip by hand: the workflow builds it and
    attaches it to the release. If the tag is not `v<version>` from mod.json,
    the workflow fails and attaches nothing.
@@ -329,8 +341,10 @@ in the app repo points at our releases, asset `standart-npc-*.zip`):
 - Refused: zip over 50 MB, unpacked over 96 MB or 2000 files, links, `../`
   paths, a mod.json the app cannot read (unknown `requires` keys, bad
   settings).
-- Players see the first few hundred characters of the release notes in the
-  update dialog — write them for players.
+- Players read the release notes on Settings → Mods → Updates ("What's
+  new", a few lines and Show all; app 1.5.1). With Flux159/ragnarokoffline.app#437
+  they see the notes of every release the update skips, not only the latest
+  — write them for players.
 - Licence: MIT (`LICENSE`, PR #27). Exceptions are scripts based on
   rAthena's own (`warper`, `jobmaster`, `resetnpc`, `stylist`): they stay
   GPL-3.0 (`LICENSE-GPL-3.0`) and say so in their header. A new script
