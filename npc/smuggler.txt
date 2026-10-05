@@ -5,6 +5,14 @@
 //= Free-form buy: type any item ID, get it at a markup. No
 //= restrictions (private server) -- means ANY item in item_db
 //= can be bought this way, event/GM/quest items included.
+//= Access is earned once per character with a short quest:
+//= the Smuggler pitches impossible goods for 10 billion Zeny,
+//= settles for a Mr. Smile mask and ten 1carat Diamonds (only what is
+//= in the bag counts, not a mask being worn), and after a little
+//= scene hands back the same mask, one free item of the
+//= player's choice and access to the shop. The quest can be
+//= replayed from the shop menu, without the free item. A quest
+//= bubble (! then ?) shows over the NPC until it is done.
 //= Pricing depends on whether there is a Cash Shop to compete
 //= with: Renewal with Lil Art's cash-shop-extended loaded (its
 //= CashPointRewards NPC), checked at talk time:
@@ -13,7 +21,16 @@
 //=   without it, and always on Pre-renewal (the mod is Renewal
 //=   only) -- no flat price at all; EVERY item uses the item_db
 //=   price x2.
+//= Character variables: SNPC_Smuggler (0 not met or refused,
+//= 1 deal offered, 2 access), SNPC_SmugglerPick (the good the
+//= player wanted, 4 = the Mystic Box), SNPC_SmugglerFree (free
+//= item not taken yet), SNPC_SmugglerReplay (a replay is on),
+//= SNPC_SmugglerPaid (items taken, box not opened yet: the next
+//= talk resumes there).
 //===== How to customize: ====================================
+//= - The quest items: .mask (Mr_Smile 2278), .gems (Crystal_Jewel
+//=   730, sold by the Jewelers of Lighthalzen and Morroc) and
+//=   .gems_needed (10) in OnInit; the goods in the pitch: .goods$.
 //= - Which item types get the flat high price on Renewal:
 //=   .@fixed_types below, values from getiteminfo(id,
 //=   ITEMINFO_TYPE) -- currently 2 Usable, 4 Armor, 5 Weapon,
@@ -24,7 +41,7 @@
 //=   Unknown, Etc/quest items, Unknown2 -- plus anything not in
 //=   the list above; on Pre-renewal: every item): .@fallback
 //=   (1000z) when item_db's own Buy price is 0, then the markup
-//=   on top -- .@markup_re (x5) or .@markup_pre (x2).
+//=   on top -- .markup_re (x5) or .markup_pre (x2).
 //= - Quantity: asked after the price. Empty or 0 = 1 piece, so a
 //=   single item is still just OK. .@max_amount caps one order
 //=   (30000); an order is also capped so the total stays under
@@ -33,6 +50,212 @@
 //============================================================
 
 prontera,144,174,4	script	Smuggler	494,{
+	// Paid, but the talk ended before the box was opened.
+	if (SNPC_SmugglerPaid)
+		goto L_Box;
+	if (SNPC_Smuggler == 2 && !SNPC_SmugglerReplay) {
+		mes "[Smuggler]";
+		mes "Ah, my favourite customer. What will it be?";
+		next;
+		.@free$ = SNPC_SmugglerFree ? "Collect my free item" : "";
+		switch (select("Buy an item:" + .@free$ + ":Repeat the deal (no free item):Leave")) {
+		case 1: goto L_Buy;
+		case 2: goto L_Free;
+		case 3:
+			SNPC_SmugglerReplay = 1;
+			SNPC_SmugglerPick = 0;
+			goto L_Pitch;
+		}
+		close;
+	}
+	if (SNPC_Smuggler == 0 || (SNPC_SmugglerReplay && !SNPC_SmugglerPick))
+		goto L_Pitch;
+	goto L_Bring;
+
+// The pitch: goods nobody can pay for, then the real price.
+L_Pitch:
+	emotion ET_WHISP;
+	mes "[Smuggler]";
+	mes "Psst! Hey, you. Yes, you. Looking for something... special?";
+	mes "Today only, from my private collection:";
+	next;
+	.@n = getarraysize(.goods$);
+	for (.@i = 0; .@i < .@n; .@i++)
+		.@menu$ += .goods$[.@i] + " - 10,000,000,000 z:";
+	.@pick = select(.@menu$ + "Not interested");
+	if (.@pick > .@n) {
+		// A refused replay goes back to the shop menu next time.
+		SNPC_SmugglerReplay = 0;
+		mes "[Smuggler]";
+		mes "Your loss. The offer stands... for now.";
+		close;
+	}
+	emotion ET_SURPRISE, getcharid(3);
+	mes "[" + strcharinfo(0) + "]";
+	mes "Ten BILLION?! Nobody has that kind of money!";
+	next;
+	emotion ET_THINK;
+	mes "[Smuggler]";
+	mes "Hmm. Hmm-hmm... Fine. For a friend, I'll take a trade.";
+	mes "Bring me a ^0055FF" + getitemname(.mask) + "^000000 mask and ^0055FF" + .gems_needed + " " + getitemname(.gems) + "s^000000. In your bag, not on your face.";
+	next;
+	emotion ET_MONEY;
+	mes "[Smuggler]";
+	mes "They say a certain ^0055FFSmile Assistance^000000 makes those masks to order. And the little diamonds... any jeweler in Lighthalzen or Morroc will sell you those.";
+	SNPC_SmugglerPick = .@pick;
+	if (!SNPC_SmugglerReplay) {
+		SNPC_Smuggler = 1;
+		questinfo_refresh;
+	}
+	if (countitem(.mask) - isequippedcnt(.mask) < 1 || countitem(.gems) < .gems_needed)
+		close;
+	next;
+	// Already carrying both: straight on.
+
+// The trade, the box and the scene.
+L_Bring:
+	mes "[Smuggler]";
+	mes "Got my " + getitemname(.mask) + " and the " + .gems_needed + " diamonds?";
+	// A worn mask does not count: only what is in the bag.
+	.@masks = countitem(.mask) - isequippedcnt(.mask);
+	if (.@masks < 1 || countitem(.gems) < .gems_needed) {
+		if (.@masks < 1)
+			mes "No " + getitemname(.mask) + " in your bag.";
+		if (countitem(.gems) < .gems_needed)
+			mes "Only " + countitem(.gems) + " of the " + .gems_needed + " " + getitemname(.gems) + "s.";
+		mes "Come back when you have both.";
+		close;
+	}
+	next;
+	if (select("Hand them over:Not yet") == 2)
+		close;
+	if (countitem(.mask) - isequippedcnt(.mask) < 1 || countitem(.gems) < .gems_needed)
+		close;
+	// delitem takes an item that is not worn first. From here on the
+	// payment is remembered, so a talk cut short resumes at the box.
+	delitem .mask, 1;
+	delitem .gems, .gems_needed;
+	SNPC_SmugglerPaid = 1;
+
+L_Box:
+	if (SNPC_SmugglerPick == getarraysize(.goods$)) {
+		mes "[Smuggler]";
+		mes "Pleasure doing business. Wait here.";
+		next;
+		emotion ET_SWEAT;
+		mes "^777777(The Smuggler disappears around the corner. Something rustles...)^000000";
+		next;
+		mes "[Smuggler]";
+		mes "Here it is, as promised: the Mystic Box!";
+	} else {
+		mes "[Smuggler]";
+		mes "About that... You took so long that a very, very rich... ahem, ^0055FFdiscerning^000000 collector bought my whole stock. For Zeny!";
+		next;
+		mes "[Smuggler]";
+		mes "But you're in luck: one thing is left. The Mystic Box!";
+	}
+	next;
+	select("Open the box");
+	// Everything the deal gives, at once: the mask "in the box", access,
+	// and on a first run the free item. The rest is only talk.
+	.@replay = SNPC_SmugglerReplay;
+	getitem .mask, 1;
+	SNPC_SmugglerPaid = 0;
+	SNPC_SmugglerPick = 0;
+	SNPC_SmugglerReplay = 0;
+	if (!.@replay) {
+		SNPC_Smuggler = 2;
+		SNPC_SmugglerFree = 1;
+		questinfo_refresh;
+	}
+	emotion ET_THINK, getcharid(3);
+	mes "[" + strcharinfo(0) + "]";
+	mes "...";
+	next;
+	emotion ET_DELIGHT;
+	mes "[Smuggler]";
+	mes "Ta-daa! A rare collectible mask of the ancient... uh... Smilish people!";
+	next;
+	emotion ET_STARE, getcharid(3);
+	mes "[" + strcharinfo(0) + "]";
+	mes "But that's the mask I just gave you. It even has the same scratch on the side.";
+	next;
+	emotion ET_SWEAT;
+	mes "[Smuggler]";
+	mes "No, no. Different mask.";
+	next;
+	emotion ET_ANGER, getcharid(3);
+	mes "[" + strcharinfo(0) + "]";
+	mes "Are you trying to cheat me? I'll call the guards!";
+	next;
+	emotion ET_HELP, getcharid(3);
+	mes "[" + strcharinfo(0) + "]";
+	mes "GUAAAARDS!!";
+	next;
+	emotion ET_PANIC;
+	mes "[Smuggler]";
+	mes "Shh! Quiet, quiet!!! That fabulously rich patron bought everything... but I had to give you ^FF0000something^000000...";
+	mes "I just didn't expect your INT to be that high.";
+	next;
+	emotion ET_ANGER, getcharid(3);
+	mes "[" + strcharinfo(0) + "]";
+	mes "WHAT?";
+	next;
+	emotion ET_PROFUSELY_SWEAT;
+	mes "[Smuggler]";
+	mes "What? Let's not get worked up. Let me smooth over this little misunderstanding.";
+	next;
+	if (.@replay) {
+		// A replay: the scene, no free item.
+		emotion ET_OK;
+		mes "[Smuggler]";
+		mes "And you know the rest: my personal price coefficient on all your orders, just ^0055FFx" + callsub(S_Markup) + "^000000. Now, shall we do business?";
+		close;
+	}
+	mes "[Smuggler]";
+	mes "As an exception, I'll bend my principles: ^0055FFONE item of your choice, free of charge!^000000";
+	next;
+	emotion ET_OK;
+	mes "[Smuggler]";
+	mes "And to seal our partnership, a personal price coefficient on all your future orders: just ^0055FFx" + callsub(S_Markup) + "^000000!";
+	next;
+	if (select("Take my free item now:Later") == 2) {
+		mes "[Smuggler]";
+		mes "Whenever you like. I don't forget a promise... usually.";
+		close;
+	}
+	goto L_Free;
+
+// The one free item: any ID, one piece.
+L_Free:
+	mes "[Smuggler]";
+	mes "One item, any item, on the house. Item ID?";
+	next;
+	input .@id;
+	if (getiteminfo(.@id, ITEMINFO_BUY) < 0) {
+		mes "[Smuggler]";
+		mes "Never heard of it. Think it over and come back.";
+		close;
+	}
+	mes "[Smuggler]";
+	mes "^0000FF" + getitemname(.@id) + "^000000, for free. That one?";
+	next;
+	if (select("That one:Never mind") == 2)
+		close;
+	if (!SNPC_SmugglerFree)
+		close;
+	if (!checkweight(.@id, 1)) {
+		mes "[Smuggler]";
+		mes "You can't carry it right now. Come back lighter.";
+		close;
+	}
+	SNPC_SmugglerFree = 0;
+	getitem .@id, 1;
+	mes "[Smuggler]";
+	mes "There. Now we're even. Mostly.";
+	close;
+
+L_Buy:
 	mes "[Smuggler]";
 	mes "For the right price, I can get you anything... if I have a supplier for it.";
 	mes "Item ID?";
@@ -56,9 +279,7 @@ prontera,144,174,4	script	Smuggler	494,{
 			.@fallback = 1000;
 			.@price = .@fallback;
 		}
-		.@markup_re = 5;
-		.@markup_pre = 2;
-		.@price = .@price * (.@is_renewal ? .@markup_re : .@markup_pre);
+		.@price = .@price * callsub(S_Markup);
 	}
 	// How many. Empty/0 counts as 1, so buying one piece stays a single OK.
 	.@max_amount = 30000;
@@ -97,7 +318,32 @@ prontera,144,174,4	script	Smuggler	494,{
 	mes "Pleasure doing business.";
 	close;
 
+// The markup on item_db prices: x5 next to a Cash Shop on Renewal,
+// x2 otherwise. Also the "price coefficient" the Smuggler boasts of.
+S_Markup:
+	if (checkre(0) && getnpcid(0, "CashPointRewards"))
+		return .markup_re;
+	return .markup_pre;
+
 OnInit:
-	if (callfunc("F_SNPC_Off", "smuggler")) disablenpc strnpcinfo(0);	// switched off in the settings window
+	if (callfunc("F_SNPC_Off", "smuggler")) {	// switched off in the settings window
+		disablenpc strnpcinfo(0);
+		end;
+	}
+	// A quest bubble until the access quest is done: "!" before it
+	// starts, "?" while the Smuggler waits for the mask and the diamonds.
+	questinfo QTYPE_QUEST, QMARK_NONE, "SNPC_Smuggler == 0";
+	questinfo QTYPE_QUEST2, QMARK_NONE, "SNPC_Smuggler == 1";
+	.mask = 2278;	// Mr_Smile (the fork's db/re and db/pre-re item_db)
+	.gems = 730;	// Crystal_Jewel, 1carat Diamond
+	.gems_needed = 10;
+	.markup_re = 5;
+	.markup_pre = 2;
+	// The last one is the Mystic Box: the one the Smuggler "has".
+	setarray .goods$[0],
+		"Dragon's Last Breath, bottled",
+		"A Valkyrie's Lost Left Wing",
+		"The Map to Morroc's Hidden Treasury",
+		"Mystic Box with a very rare collectible inside";
 	end;
 }
