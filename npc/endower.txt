@@ -5,12 +5,15 @@
 //= Master Nokzin endows your weapon with an element for an hour
 //= (10,000z), works on carded weapons too since it's a temporary
 //= status, not a weapon change. Removes the endow for free.
+//= Without Lil Art's cash-shop-extended he also sells the
+//= Elemental Converters (5,000z each); with it, its Cash Shop does.
 //===== How to customize: ====================================
 //= - Endow cost/duration: the 10000/3600000 in case 1.
+//= - Converter prices: the shop line at the end of the file.
 //= - Location/sprite: the first line of the NPC block.
 //============================================================
 
-prontera,167,178,1	script	Master Nokzin#endowersage	86,{
+prontera,144,229,4	script	Master Nokzin#endowersage	679,{
 	mes "[Master Nokzin]";
 	mes "I can lay an element on your weapon for an hour. Ten thousand zeny, and it wears off clean when the hour's up -- or right now, if you'd rather have it off early.";
 	next;
@@ -49,13 +52,16 @@ prontera,167,178,1	script	Master Nokzin#endowersage	86,{
 
 	case 3:
 		mes "[Master Nokzin]";
-		// The Cash Shop sells them only with cash-shop-extended loaded; without
-		// it the Tool Dealer does (npc/tool_dealer.txt).
-		if (getnpcid(0, "CashPointRewards"))
+		// The Cash Shop sells them only with cash-shop-extended loaded;
+		// without it Nokzin does, from the shop below.
+		if (getnpcid(0, "CashPointRewards")) {
 			mes "Converter scrolls let you endow on the fly without coming to see me -- the Cash Shop sells those. Mine last much longer, though!";
-		else
-			mes "Converter scrolls let you endow on the fly without coming to see me -- the Tool Dealer here in Prontera (143,178) sells those. Mine last much longer, though!";
-		close;
+			close;
+		}
+		mes "Converter scrolls let you endow on the fly without coming to see me. I keep a few: five thousand zeny each. Mine last much longer, though!";
+		close2;
+		callshop "Nokzin Converters#endowersage", 1;
+		end;
 
 	case 4:
 		close;
@@ -65,3 +71,7 @@ OnInit:
 	if (callfunc("F_SNPC_Off", "nokzin")) disablenpc strnpcinfo(0);	// switched off in the settings window
 	end;
 }
+
+// Master Nokzin's converters (Fire, Water, Earth, Wind; both eras), opened
+// from his menu only when cash-shop-extended is not loaded.
+-	shop	Nokzin Converters#endowersage	-1,12114:5000,12115:5000,12116:5000,12117:5000

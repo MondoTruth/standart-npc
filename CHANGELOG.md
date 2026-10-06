@@ -225,3 +225,13 @@ Warper, on by default (switch each off in Settings..., "Options..." next to the 
 - Warper in Izlude: moved to 138,150, so it no longer shares a cell with the Waypoint Keeper of BlaXun's waypoint-system (app 1.5.0).
 - Weight Maxxer and Bounty Hunter swap places: Weight Maxxer at Prontera (147,172), Bounty Hunter at (147,169). By Lil Art.
 - Safe Refiner has a new look (sprite 4_NASARIN). By Lil Art.
+
+## 4.9.3
+
+### Renewal and Pre-renewal
+- Training Dummies: one dummy instead of two, now north of the fountain in Prontera (156,225), with a new Dummy Master next to it (150,225). Talk to him to choose what the dummy is: size, element and element level, race, DEF and MDEF (0-999), and type: Normal, Boss or MVP. It starts as a plain Medium, Neutral, Formless dummy with no DEF or MDEF, comes back with your settings if it dies, and is plain again after the game restarts. Thanks Lil Art, whose MVP Dummy idea started this.
+- Master Nokzin moved to Prontera (144,229) and has a new look.
+- Without Lil Art's cash-shop-extended, Master Nokzin now sells the Elemental Converters himself (5,000z each) instead of the Tool Dealer. The Tool Dealer keeps the Gym Pass.
+
+### Renewal only
+- Dummy Master: one more type, MVP taking 90% less damage, like the newer MVPs.

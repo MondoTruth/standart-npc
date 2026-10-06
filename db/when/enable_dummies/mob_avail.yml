@@ -1,4 +1,4 @@
-# standart-npc -- Training Dummies: how they look (both eras)
+# standart-npc -- Training Dummy: how it looks (both eras)
 # The client has no sprite for our own monster IDs, so the server shows
 # them as DRAGON_EGG (1721, in both eras' mob db). That is the sprite the
 # client already drew for the old dummy 2411 (MonsterTable.js in
@@ -9,7 +9,7 @@ Header:
   Version: 1
 
 Body:
-  - Mob: SNPC_DUMMY_MEDIUM
+  - Mob: SNPC_DUMMY
     Sprite: DRAGON_EGG
-  - Mob: SNPC_DUMMY_LARGE
+  - Mob: SNPC_DUMMY_BOSS
     Sprite: DRAGON_EGG

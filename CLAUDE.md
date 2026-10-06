@@ -51,7 +51,7 @@ CHANGELOG.md             -- full history, one ## <version> section per release
                             (shipped; the app shows players the sections an
                             update skips)
 settings/index.html      -- the mod's own settings window
-db/when/enable_dummies/  -- mob_db.yml, mob_avail.yml: the two Training Dummies
+db/when/enable_dummies/  -- mob_db.yml, mob_avail.yml: the Training Dummy (Normal, Boss)
 npc/
   custom/snpc_settings.txt  -- F_SNPC_Off: switch for always-loaded NPCs
   *.txt                     -- always-loaded NPCs (Warper, Buffer, Job Master, ...)
@@ -129,9 +129,9 @@ really must go, say so in CHANGELOG.md.
 | Safe Refiner | 164,172 | npc_off `refiner` |
 | Grade Refiner | 164,166 | npc_off `grade` (Renewal only) |
 | Universal Enchanter | 164,169 | npc_off `enchanter` |
-| Master Nokzin | 167,178 | npc_off `nokzin` |
+| Master Nokzin | 144,229 | npc_off `nokzin` |
 | Daily Rewards | 147,166 | npc_off `daily` |
-| Training Dummies | 153,163 and 158,163 | enable_dummies |
+| Training Dummy / Dummy Master | 156,225 / 150,225 | enable_dummies |
 
 Before placing a new NPC, grep all `prontera,` lines to avoid collisions.
 Other things in Prontera since app 1.4.6:
