@@ -21,7 +21,7 @@
 //= - Position: the NPC line below and .x, .y in OnInit.
 //============================================================
 
-prontera,150,225,4	script	Dummy Master	414,{
+prontera,150,225,5	script	Dummy Master	414,{
 	// A working copy: nothing changes until Done.
 	.@size = .size;
 	.@ele = .ele;

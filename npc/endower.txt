@@ -13,7 +13,7 @@
 //= - Location/sprite: the first line of the NPC block.
 //============================================================
 
-prontera,144,229,4	script	Master Nokzin#endowersage	679,{
+prontera,144,229,5	script	Master Nokzin#endowersage	679,{
 	mes "[Master Nokzin]";
 	mes "I can lay an element on your weapon for an hour. Ten thousand zeny, and it wears off clean when the hour's up -- or right now, if you'd rather have it off early.";
 	next;
