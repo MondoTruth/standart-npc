@@ -15,6 +15,12 @@
 //= Each skip sets the part's main variable to its last step,
 //= completes the main quests a finished story leaves completed and
 //= erases the others still open.
+//= Episode 16.2: terra_gloria_main = 25, terra_gloria_lady_part at
+//= least 10. Needs 16.1 as far as the game asks before 16.2 begins
+//= (ep16_royal 17). Opens the Heart Hunter War Base and the Werner
+//= Laboratory central room, Einbech's station, the 16.2 dailies
+//= (Sweeping the remnants, Hiding Researcher, the Chimeras) and the
+//= Rebellion hideout's side quests; 17.1 can begin.
 //= Episode 17.1: terra_gloria_main = 26, quest 16360 done. Opens
 //= Rekenber, the Rudus areas, Clana Nemieri, the Illusion enchanter,
 //= the repeatable Cor Operation and the 17.1 dailies (Morning,
@@ -150,6 +156,10 @@ S_Prev:
 // Whether the part's main story is finished.
 S_Done:
 	switch (getarg(0)) {
+	case 161:
+		// What the game checks before 16.2 begins (quests_16_2.txt):
+		// the room of consciousness in 16.1. Until 16.1 has a skip.
+		return (ep16_royal >= 17);
 	case 162:
 		// The end of 16.2 (quests_16_2.txt); 17.1 begins at 25.
 		return (terra_gloria_main >= 25);
@@ -166,6 +176,14 @@ S_Done:
 // Marks the part's main story as finished.
 S_Skip:
 	switch (getarg(0)) {
+	case 162:
+		copyarray .@open[0], .q162[0], getarraysize(.q162);
+		copyarray .@done[0], .q162_done[0], getarraysize(.q162_done);
+		terra_gloria_main = 25;
+		// The second floor's side story; 17 needs it at 10 or more.
+		if (terra_gloria_lady_part < 10)
+			terra_gloria_lady_part = 10;
+		break;
 	case 171:
 		copyarray .@open[0], .q171[0], getarraysize(.q171);
 		copyarray .@done[0], .q171_done[0], getarraysize(.q171_done);
@@ -209,9 +227,9 @@ OnInit:
 		end;
 	}
 	// Parts with a real skip, in menu order.
-	setarray .ready[0], 171, 172, 180;
+	setarray .ready[0], 162, 171, 172, 180;
 	// Story order, as far as S_Done can tell a part is finished.
-	setarray .order[0], 162, 171, 172, 180;
+	setarray .order[0], 161, 162, 171, 172, 180;
 	// Episode Clear Tickets (EpisodClear13 - EpisodClear18).
 	.ticket[13] = 1000284;
 	.ticket[14] = 1000285;
@@ -233,6 +251,20 @@ OnInit:
 		if (inarray(.sell, .@ep) < 0)
 			.sell[getarraysize(.sell)] = .@ep;
 	}
+	// Episode 16.2 (npc/re/quests/quests_16_2.txt, and the instances
+	// HeartHunterWarBase and WernerLaboratoryCentralRoom in
+	// npc/re/instances): the main-story quests, terra_gloria_main 1 to
+	// 25, with the second floor's (14600-14615) and the Doubt line that
+	// 17 waits for (11454-11462), and the arena quests that may still be
+	// open (16009, 16011, 16060). The dailies (Sweeping the remnants,
+	// Hiding Researcher, Base maintenance) are left alone.
+	setarray .q162[0],
+		7731, 7732, 7733, 7734, 7735, 7736, 7737, 7738, 7739, 7740,
+		14595, 14596, 14597, 14598, 14599, 14614,
+		11454, 11455, 11456, 11457, 11458, 11459, 11460, 11461,
+		16009, 16011, 16060;
+	setarray .q162_done[0],
+		14600, 14601, 14602, 14613, 11462, 14615, 12374, 7741;
 	// Episode 17.1 (npc/re/quests/quests_17_1.txt, and the instances
 	// Regenschirm, SealedOs and CorOperation in npc/re/instances): the
 	// quests the story leaves erased or that may still be open (16352

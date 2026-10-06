@@ -19,8 +19,8 @@
 //= cleared, so every run starts from the same place. It also gets a
 //= +5 Knife [4] with two cards, for the Card Exchanger check, and
 //= its Welcoming gift is cleared. On Renewal it stands in the middle of
-//= Episodes 17.1, 17.2 and 18, for the Episode Valkyrie check, with the
-//= Zeny for their tickets.
+//= Episodes 16.2, 17.1, 17.2 and 18, for the Episode Valkyrie check,
+//= with the Zeny for their tickets.
 //============================================================
 'use strict';
 const fs = require('node:fs');
@@ -39,25 +39,39 @@ const CARD_TEST = { knife: 1202, keep: 4001, pull: 4002 };   // Knife [4], Porin
 // Shirt on the body, a Shard of Agility Jewel in the bag (Renewal only;
 // checked in the fork's re/pre-re item_db: Hat and Cotton Shirt in both).
 const ENCH_TEST = { hat: 2220, shirt: 2301, jewel: 27422 };
-// Episode Valkyrie (#51), Renewal: with Episode 16.2 finished
-// (terra_gloria_main 25), the character stands in the middle of 17.1, 17.2
-// and 18 (a quest of each open). It first tries to skip 17.2 and 18
+// Episode Valkyrie (#51), Renewal: with 16.1 as far as 16.2 needs
+// (ep16_royal 17), the character stands in the middle of 16.2, 17.1, 17.2
+// and 18 (a quest of each open). It first tries to skip 17.1, 17.2 and 18
 // (refused: the part before is not finished), then buys and uses a ticket
-// for 17.1, 17.2, then 18. Quest and item IDs from the fork's npc/re/quests/
-// quests_17_1.txt, quests_17_2.txt and quests_18.txt, db/re/quest_db.yml,
-// db/re/item_db_etc.yml. `done` is a sample of what each skip completes.
+// for 16.2, 17.1, 17.2, then 18. 16.2 and 17.1 share terra_gloria_main:
+// 17.1 has no start of its own, and only the last part on a variable has
+// its end checked. Quest and item IDs from the fork's npc/re/quests/
+// quests_16_2.txt, quests_17_1.txt, quests_17_2.txt and quests_18.txt,
+// db/re/quest_db.yml, db/re/item_db_etc.yml. `done` is a sample of what
+// each skip completes.
 const VALK_TEST = {
     parts: [
-        { name: '17.1', ep: 17, ticket: 1000287, price: 5000000, priceText: '5,000,000', key: 'terra_gloria_main', start: 25, end: 26,
+        { name: '16.2', ep: 16, ticket: 1000282, price: 4000000, priceText: '4,000,000', key: 'terra_gloria_main', start: 16, end: 25,
+          open: 14614, done: [14600, 14601, 14602, 14613, 11462, 14615, 12374, 7741], doneBefore: 14601 },
+        { name: '17.1', ep: 17, ticket: 1000287, price: 5000000, priceText: '5,000,000', key: 'terra_gloria_main', start: null, end: 26,
           open: 7852, done: [7850, 7862, 17014, 11603, 16354, 16360], doneBefore: 7850 },
         { name: '17.2', ep: 17, ticket: 1000287, price: 5000000, priceText: '5,000,000', key: 'ep17_2_main', start: 21, end: 36,
           open: 16449, done: [11620, 16452, 18018, 18021, 18020] },
         { name: '18', ep: 18, ticket: 1000288, price: 6000000, priceText: '6,000,000', key: 'ep18_main', start: 41, end: 57,
           open: 16573, done: [8681, 11720, 11724, 18085], doneBefore: 8681 },
     ],
+    // Set before the run (16.1 as far as 16.2 needs it), and what 16.2's
+    // skip raises to at least 10.
+    before: { ep16_royal: 17 },
+    side: { key: 'terra_gloria_lady_part', min: 10 },
 };
 const VALK_PRICE = VALK_TEST.parts.reduce((n, p) => n + p.price, 0);
 const VALK_QUESTS = [...VALK_TEST.parts.flatMap(p => [p.open, ...p.done])];
+const VALK_KEYS = [...new Set([...VALK_TEST.parts.map(p => p.key), ...Object.keys(VALK_TEST.before), VALK_TEST.side.key])];
+const VALK_REGS = [
+    ...VALK_TEST.parts.filter(p => p.start !== null).map(p => [p.key, p.start]),
+    ...Object.entries(VALK_TEST.before),
+];
 // Smuggler's access quest: a Mr. Smile mask worn (does not count) and a
 // ten 1carat Diamonds in the bag; a second mask is given in game. The free item
 // asked for is a Red Potion. IDs from the fork's db/re and db/pre-re
@@ -122,10 +136,10 @@ function setUpCharacter(era) {
     // Card in slot 0 and a Fabre Card in slot 1, and no loose cards of either.
     const w = W.rotest('server', 'sql', '--write',
         `UPDATE \`char\` SET class=${e.job}, base_level=${e.level}, job_level=50, zeny=${100000 + VALK_PRICE}, last_map='prontera', last_x=156, last_y=180 WHERE char_id=${id};`
-        + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` IN (${VALK_TEST.parts.map(p => `'${p.key}'`).join(', ')});`
+        + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` IN (${VALK_KEYS.map(k => `'${k}'`).join(', ')});`
         + ` DELETE FROM quest WHERE char_id=${id} AND quest_id IN (${VALK_QUESTS.join(', ')});`
         + ` DELETE FROM inventory WHERE char_id=${id} AND nameid IN (${VALK_TEST.parts.map(p => p.ticket).join(', ')});`
-        + (e.valkyrie ? ` INSERT INTO char_reg_num (char_id, \`key\`, \`index\`, value) VALUES ${VALK_TEST.parts.map(p => `(${id}, '${p.key}', 0, ${p.start})`).join(', ')};`
+        + (e.valkyrie ? ` INSERT INTO char_reg_num (char_id, \`key\`, \`index\`, value) VALUES ${VALK_REGS.map(([k, v]) => `(${id}, '${k}', 0, ${v})`).join(', ')};`
             + ` INSERT INTO quest (char_id, quest_id, state) VALUES `
             + VALK_TEST.parts.map(p => `(${id}, ${p.open}, '1')` + (p.doneBefore ? `, (${id}, ${p.doneBefore}, '2')` : '')).join(', ') + ';' : '')
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
@@ -299,7 +313,7 @@ function runEra(era) {
             await snpc.close();
             return said.join(' / ');
         })()`);
-        for (const [part, prev] of [['17.2', '17.1'], ['18', '17.2']]) {
+        for (const [part, prev] of [['17.1', '16.2'], ['17.2', '17.1'], ['18', '17.2']]) {
             const order = valkTalk(['Use a ticket', `Episode ${part} `]);
             check(typeof order === 'string' && order.includes(`First finish Episode ${prev}`), `Episode Valkyrie: ${part} needs ${prev} finished first`, String(order).slice(-200));
         }
@@ -508,14 +522,18 @@ function runEra(era) {
         'Card Exchanger: Knife keeps its Poring Card and +5, slot 1 empty', JSON.stringify(knife));
     check(loose === '1', 'Card Exchanger: Fabre Card back in the inventory', `${loose} loose`);
     if (e.valkyrie) {
-        for (const p of VALK_TEST.parts) {
+        VALK_TEST.parts.forEach((p, i) => {
             const main = sqlOne(`SELECT value FROM char_reg_num WHERE char_id=${charId} AND \`key\`='${p.key}'`);
             const open = sqlOne(`SELECT COUNT(*) FROM quest WHERE char_id=${charId} AND quest_id=${p.open}`);
             const done = sqlOne(`SELECT COUNT(*) FROM quest WHERE char_id=${charId} AND state='2' AND quest_id IN (${p.done.join(', ')})`);
-            check(main === String(p.end), `Episode Valkyrie: ${p.key} ${p.end}, the last step of ${p.name}`, `${p.key} ${main}`);
+            // A later part on the same variable moved it on.
+            if (!VALK_TEST.parts.slice(i + 1).some(q => q.key === p.key))
+                check(main === String(p.end), `Episode Valkyrie: ${p.key} ${p.end}, the last step of ${p.name}`, `${p.key} ${main}`);
             check(open === '0' && done === String(p.done.length), `Episode Valkyrie: open ${p.name} quest closed, the finished ones completed`,
                 `${p.open}: ${open} rows, completed ${done} of ${p.done.length}`);
-        }
+        });
+        const side = sqlOne(`SELECT COALESCE(MAX(value),0) FROM char_reg_num WHERE char_id=${charId} AND \`key\`='${VALK_TEST.side.key}'`);
+        check(Number(side) >= VALK_TEST.side.min, `Episode Valkyrie: ${VALK_TEST.side.key} at least ${VALK_TEST.side.min} after 16.2`, `${VALK_TEST.side.key} ${side}`);
         const tickets = sqlOne(`SELECT COALESCE(SUM(amount),0) FROM inventory WHERE char_id=${charId} AND nameid IN (${VALK_TEST.parts.map(p => p.ticket).join(', ')})`);
         check(tickets === '0', 'Episode Valkyrie: the tickets are used up', `${tickets} left`);
     }
