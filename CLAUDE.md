@@ -263,7 +263,15 @@ them before relying on a mod.json key or folder.
   and reads the NPC windows, so no screen coordinates. Needs
   `npx playwright install chromium` in the app clone too. A new NPC or a
   fixed bug gets a check here when it can be seen in game.
-- Both tests share `tests/world.cjs` (the world, its ports, installing the
+- **Job quest check**: `node tests/jobquests.cjs` (or a file filter like
+  `2-1/assassin`, `--from=3-1/`, `--no-boot`) looks at rAthena's own
+  Renewal job-change quests, not ours: with Tester in the quest's class it
+  warps to every NPC the job scripts place (the app's navigation index)
+  and talks to it. Finds missing, undrawn or silent NPCs, not bugs in the
+  middle of a quest. About three hours for all; results in the app
+  clone's `artifacts/rotest/jobquests.jsonl`. Run when players report job
+  quest problems, not per change.
+- All three share `tests/world.cjs` (the world, its ports, installing the
   mod). After every script change run the smoke test; before a release
   run both.
 - After the installed app is updated: put the app clone on the new tag,
