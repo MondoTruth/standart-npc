@@ -50,8 +50,9 @@ const EXPECT = {
         job: 4252, level: 210,   // Dragon Knight
         bountyMenu: ['Target Hunt', 'Overlook Water Dungeon', 'Illusion Dungeons', 'Daily Area Purge', 'Cancel'],
         purgeMaps: ['sp_rudus4'],  // Lv 201-230: one map (#24)
-        dummy: { 28412: ['Size:Medium', 'Lv:150'], 28413: ['Size:Large', 'Lv:150'] },
+        dummy: { 28412: ['Size:Medium', 'Lv:150', 'DEF:0'], 28413: ['Size:Medium', 'Lv:150', 'DEF:0'] },
         blessing: true,            // Blacksmith Blessing in the Tool Dealer
+        mvp90: true,               // Dummy Master's "MVP, 90% less damage": Renewal only
         welcome: true,             // Welcoming in Izlude: Renewal only
         jewel: true,               // headgear jewels exist (Enchanter check)
         warpFee: true,             // a Dragon Knight is 4th class: the Warper charges
@@ -61,8 +62,9 @@ const EXPECT = {
         job: 4008, level: 99,    // Lord Knight
         bountyMenu: ['Target Hunt', 'Overlook Water Dungeon', 'Daily Area Purge', 'Cancel'],
         purgeMaps: ['ice_dun01', 'gl_church', 'yuno_fild08', 'ra_fild12', 'mosk_dun02', 'gef_fild06', 'gef_fild08'],
-        dummy: { 28412: ['Size:Medium', 'Lv:99', 'DEF:0'], 28413: ['Size:Large', 'Lv:99', 'DEF:0'] },
+        dummy: { 28412: ['Size:Medium', 'Lv:99', 'DEF:0'], 28413: ['Size:Medium', 'Lv:99', 'DEF:0'] },
         blessing: false,
+        mvp90: false,
         welcome: false,
         jewel: false,
         warpFee: false,            // a Lord Knight: no 3rd class here, no fee
@@ -156,11 +158,41 @@ function runEra(era) {
     const area = typeof purge === 'string' ? (purge.match(/Your area: .*?\(([a-z0-9_]+)\)/) || [])[1] : null;
     check(area && e.purgeMaps.includes(area), `Bounty Hunter: Area Purge at Lv ${e.level} gives a map of its range`, area ? `area ${area}` : JSON.stringify(purge).slice(-300));
 
-    // Training Dummies: both there, with their own size.
-    gm('@warp prontera 155 160');
-    const mobs = ev(`roAgent.entities({ type: 'MOB', radius: 8 }).map(m => m.name + ' ' + m.position.join(','))`);
-    check(Array.isArray(mobs) && mobs.includes('Medium Dummy 153,163') && mobs.includes('Large Dummy 158,163'),
-        'Training Dummies: Medium at 153,163 and Large at 158,163', JSON.stringify(mobs));
+    // Training Dummies: the dummy is up from the start, and the Dummy
+    // Master's settings stick: after Done its menu shows them, and a
+    // dummy is there again.
+    gm('@warp prontera 153 222');
+    // A replaced dummy fades out in the client with gid -1 for a moment; it
+    // is not on the server any more, so it does not count.
+    const dummies = () => ev(`roAgent.entities({ type: 'MOB', radius: 10 }).filter(m => m.name === 'Training Dummy' && m.gid > 0 && !m.dead).map(m => m.position.join(','))`);
+    const dummyFirst = dummies();
+    check(Array.isArray(dummyFirst) && dummyFirst.length === 1 && dummyFirst[0] === '156,225', 'Training Dummies: one dummy at 156,225', JSON.stringify(dummyFirst));
+    const master = ev(`(async () => {
+        const menu = async () => { let v = snpc.view(); for (let i = 0; i < 6 && !v.menu.length && v.next; i++) v = await snpc.next(); return v; };
+        await snpc.talk('Dummy Master'); await menu();
+        await snpc.pick('Size'); await snpc.pick('Large');
+        await snpc.pick('Element ('); await snpc.pick('Fire');
+        await snpc.pick('Element level'); await snpc.pick('3');
+        await snpc.pick('Type');
+        const types = snpc.view().menu.map(m => m.text);
+        await snpc.pick(${e.mvp90 ? "'MVP, 90%'" : "'MVP'"});
+        await snpc.pick('Done'); await snpc.close();
+        await new Promise(r => setTimeout(r, 3000));
+        await snpc.talk('Dummy Master'); const v = await menu();
+        const labels = v.menu.map(m => m.text);
+        await snpc.pick('Cancel'); await snpc.close();
+        return { labels, types };
+    })()`);
+    const want = ['Size (Large)', 'Element (Fire)', 'Element level (3)', 'Race (Formless)', 'DEF (0)', 'MDEF (0)',
+        e.mvp90 ? 'Type (MVP, 90% less damage)' : 'Type (MVP)', 'Done', 'Cancel'];
+    const masterLabels = master && Array.isArray(master.labels) ? master.labels : [];
+    check(want.every((w, i) => masterLabels[i] === w), 'Dummy Master: settings kept after Done', JSON.stringify(master));
+    const types = master && Array.isArray(master.types) ? master.types : [];
+    const wantTypes = e.mvp90 ? ['Normal', 'Boss', 'MVP', 'MVP, 90% less damage'] : ['Normal', 'Boss', 'MVP'];
+    check(types.length === wantTypes.length && wantTypes.every((t, i) => types[i] === t),
+        `Dummy Master: types ${e.mvp90 ? 'with' : 'without'} "MVP, 90% less damage"`, JSON.stringify(types));
+    const dummyAfter = dummies();
+    check(Array.isArray(dummyAfter) && dummyAfter.length === 1 && dummyAfter[0] === '156,225', 'Training Dummies: one dummy after Done', JSON.stringify(dummyAfter));
     for (const [id, wanted] of Object.entries(e.dummy)) {
         gm(`@mobinfo ${id}`);
         const info = ev(`snpc.chat(8).join(' ')`);
@@ -179,14 +211,27 @@ function runEra(era) {
     check(blessing === e.blessing, `Tool Dealer: Blacksmith Blessing ${e.blessing ? 'sold' : 'not sold'}`,
         blessing ? 'listed' : 'not listed');
 
-    // Without cash-shop-extended (it is not in the test world): the Tool
-    // Dealer sells the Elemental Converters, Master Nokzin sends players
-    // there, and the Cheffenia Gatekeeper offers Zeny only (#40).
-    check(items.some(n => /Converter/.test(n)), 'Tool Dealer: Elemental Converters sold without cash-shop-extended', items.filter(n => /Convert/.test(n)).join(', ') || 'none');
+    // Without cash-shop-extended (it is not in the test world): Master
+    // Nokzin sells the Elemental Converters (not the Tool Dealer), the Tool
+    // Dealer the Gym Pass, and the Cheffenia Gatekeeper offers Zeny only (#40).
+    check(!items.some(n => /Converter/.test(n)), 'Tool Dealer: no Elemental Converters (Master Nokzin sells them)', items.filter(n => /Convert/.test(n)).join(', ') || 'none');
     check(items.includes('Gym Pass'), 'Tool Dealer: Gym Pass sold without cash-shop-extended', items.includes('Gym Pass') ? 'listed' : 'not listed');
-    gm('@warp prontera 167 175');
-    const nokzin = ev(`(async () => { await snpc.talk('Master Nokzin'); const v = await snpc.go('What about converter scrolls?'); const t = v.text || ''; await snpc.close(); return t; })()`);
-    check(typeof nokzin === 'string' && nokzin.includes('Tool Dealer here in Prontera (143,178)'), 'Master Nokzin: points to the Tool Dealer (143,178)', String(nokzin).slice(-160));
+    gm('@warp prontera 144 226');
+    const nokzin = ev(`(async () => {
+        await snpc.talk('Master Nokzin');
+        const v = await snpc.go('What about converter scrolls?');
+        const text = v.text || '';
+        await snpc.close();
+        await new Promise(r => setTimeout(r, 1500));
+        const store = roAgent.modules.UIManager.getComponent('NpcStore');
+        const root = store && store.getRoot ? store.getRoot() : null;
+        const names = root ? [...root.querySelectorAll('.name')].map(e => e.textContent.trim()).filter(Boolean) : [];
+        try { store.remove(); } catch { /* not open */ }
+        return { text, items: [...new Set(names)] };
+    })()`);
+    const converters = nokzin && Array.isArray(nokzin.items) ? nokzin.items.filter(n => /Converter/.test(n)) : [];
+    check(nokzin && /five thousand zeny each/.test(nokzin.text) && converters.length === 4, 'Master Nokzin: sells the four Elemental Converters',
+        converters.join(', ') || JSON.stringify(nokzin).slice(-200));
     gm('@warp prontera 140 177');
     const gate = ev(`(async () => {
         const sleep = ms => new Promise(r => setTimeout(r, ms));

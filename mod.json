@@ -68,7 +68,7 @@
       "type": "boolean",
       "default": true,
       "label": "Training Dummies",
-      "description": "Stationary target dummies for testing damage output: a Medium-size and a Large-size one. Prontera (153,163) and (158,163)."
+      "description": "A training dummy for testing damage output. The Dummy Master sets its size, element, race, DEF, MDEF and type (Normal, Boss, MVP). Prontera: dummy (156,225), Dummy Master (150,225)."
     }
   ]
 }

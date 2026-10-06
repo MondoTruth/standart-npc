@@ -88,13 +88,13 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | ⚒️ | **Safe Refiner** | Refine gear to +7 through +15 using certificates (Pre-renewal: +7, +8, +9, +11). | Prontera (164, 172) |
 | 📊 | **Grade Refiner** | Opens the game's grading and refining windows. Renewal only. | Prontera (164, 166) |
 | 💎 | **Universal Enchanter** | Attach an Enchant/Class Stone (or similar item) to costume, shadow or regular gear, for free. Keeps the refine level. | Prontera (164, 169) |
-| 🔥 | **Master Nokzin** | Endows your weapon with an element for an hour, works on carded weapons too. Can also remove an endow for free. Portable Elemental Converter scrolls: the Cash Shop with cash-shop-extended, the Tool Dealer without it. | Prontera (167, 178) |
+| 🔥 | **Master Nokzin** | Endows your weapon with an element for an hour, works on carded weapons too. Can also remove an endow for free. Portable Elemental Converter scrolls: the Cash Shop with cash-shop-extended; without it he sells them himself (5,000z). | Prontera (144, 229) |
 
 #### 🥊 Training
 
 | | NPC | What it does | Location |
 |:-:|---|---|---|
-| 🎯 | **Training Dummies** | Stationary target dummies for testing damage output: a Medium-size and a Large-size one, in both eras. | Prontera (153, 163) and (158, 163) |
+| 🎯 | **Training Dummies** | A training dummy for testing damage output, always there. The Dummy Master next to it sets its size, element and element level, race, DEF, MDEF and type: Normal, Boss, MVP, or (Renewal) MVP taking 90% less damage. Both eras. | Prontera: dummy (156, 225), Dummy Master (150, 225) |
 
 #### 🎁 Other
 
@@ -104,7 +104,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | 👼 | **Welcoming** | A one-time starter gift for every new character: 150,000 Zeny, a Premium Booster Box and two costumes. Renewal only. | Izlude (189, 209) |
 
 > [!NOTE]
-> Lil Art's **cash-shop-extended** (Find Mods, Renewal only) adds a Cash Shop and Cash Points. With it, the Cheffenia Gatekeeper also takes Cash Points, the Smuggler charges more (so it does not undercut the shop) and Master Nokzin points to the Cash Shop for converters. Without it, Zeny only, the Smuggler's lower prices, and the Tool Dealer sells the converters and the Gym Pass.
+> Lil Art's **cash-shop-extended** (Find Mods, Renewal only) adds a Cash Shop and Cash Points. With it, the Cheffenia Gatekeeper also takes Cash Points, the Smuggler charges more (so it does not undercut the shop) and Master Nokzin points to the Cash Shop for converters. Without it, Zeny only, the Smuggler's lower prices, Master Nokzin sells the converters and the Tool Dealer the Gym Pass.
 
 ### 🏹 Bounty Hunter
 

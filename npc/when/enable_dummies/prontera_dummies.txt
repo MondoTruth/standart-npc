@@ -1,47 +1,154 @@
 //===== rAthena Script =======================================
-//= Prontera Training Dummies (Medium & Large)
-//===== By: Lil Art ===========================================
+//= Dummy Master and the Training Dummy (Prontera)
+//===== By: Lil Art, MondoTruth ================================
 //===== Description: =========================================
-//= Stationary target dummies for testing damage output: a
-//= Medium-size one at (153,163) and a Large-size one at
-//= (158,163). A dummy that dies comes back after 2 seconds.
+//= One stationary Training Dummy at Prontera (156,225), always
+//= there. The Dummy Master next to it (150,225) sets what the
+//= dummy is: size, element, element level, race, DEF, MDEF and
+//= type (Normal, Boss, MVP, and on Renewal MVP taking 10% of the
+//= damage, as the newer MVPs do). Done puts up a new dummy with those
+//= settings. A dummy that dies comes back after 2 seconds with
+//= the same settings. After a server restart it starts from the
+//= defaults: Medium, Neutral 1, Formless, DEF 0, MDEF 0, Normal.
 //===== How to customize: ====================================
-//= - Stats (level, HP, DEF, size, element): the monster table,
+//= - Defaults: .size, .ele, .elv, .race, .def, .mdef, .type in
+//=   OnInit.
+//= - Level and HP: the monster table,
 //=   db/when/enable_dummies/mob_db.yml (Renewal) and
-//=   pre-renewal/db/when/enable_dummies/mob_db.yml (Pre-renewal).
+//=   pre-renewal/db/when/enable_dummies/mob_db.yml (Pre-renewal);
+//=   28412 is the Normal dummy, 28413 the Boss one (Boss and MVP).
 //= - Look: db/when/enable_dummies/mob_avail.yml.
-//= - Position: the x,y in the monster lines below (4 of them).
+//= - Position: the NPC line below and .x, .y in OnInit.
 //============================================================
 
--	script	PrtDummyManager	-1,{
+prontera,150,225,5	script	Dummy Master	414,{
+	// A working copy: nothing changes until Done.
+	.@size = .size;
+	.@ele = .ele;
+	.@elv = .elv;
+	.@race = .race;
+	.@def = .def;
+	.@mdef = .mdef;
+	.@type = .type;
+	mes "[Dummy Master]";
+	mes "The training dummy over there is yours to shape. Pick what it should be, then choose Done and I'll put it up.";
+	while (1) {
+		.@s = select(
+			"Size (" + .size_name$[.@size] + ")",
+			"Element (" + .ele_name$[.@ele] + ")",
+			"Element level (" + .@elv + ")",
+			"Race (" + .race_name$[.@race] + ")",
+			"DEF (" + .@def + ")",
+			"MDEF (" + .@mdef + ")",
+			"Type (" + .type_name$[.@type] + ")",
+			"Done",
+			"Cancel");
+		switch (.@s) {
+		case 1:
+			.@size = select(implode(.size_name$, ":")) - 1;
+			break;
+		case 2:
+			.@ele = select(implode(.ele_name$, ":")) - 1;
+			break;
+		case 3:
+			.@elv = select("1:2:3:4");
+			break;
+		case 4:
+			.@race = select(implode(.race_name$, ":")) - 1;
+			break;
+		case 5:
+			mes "DEF, 0 to 999:";
+			input .@def, 0, 999;
+			break;
+		case 6:
+			mes "MDEF, 0 to 999:";
+			input .@mdef, 0, 999;
+			break;
+		case 7:
+			.@type = select(implode(.type_name$, ":")) - 1;
+			break;
+		case 8:
+			.size = .@size;
+			.ele = .@ele;
+			.elv = .@elv;
+			.race = .@race;
+			.def = .@def;
+			.mdef = .@mdef;
+			.type = .@type;
+			callsub S_Spawn;
+			mes "[Dummy Master]";
+			mes "There it is. Have at it.";
+			close;
+		default:
+			close;
+		}
+	}
+	end;
+
+// Replaces the dummy with one of the current settings. killmonster
+// with the event label does not run OnDummyDead, so no second one
+// comes back from the respawn timer.
+S_Spawn:
+	stopnpctimer;
+	killmonster "prontera", strnpcinfo(3) + "::OnDummyDead";
+	.@mob = 28412;
+	if (.type > 0)
+		.@mob = 28413;
+	monster "prontera", .x, .y, "Training Dummy", .@mob, 1, strnpcinfo(3) + "::OnDummyDead";
+	.@gid = $@mobid[0];
+	if (.@gid <= 0) {
+		debugmes "Training Dummies: the dummy did not spawn.";
+		return;
+	}
+	setunitdata .@gid, UMOB_SIZE, .size;
+	setunitdata .@gid, UMOB_ELETYPE, .ele_id[.ele];
+	setunitdata .@gid, UMOB_ELELEVEL, .elv;
+	setunitdata .@gid, UMOB_RACE, .race_id[.race];
+	setunitdata .@gid, UMOB_DEF, .def;
+	setunitdata .@gid, UMOB_MDEF, .mdef;
+	if (.type >= 2) {
+		getunitdata .@gid, .@md;
+		setunitdata .@gid, UMOB_MODE, .@md[UMOB_MODE] | MD_MVP;
+	}
+	if (.type == 3)
+		setunitdata .@gid, UMOB_DAMAGETAKEN, 10;
+	return;
+
+OnDummyDead:
+	initnpctimer;
+	end;
+
+OnTimer2000:
+	callsub S_Spawn;
+	end;
+
 OnInit:
-    // 28412/28413 come from db/when/enable_dummies/mob_db.yml. If that
-    // table was not read, say so in the log instead of spawning nothing.
-    if (getmonsterinfo(28412, MOB_LV) < 0 || getmonsterinfo(28413, MOB_LV) < 0) {
-        debugmes "Training Dummies: monsters 28412/28413 not in the mob db, no dummies spawned.";
-        end;
-    }
-    killmonster "prontera", "PrtDummyManager::OnDummyInfo2";
-    killmonster "prontera", "PrtDummyManager::OnDummyInfo3";
-
-    // Medium Dummy & Large Dummy
-    monster "prontera", 153, 163, "Medium Dummy", 28412, 1, "PrtDummyManager::OnDummyInfo2";
-    monster "prontera", 158, 163, "Large Dummy", 28413, 1, "PrtDummyManager::OnDummyInfo3";
-    end;
-
-OnDummyInfo2:
-    addtimer 2000, "PrtDummyManager::OnRespawn2";
-    end;
-
-OnDummyInfo3:
-    addtimer 2000, "PrtDummyManager::OnRespawn3";
-    end;
-
-OnRespawn2:
-    monster "prontera", 153, 163, "Medium Dummy", 28412, 1, "PrtDummyManager::OnDummyInfo2";
-    end;
-
-OnRespawn3:
-    monster "prontera", 158, 163, "Large Dummy", 28413, 1, "PrtDummyManager::OnDummyInfo3";
-    end;
+	// 28412/28413 come from db/when/enable_dummies/mob_db.yml. If that
+	// table was not read, say so in the log instead of spawning nothing.
+	if (getmonsterinfo(28412, MOB_LV) < 0 || getmonsterinfo(28413, MOB_LV) < 0) {
+		debugmes "Training Dummies: monsters 28412/28413 not in the mob db, no dummies spawned.";
+		end;
+	}
+	.x = 156;
+	.y = 225;
+	setarray .size_name$[0], "Small", "Medium", "Large";   // Size_Small, Size_Medium, Size_Large
+	setarray .ele_name$[0], "Neutral", "Water", "Earth", "Fire", "Wind", "Poison", "Holy", "Dark", "Ghost", "Undead";
+	setarray .ele_id[0], ELE_NEUTRAL, ELE_WATER, ELE_EARTH, ELE_FIRE, ELE_WIND, ELE_POISON, ELE_HOLY, ELE_DARK, ELE_GHOST, ELE_UNDEAD;
+	setarray .race_name$[0], "Formless", "Undead", "Brute", "Plant", "Insect", "Fish", "Demon", "Demi-Human", "Angel", "Dragon";
+	setarray .race_id[0], RC_FORMLESS, RC_UNDEAD, RC_BRUTE, RC_PLANT, RC_INSECT, RC_FISH, RC_DEMON, RC_DEMIHUMAN, RC_ANGEL, RC_DRAGON;
+	setarray .type_name$[0], "Normal", "Boss", "MVP";
+	// The newer MVPs that take 10% of the damage are all Renewal ones; no
+	// Pre-renewal monster has a DamageTaken (db/pre-re/mob_db.yml).
+	if (checkre(0))
+		.type_name$[3] = "MVP, 90% less damage";
+	// Defaults: the plainest dummy.
+	.size = Size_Medium;
+	.ele = 0;
+	.elv = 1;
+	.race = 0;
+	.def = 0;
+	.mdef = 0;
+	.type = 0;
+	callsub S_Spawn;
+	end;
 }
