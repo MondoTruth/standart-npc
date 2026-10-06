@@ -247,22 +247,26 @@ them before relying on a mod.json key or folder.
 - **Smoke test**: `node tests/smoke.cjs` (or `renewal` / `pre-renewal`)
   starts a throwaway world with the mod in each era and checks the
   map-server log: no script errors, unknown IDs or NPC parse problems, the
-  dummies' tables read, Bounty Hunter's start-up line. Run it after every
-  script change and before a release; it takes a few minutes per era. It
-  needs the app clone at `../ragnarokoffline.app` (or `SNPC_APP`) with the
-  client, supervisor and asset server built and `dist/images.tar.gz`
-  downloaded (app's `docs/AGENT_TESTING.md`, "Setting up a world"); the
-  world runs on its own ports, so the installed app can stay open.
-- **Play test**: `node tests/play.cjs` (or one era) logs the character
-  "Tester" in through the real client (app's `scripts/rotest`) and talks to
-  the NPCs: Buffer's chat line, Bounty Hunter's menu per era, Area Purge
-  at Lv 210 (Renewal) / 99 (Pre-renewal), both dummies and their
-  `@mobinfo`, Tool Dealer's list. Before each run the character is set
-  through SQL (class, level, Bounty progress cleared). NPC talk goes
-  through `tests/play-helper.js`, which sends the client's own NPC packets
-  and reads the NPC windows, so no screen coordinates. Needs
+  dummy's tables read, Bounty Hunter's start-up line. A few minutes per
+  era. It needs the app clone at `../ragnarokoffline.app` (or `SNPC_APP`)
+  with the client, supervisor and asset server built and
+  `dist/images.tar.gz` downloaded (app's `docs/AGENT_TESTING.md`,
+  "Setting up a world"); the world runs on its own ports, so the installed
+  app can stay open.
+- **Play test**: `node tests/play.cjs` (or one era) makes the smoke test's
+  checks on its own start (`serverChecks` in `tests/world.cjs`), then logs
+  the character "Tester" in through the real client (app's
+  `scripts/rotest`) and talks to the NPCs. Before each run the character
+  is set through SQL (class, level, Bounty progress cleared). NPC talk
+  goes through `tests/play-helper.js`, which sends the client's own NPC
+  packets and reads the NPC windows, so no screen coordinates. Needs
   `npx playwright install chromium` in the app clone too. A new NPC or a
-  fixed bug gets a check here when it can be seen in game.
+  fixed bug gets a check here when it can be seen in game, in its own
+  section (`SECTIONS` at the top of the file).
+  `--only=<section>,...` plays only those NPCs (e.g. `--only=valkyrie`,
+  `--only=dummies,nokzin`); the server checks always run.
+- Both tests print only failures and a count per era; `--verbose` prints
+  every passed check too.
 - **Job quest check**: `node tests/jobquests.cjs` (or a file filter like
   `2-1/assassin`, `--from=3-1/`, `--no-boot`) looks at rAthena's own
   Renewal job-change quests, not ours: with Tester in the quest's class it
@@ -272,8 +276,22 @@ them before relying on a mod.json key or folder.
   clone's `artifacts/rotest/jobquests.jsonl`. Run when players report job
   quest problems, not per change.
 - All three share `tests/world.cjs` (the world, its ports, installing the
-  mod). After every script change run the smoke test; before a release
-  run both.
+  mod, the server checks).
+- **What to run** (runs are slow and reading them costs MondoTruth's
+  usage limit):
+  - A script change: `node tests/play.cjs <era> --only=<the NPC's
+    section>`, in the era(s) the change touches. It covers the smoke
+    checks too. A change with no visible NPC part (a table, a start-up
+    line): `node tests/smoke.cjs <era>`.
+  - Several changes in a row: one run at the end, not one per change.
+  - A one-liner (a sprite, a facing, a text): no run; say so in the PR.
+  - After a full pass, a later small change re-tests only what it
+    touches. Never queue a run behind one whose result is already stale;
+    stop the stale one (check which process is which first).
+  - Before a release: `node tests/play.cjs` in both eras, every section
+    (MondoTruth may skip it when the release's changes all passed).
+  - Run tests in the background and read only the summary (failures and
+    counts), not the whole log.
 - After the installed app is updated: put the app clone on the new tag,
   `cargo build` in its `stack/`, and copy from the installed runtime
   (`%APPDATA%\Ragnarok Offline\runtime`) into the clone the build outputs
@@ -339,8 +357,8 @@ check it especially carefully.
    workflow, then download the zip from the run's Artifacts. CHANGELOG.md
    ships in the zip; the workflow fails a release whose version has no
    `## <version>` section in it (only a warning on a manual run).
-6. Before tagging: `node tests/smoke.cjs` and `node tests/play.cjs` pass in
-   both eras, tabs check,
+6. Before tagging: `node tests/play.cjs` passes in both eras (it makes the
+   smoke checks too), tabs check,
    same version everywhere, README coordinates, credits.
 7. Publish a GitHub release with tag `v<version>` and the CHANGELOG.md section
    as description. Don't attach the zip by hand: the workflow builds it and
