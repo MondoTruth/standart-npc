@@ -193,6 +193,16 @@ Other things in Prontera since app 1.4.6:
   it on the same character. New permanent variables get a prefix that says
   whose they are (`SNPC_`, or the NPC's existing prefix like `BB_`). Do not
   rename existing ones without a migration — players' progress is in them.
+- **Mod store** (app 1.5.2, experimental until 1.6, Flux159/ragnarokoffline.app#440):
+  key/value data of the mod's own, `global` / `account` / `char` (deleted
+  with the character), via `modstore_get/set/inc/...` in scripts, `store.*`
+  in Lua, `api.store.get` (paths under `client` only) in a client plugin.
+  Only files under the mod's `npc/` can use it. Reference:
+  `docs/MOD_STORE.md` in the app. Moving existing variables there needs a
+  migration and `requires.app >= 1.5.2`; don't start before MondoTruth
+  decides.
+- Mods' `query_sql` / `query_logsql` are **read-only** (app 1.5.2): no
+  INSERT/UPDATE/CREATE, and tables `login` and `mod_store` are hidden.
 - `db/*.yml` needs a real `Header: {Type, Version}` / `Body:` wrapper.
 - Coordinates in mod.json descriptions and README: always grep from the file.
 - New NPC: by default always loaded -- file in `npc/`, `OnInit` with
