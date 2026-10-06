@@ -51,7 +51,7 @@ CHANGELOG.md             -- full history, one ## <version> section per release
                             (shipped; the app shows players the sections an
                             update skips)
 settings/index.html      -- the mod's own settings window
-db/when/enable_dummies/  -- mob_db.yml, mob_avail.yml: the two Training Dummies
+db/when/enable_dummies/  -- mob_db.yml, mob_avail.yml: the Training Dummy (Normal, Boss)
 npc/
   custom/snpc_settings.txt  -- F_SNPC_Off: switch for always-loaded NPCs
   *.txt                     -- always-loaded NPCs (Warper, Buffer, Job Master, ...)
@@ -129,9 +129,9 @@ really must go, say so in CHANGELOG.md.
 | Safe Refiner | 164,172 | npc_off `refiner` |
 | Grade Refiner | 164,166 | npc_off `grade` (Renewal only) |
 | Universal Enchanter | 164,169 | npc_off `enchanter` |
-| Master Nokzin | 167,178 | npc_off `nokzin` |
+| Master Nokzin | 144,229 | npc_off `nokzin` |
 | Daily Rewards | 147,166 | npc_off `daily` |
-| Training Dummies | 153,163 and 158,163 | enable_dummies |
+| Training Dummy / Dummy Master | 156,225 / 150,225 | enable_dummies |
 
 Before placing a new NPC, grep all `prontera,` lines to avoid collisions.
 Other things in Prontera since app 1.4.6:
@@ -193,6 +193,16 @@ Other things in Prontera since app 1.4.6:
   it on the same character. New permanent variables get a prefix that says
   whose they are (`SNPC_`, or the NPC's existing prefix like `BB_`). Do not
   rename existing ones without a migration — players' progress is in them.
+- **Mod store** (app 1.5.2, experimental until 1.6, Flux159/ragnarokoffline.app#440):
+  key/value data of the mod's own, `global` / `account` / `char` (deleted
+  with the character), via `modstore_get/set/inc/...` in scripts, `store.*`
+  in Lua, `api.store.get` (paths under `client` only) in a client plugin.
+  Only files under the mod's `npc/` can use it. Reference:
+  `docs/MOD_STORE.md` in the app. Moving existing variables there needs a
+  migration and `requires.app >= 1.5.2`; don't start before MondoTruth
+  decides.
+- Mods' `query_sql` / `query_logsql` are **read-only** (app 1.5.2): no
+  INSERT/UPDATE/CREATE, and tables `login` and `mod_store` are hidden.
 - `db/*.yml` needs a real `Header: {Type, Version}` / `Body:` wrapper.
 - Coordinates in mod.json descriptions and README: always grep from the file.
 - New NPC: by default always loaded -- file in `npc/`, `OnInit` with
@@ -253,7 +263,15 @@ them before relying on a mod.json key or folder.
   and reads the NPC windows, so no screen coordinates. Needs
   `npx playwright install chromium` in the app clone too. A new NPC or a
   fixed bug gets a check here when it can be seen in game.
-- Both tests share `tests/world.cjs` (the world, its ports, installing the
+- **Job quest check**: `node tests/jobquests.cjs` (or a file filter like
+  `2-1/assassin`, `--from=3-1/`, `--no-boot`) looks at rAthena's own
+  Renewal job-change quests, not ours: with Tester in the quest's class it
+  warps to every NPC the job scripts place (the app's navigation index)
+  and talks to it. Finds missing, undrawn or silent NPCs, not bugs in the
+  middle of a quest. About three hours for all; results in the app
+  clone's `artifacts/rotest/jobquests.jsonl`. Run when players report job
+  quest problems, not per change.
+- All three share `tests/world.cjs` (the world, its ports, installing the
   mod). After every script change run the smoke test; before a release
   run both.
 - After the installed app is updated: put the app clone on the new tag,
