@@ -62,7 +62,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | 🎓 | **Job Master** | Full job changer up to 4th class, including job-change equipment (Wolf Flute for Ranger, etc.). | Prontera (157, 195) |
 | 🔄 | **Reset Girl** | Resets skills, stats, or both, for Zeny. | Prontera (154, 195) |
 | 💇 | **Stylist** | Hair style, hair color, cloth color changer. | Prontera (169, 180) |
-| 🛡️ | **Episode Valkyrie** | Episode Clear Tickets skip an episode's main story, as on official servers: its instances and daily quests open, no rewards. One ticket per part, in story order. Episodes 17.1 (Rekenber, Rudus, Clana Nemieri), 17.2 (the Mansion areas, Lost Farm, Hidden Garden) and 18 (Villa of Deception) for now. Sells the tickets for Zeny; [cash-shop-extended](https://github.com/LilArt420/cashshopmod)'s Cash Shop sells 16-18 too. Renewal only. | Prontera (128, 193) |
+| 🛡️ | **Episode Valkyrie** | Episode Clear Tickets skip an episode's main story, as on official servers: its instances and daily quests open, no rewards. One ticket per part, in story order. Episodes 16.2 (Heart Hunter War Base, Werner Laboratory, Einbech), 17.1 (Rekenber, Rudus, Clana Nemieri), 17.2 (the Mansion areas, Lost Farm, Hidden Garden) and 18 (Villa of Deception) for now. Sells the tickets for Zeny; [cash-shop-extended](https://github.com/LilArt420/cashshopmod)'s Cash Shop sells 16-18 too. Renewal only. | Prontera (128, 193) |
 | 🎭 | **Plagiarism Master** | Rogue, Stalker, Shadow Chaser and Abyss Chaser copy any skill Plagiarism can copy. The level goes up to your Plagiarism level. | Prontera (171, 182) |
 
 #### 🛒 Shops & cards
@@ -88,13 +88,13 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | ⚒️ | **Safe Refiner** | Refine gear to +7 through +15 using certificates (Pre-renewal: +7, +8, +9, +11). | Prontera (164, 172) |
 | 📊 | **Grade Refiner** | Opens the game's grading and refining windows. Renewal only. | Prontera (164, 166) |
 | 💎 | **Universal Enchanter** | Attach an Enchant/Class Stone (or similar item) to costume, shadow or regular gear, for free. Keeps the refine level. | Prontera (164, 169) |
-| 🔥 | **Master Nokzin** | Endows your weapon with an element for an hour, works on carded weapons too. Can also remove an endow for free. Portable Elemental Converter scrolls: the Cash Shop with cash-shop-extended, the Tool Dealer without it. | Prontera (167, 178) |
+| 🔥 | **Master Nokzin** | Endows your weapon with an element for an hour, works on carded weapons too. Can also remove an endow for free. Portable Elemental Converter scrolls: the Cash Shop with cash-shop-extended; without it he sells them himself (5,000z). | Prontera (144, 229) |
 
 #### 🥊 Training
 
 | | NPC | What it does | Location |
 |:-:|---|---|---|
-| 🎯 | **Training Dummies** | Stationary target dummies for testing damage output: a Medium-size and a Large-size one, in both eras. | Prontera (153, 163) and (158, 163) |
+| 🎯 | **Training Dummies** | A training dummy for testing damage output, always there. The Dummy Master next to it sets its size, element and element level, race, DEF, MDEF and type: Normal, Boss, MVP, or (Renewal) MVP taking 90% less damage. Both eras. | Prontera: dummy (156, 225), Dummy Master (150, 225) |
 
 #### 🎁 Other
 
@@ -104,7 +104,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | 👼 | **Welcoming** | A one-time starter gift for every new character: 150,000 Zeny, a Premium Booster Box and two costumes. Renewal only. | Izlude (189, 209) |
 
 > [!NOTE]
-> Lil Art's **cash-shop-extended** (Find Mods, Renewal only) adds a Cash Shop and Cash Points. With it, the Cheffenia Gatekeeper also takes Cash Points, the Smuggler charges more (so it does not undercut the shop) and Master Nokzin points to the Cash Shop for converters. Without it, Zeny only, the Smuggler's lower prices, and the Tool Dealer sells the converters and the Gym Pass.
+> Lil Art's **cash-shop-extended** (Find Mods, Renewal only) adds a Cash Shop and Cash Points. With it, the Cheffenia Gatekeeper also takes Cash Points, the Smuggler charges more (so it does not undercut the shop) and Master Nokzin points to the Cash Shop for converters. Without it, Zeny only, the Smuggler's lower prices, Master Nokzin sells the converters and the Tool Dealer the Gym Pass.
 
 ### 🏹 Bounty Hunter
 

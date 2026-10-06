@@ -226,9 +226,19 @@ Warper, on by default (switch each off in Settings..., "Options..." next to the 
 - Weight Maxxer and Bounty Hunter swap places: Weight Maxxer at Prontera (147,172), Bounty Hunter at (147,169). By Lil Art.
 - Safe Refiner has a new look (sprite 4_NASARIN). By Lil Art.
 
+## 4.9.3
+
+### Renewal and Pre-renewal
+- Training Dummies: one dummy instead of two, now north of the fountain in Prontera (156,225), with a new Dummy Master next to it (150,225). Talk to him to choose what the dummy is: size, element and element level, race, DEF and MDEF (0-999), and type: Normal, Boss or MVP. It starts as a plain Medium, Neutral, Formless dummy with no DEF or MDEF, comes back with your settings if it dies, and is plain again after the game restarts. Thanks Lil Art, whose MVP Dummy idea started this.
+- Master Nokzin moved to Prontera (144,229) and has a new look.
+- Without Lil Art's cash-shop-extended, Master Nokzin now sells the Elemental Converters himself (5,000z each) instead of the Tool Dealer. The Tool Dealer keeps the Gym Pass.
+
+### Renewal only
+- Dummy Master: one more type, MVP taking 90% less damage, like the newer MVPs.
+
 ## Next version
 
 ### Renewal only
-- Episode Valkyrie reworked: an Episode Clear Ticket now skips the episode's main story, as on official servers, instead of giving EXP. Episodes 17.1, 17.2 and 18 for now. 17.1 opens Rekenber, Rudus, Clana Nemieri, the Illusion enchanter and its dailies; 17.2 opens the Mansion areas, Lost Farm, Hidden Garden and its side quests; 18 opens Villa of Deception and the Wolfvill dailies. No EXP or quest rewards.
+- Episode Valkyrie reworked: an Episode Clear Ticket now skips the episode's main story, as on official servers, instead of giving EXP. Episodes 16.2, 17.1, 17.2 and 18 for now. 16.2 opens the Heart Hunter War Base, the Werner Laboratory central room, Einbech's station and its dailies; 17.1 opens Rekenber, Rudus, Clana Nemieri, the Illusion enchanter and its dailies; 17.2 opens the Mansion areas, Lost Farm, Hidden Garden and its side quests; 18 opens Villa of Deception and the Wolfvill dailies. No EXP or quest rewards.
 - Episode Valkyrie no longer marks unrelated quests as done (old tickets set quests such as the Knight job change). Tickets for other episodes are kept until their skip is added; 19 and 20 are gone.
-- Episode Valkyrie sells the tickets for Zeny (Episode 17: 5,000,000, Episode 18: 6,000,000). One ticket skips one part of an episode (17.1, 17.2, ...), in story order: a part needs the one before it finished, played or skipped (18 needs 17.2, 17.2 needs 17.1, 17.1 needs 16.2 played).
+- Episode Valkyrie sells the tickets for Zeny (Episode 16: 4,000,000, Episode 17: 5,000,000, Episode 18: 6,000,000). One ticket skips one part of an episode (17.1, 17.2, ...), in story order: a part needs the one before it finished, played or skipped (18 needs 17.2, 17.2 needs 17.1, 17.1 needs 16.2, and 16.2 needs 16.1 played up to the room of consciousness).
