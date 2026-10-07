@@ -235,3 +235,13 @@ Warper, on by default (switch each off in Settings..., "Options..." next to the 
 
 ### Renewal only
 - Dummy Master: one more type, MVP taking 90% less damage, like the newer MVPs.
+
+## 4.9.4
+
+### Renewal and Pre-renewal
+- Kafra Employee (the mod's own NPC in Prontera, not the Kafras in towns) is now the Premium Service Manager (Prontera 160,187), with a new look. Save, Storage and Identify stay. New: Discard an item — get rid of items you cannot drop or trade (account-bound, trade-restricted, rental). It asks how many of a stack and for a confirmation. Equipped items are not listed. A discarded item is gone for good.
+- If you had switched the Kafra Employee off in the settings, the Premium Service Manager stays off.
+
+### Renewal only
+- Plagiarism Master: Shadow Chaser and Abyss Chaser can now copy a 3rd class skill into the Reproduce slot (65 skills), up to their Reproduce level. 1st and 2nd class skills still go into the Plagiarism slot.
+- Known issue: the skill window lets you put skill points into a copied skill. They are not lost: Apply gives them back. Fixed in the game client, coming with an app update.
