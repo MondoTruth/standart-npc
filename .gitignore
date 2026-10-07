@@ -1,0 +1,15 @@
+# dependencies
+/node_modules
+
+# testing
+/coverage
+
+# built files
+/out
+
+# logs
+*.log
+
+# misc
+.DS_Store
+.env

@@ -1,0 +1,114 @@
+//---- standart-npc by MondoTruth ----//
+// Version: 1.0.0
+// Requires: app 1.5.2+
+//
+// Progress variables migrated to mod store.
+
+prontera,155,185,5	script	Standart NPC	4_F_MERCA1,{
+
+	// Migration: first use reads old variables and writes to store
+	if (!getglobalvariable("SNPC_migrated_v1")) {
+		// Migrate welcome gift flag
+		if (#SNPC_WelcomeGift == 1) {
+			setaccountvariable "#SNPC_WelcomeGift", 1;
+			set #SNPC_WelcomeGift, 0;
+		}
+		// Mark migration as complete
+		setglobalvariable "SNPC_migrated_v1", 1;
+	}
+
+	// Check welcome gift from store
+	if (getaccountvariable("#SNPC_WelcomeGift") == 1) {
+		mes "[Standart NPC]";
+		mes "Welcome back! You've already claimed your welcome gift.";
+		close2;
+		warp "SavePoint",0,0;
+		end;
+	}
+
+	// Check daily reward from store
+	if (getcharvariable("SNPC_daily_claimed") == 1) {
+		mes "[Standart NPC]";
+		mes "You've already claimed your daily reward today. Come back tomorrow!";
+		close2;
+		warp "SavePoint",0,0;
+		end;
+	}
+
+	mes "[Standart NPC]";
+	mes "Hello! I have some special things to offer you.";
+	next;
+
+	switch(select("- Daily Rewards","- MVP Dungeon","- Bounty Hunter","- Old Man Quest")) {
+		case 1:
+			// Daily Rewards - account scope via store
+			mes "[Standart NPC]";
+			mes "You want daily rewards? Here you go!";
+			getitem 501,10;
+			setcharvariable "SNPC_daily_claimed",1;
+			mes "Come back tomorrow for more!";
+			close;
+
+		case 2:
+			// MVP Dungeon
+			mes "[Standart NPC]";
+			mes "Do you want to enter the MVP Dungeon?";
+			next;
+			if (select("- Enter","- Skip") == 1) {
+				mes "[Standart NPC]";
+				mes "You entered the MVP Dungeon!";
+				warp "mvp_dun01",0,0;
+			} else {
+				mes "[Standart NPC]";
+				mes "Maybe next time!";
+				close;
+			}
+
+		case 3:
+			// Bounty Hunter - account scope via store
+			mes "[Standart NPC]";
+			mes "Do you want to hunt some bounties?";
+			next;
+			if (select("- Accept Bounty","- Skip") == 1) {
+				mes "[Standart NPC]";
+				mes "Your bounty is: Kill 10 Rat Kings!";
+				setcharvariable "BB_Contract",1;
+				setcharvariable "BB_Kills",0;
+				close;
+			} else {
+				mes "[Standart NPC]";
+				mes "Alright, come back when you're ready!";
+				close;
+			}
+
+		case 4:
+			// Old man quest
+			mes "[Old Man]";
+			mes "Hey there! Can you help me by killing some rats?";
+			next;
+			if (select("- Okay","- No thanks") == 1) {
+				mes "[Old Man]";
+				mes "Great! Kill 20 Monks for me!";
+				setcharvariable "killrats_quest",1;
+				setcharvariable "killrats_count",0;
+				close;
+			} else {
+				mes "[Old Man]";
+				mes "Alright, maybe another time.";
+				close;
+			}
+	}
+}
+
+// Welcome gift trigger (first time player talks to NPC)
+prontera,155,185,5	script	WelcomeTrigger	4_F_MERCA1,{
+	if (getcharid(0) == 0) end;
+	// Use store for welcome gift - account scope
+	if (getaccountvariable("#SNPC_WelcomeGift") == 1) end;
+
+	setaccountvariable "#SNPC_WelcomeGift", 1;
+	mes "[Standart NPC]";
+	mes "Welcome! Here's a little gift for you.";
+	getitem 512,1;
+	close;
+}
