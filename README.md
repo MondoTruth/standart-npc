@@ -52,7 +52,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 |:-:|---|---|---|
 | 🌀 | **Warper** | Menu-based travel — towns, fields, dungeons, guild castles, instances. Duplicated in every major town. On by default, each can be switched off: a fee for 3rd/4th classes (5,000 / 15,000 Zeny) and quest-locked dungeons. | Every major town |
 | ✨ | **Buffer** | Free instant buffs + full heal on click, no dialog window. You choose the buffs (see below). Duplicated in every major town. | Every major town |
-| 📦 | **Kafra Employee** | Save point, storage, and free identify-all. | Prontera (160, 187) |
+| 📦 | **Premium Service Manager** | Save point, storage, free identify-all, and disposing of items that cannot be dropped or traded (account-bound and the like). | Prontera (160, 187) |
 | 🏋️ | **Weight Maxxer** | Trades a Gym Pass for +1 permanent carry capacity, up to 10 times. Gym Pass: the Cash Shop with cash-shop-extended, the Tool Dealer (100,000 Zeny) without it. | Prontera (147, 172) |
 
 #### 🎓 Character
@@ -63,7 +63,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | 🔄 | **Reset Girl** | Resets skills, stats, or both, for Zeny. | Prontera (154, 195) |
 | 💇 | **Stylist** | Hair style, hair color, cloth color changer. | Prontera (169, 180) |
 | 🛡️ | **Episode Valkyrie** | Redeems Episode Clear Tickets (Episodes 13-20) for EXP. Tickets 16-18 are sold by [cash-shop-extended](https://github.com/LilArt420/cashshopmod)'s Cash Shop. Renewal only. | Prontera (128, 193) |
-| 🎭 | **Plagiarism Master** | Rogue, Stalker, Shadow Chaser and Abyss Chaser copy any skill Plagiarism can copy. The level goes up to your Plagiarism level. | Prontera (171, 182) |
+| 🎭 | **Plagiarism Master** | Rogue, Stalker, Shadow Chaser and Abyss Chaser copy any skill Plagiarism can copy. The level goes up to your Plagiarism level. Shadow Chaser and Abyss Chaser can also put a 3rd class skill into their Reproduce slot (Renewal). | Prontera (171, 182) |
 
 #### 🛒 Shops & cards
 

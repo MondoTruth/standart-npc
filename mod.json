@@ -1,6 +1,6 @@
 {
   "name": "standart-npc",
-  "version": "4.9.3",
+  "version": "4.9.4",
   "author": "MondoTruth, Lil Art, IceGlaive, Nokzin, iguera, Claude, and the Ragnarok Offline community",
   "description": "Works with or without Lil Art's cash-shop-extended (Find Mods): with it, some NPCs also take Cash Points. Turning the mod on turns on every NPC; switch single ones off with Settings… (Warper, Job Master, Reset Girl, Stylist, Episode Valkyrie and all the others).",
   "settingsPage": "settings/index.html",
@@ -17,7 +17,7 @@
       "default": "",
       "max_length": 200,
       "label": "Switched-off NPCs",
-      "description": "Filled in by the Settings… window: the NPCs without a setting of their own (Warper, Buffer, Job Master, Reset Girl, Stylist, Episode Valkyrie, Falcon Breeder, Kafra Employee, Weight Maxxer, Plagiarism Master, Tool Dealer, Smuggler, Card Exchanger, Safe Refiner, Grade Refiner, Universal Enchanter, Master Nokzin, Daily Rewards, Welcoming) that are unticked there. Empty = all on."
+      "description": "Filled in by the Settings… window: the NPCs without a setting of their own (Warper, Buffer, Job Master, Reset Girl, Stylist, Episode Valkyrie, Falcon Breeder, Premium Service Manager, Weight Maxxer, Plagiarism Master, Tool Dealer, Smuggler, Card Exchanger, Safe Refiner, Grade Refiner, Universal Enchanter, Master Nokzin, Daily Rewards, Welcoming) that are unticked there. Empty = all on."
     },
     {
       "key": "buffer_set",
