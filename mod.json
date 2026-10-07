@@ -17,7 +17,7 @@
       "default": "",
       "max_length": 200,
       "label": "Switched-off NPCs",
-      "description": "Filled in by the Settings… window: the NPCs without a setting of their own (Warper, Buffer, Job Master, Reset Girl, Stylist, Episode Valkyrie, Falcon Breeder, Kafra Employee, Weight Maxxer, Plagiarism Master, Tool Dealer, Smuggler, Card Exchanger, Safe Refiner, Grade Refiner, Universal Enchanter, Master Nokzin, Daily Rewards, Welcoming) that are unticked there. Empty = all on."
+      "description": "Filled in by the Settings… window: the NPCs without a setting of their own (Warper, Buffer, Job Master, Reset Girl, Stylist, Episode Valkyrie, Falcon Breeder, Premium Service Manager, Weight Maxxer, Plagiarism Master, Tool Dealer, Smuggler, Card Exchanger, Safe Refiner, Grade Refiner, Universal Enchanter, Master Nokzin, Daily Rewards, Welcoming) that are unticked there. Empty = all on."
     },
     {
       "key": "buffer_set",

@@ -39,7 +39,7 @@ const ERAS = W.parseEras(args);
 // The parts of a run, each an NPC (or a few that belong together), in the
 // order they are played.
 const SECTIONS = ['buffer', 'bounty', 'dummies', 'tooldealer', 'nokzin', 'gatekeeper', 'valkyrie',
-    'welcome', 'enchanter', 'warper', 'smuggler', 'cardexchanger', 'plagiarism'];
+    'welcome', 'enchanter', 'warper', 'smuggler', 'cardexchanger', 'plagiarism', 'premium'];
 const onlyArg = args.find(a => a.startsWith('--only='));
 const only = onlyArg ? new Set(onlyArg.slice(7).split(',').map(t => t.trim()).filter(Boolean)) : null;
 if (only) for (const name of only) if (!SECTIONS.includes(name)) W.die(`unknown section: ${name} (sections: ${SECTIONS.join(', ')})`);
@@ -49,6 +49,10 @@ const CHAR = 'Tester';
 // Card Exchanger (#41): item and card IDs checked in the fork's
 // db/re and db/pre-re item_db (Knife_ 1202 has 4 slots in both eras).
 const CARD_TEST = { knife: 1202, keep: 4001, pull: 4002 };   // Knife [4], Poring Card, Fabre Card
+// Premium Service Manager (#76): an account-bound +3 Main Gauche and five
+// bound Yellow Potions to dispose of, and a plain Jellopy that must not be
+// offered. IDs from the fork's db/re and db/pre-re item_db.
+const PREM_TEST = { gauche: 1207, potion: 503, jellopy: 909 };
 // Universal Enchanter (#46): a slotless Hat on the head, a slotless Cotton
 // Shirt on the body, a Shard of Agility Jewel in the bag (Renewal only;
 // checked in the fork's re/pre-re item_db: Hat and Cotton Shirt in both).
@@ -133,7 +137,7 @@ function setUpCharacter(era) {
         + ` DELETE FROM char_reg_str WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\`='SNPC_WelcomeGift';`
         + ` UPDATE inventory SET equip=0 WHERE char_id=${id} AND (equip & (34 | 256 | 16)) <> 0;`
-        + ` DELETE FROM inventory WHERE char_id=${id} AND nameid IN (${CARD_TEST.knife}, ${CARD_TEST.keep}, ${CARD_TEST.pull}, ${ENCH_TEST.hat}, ${ENCH_TEST.shirt}, ${ENCH_TEST.jewel}, ${SMUG_TEST.mask}, ${SMUG_TEST.gems}, ${SMUG_TEST.free});`
+        + ` DELETE FROM inventory WHERE char_id=${id} AND nameid IN (${CARD_TEST.knife}, ${CARD_TEST.keep}, ${CARD_TEST.pull}, ${ENCH_TEST.hat}, ${ENCH_TEST.shirt}, ${ENCH_TEST.jewel}, ${SMUG_TEST.mask}, ${SMUG_TEST.gems}, ${SMUG_TEST.free}, ${PREM_TEST.gauche}, ${PREM_TEST.potion}, ${PREM_TEST.jellopy});`
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` LIKE 'SNPC\\_Smuggler%';`
         // Plagiarism Master's run leaves copied skills and a Shadow Chaser's skills.
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` IN ('CLONE_SKILL', 'CLONE_SKILL_LV', 'REPRODUCE_SKILL', 'REPRODUCE_SKILL_LV');`
@@ -143,6 +147,8 @@ function setUpCharacter(era) {
         + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify, refine, card0, card1)`
         + ` VALUES (${id}, ${CARD_TEST.knife}, 1, 2, 1, 5, ${CARD_TEST.keep}, ${CARD_TEST.pull});`
         + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify) VALUES (${id}, ${ENCH_TEST.hat}, 1, 256, 1), (${id}, ${ENCH_TEST.shirt}, 1, 16, 1);`
+        + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify, refine, bound) VALUES (${id}, ${PREM_TEST.gauche}, 1, 0, 1, 3, 1),`
+        + ` (${id}, ${PREM_TEST.potion}, 5, 0, 1, 0, 1), (${id}, ${PREM_TEST.jellopy}, 1, 0, 1, 0, 0);`
         + (e.jewel ? ` INSERT INTO inventory (char_id, nameid, amount, equip, identify) VALUES (${id}, ${ENCH_TEST.jewel}, 1, 0, 1);` : ''));
     checks.push({ ok: w.ok, text: `character set to job ${e.job}, Lv ${e.level}, no Bounty progress, carded Knife, Hat and Cotton Shirt equipped`, detail: w.ok ? '' : w.out.slice(-300) });
     return checks;
@@ -478,6 +484,43 @@ function runEra(era) {
         check(said.includes('That has 2 card(s)'), 'Card Exchanger: lists the 2 cards in the Knife', said.slice(-300));
         check(said.includes('There you go.'), 'Card Exchanger: pulls the chosen card', said.slice(-300));
     }
+    if (want('premium')) {
+        // Premium Service Manager: the bound Main Gauche goes whole, two of
+        // the five bound potions go, the tradable Jellopy is not offered.
+        gm('@warp prontera 160 185');
+        const talk = ev(`(async () => {
+            const said = [];
+            await snpc.talk('Premium Service Manager');
+            let v = await snpc.go('Discard an item');
+            said.push(v.text);
+            v = await snpc.next();
+            const menu = v.menu.map(i => i.text);
+            v = await snpc.pick('+3 Main Gauche');
+            said.push(v.text);
+            v = await snpc.go('Dispose of it');
+            said.push(v.text);
+            await snpc.close();
+            await snpc.talk('Premium Service Manager');
+            await snpc.go('Discard an item');
+            await snpc.next();
+            v = await snpc.pick('Yellow Potion x5');
+            await snpc.next();
+            v = await snpc.input(2);
+            said.push(v.text);
+            v = await snpc.go('Dispose of it');
+            said.push(v.text);
+            await snpc.close();
+            return { said, menu };
+        })()`);
+        const said = talk && talk.said ? talk.said.join(' / ') : JSON.stringify(talk);
+        const menu = talk && talk.menu ? talk.menu : [];
+        check(menu.some(t => t.startsWith('+3 Main Gauche')) && menu.includes('Yellow Potion x5'),
+            'Premium Service Manager: lists the bound Main Gauche and potions', JSON.stringify(menu));
+        check(!menu.some(t => t.startsWith('Jellopy')), 'Premium Service Manager: a tradable Jellopy is not listed', JSON.stringify(menu));
+        check(said.includes('Dispose of +3 Main Gauche') && said.includes('Dispose of 2 x Yellow Potion'),
+            'Premium Service Manager: asks before disposing', said.slice(-400));
+        check((said.match(/is gone\./g) || []).length === 2, 'Premium Service Manager: disposes of both', said.slice(-400));
+    }
     const shot = W.rotestJson('shot', `play-${era}`);
     if (shot.file) checks.push({ ok: true, text: 'screenshot', detail: shot.file, info: true });
 
@@ -496,6 +539,12 @@ function runEra(era) {
         check(knife && knife.card0 === String(CARD_TEST.keep) && knife.refine === '5',
             'Card Exchanger: Knife keeps its Poring Card and +5, slot 1 empty', JSON.stringify(knife));
         check(loose === '1', 'Card Exchanger: Fabre Card back in the inventory', `${loose} loose`);
+    }
+    if (want('premium')) {
+        const count = nameid => sqlOne(`SELECT COALESCE(SUM(amount),0) FROM inventory WHERE char_id=${charId} AND nameid=${nameid}`);
+        check(count(PREM_TEST.gauche) === '0' && count(PREM_TEST.potion) === '3' && count(PREM_TEST.jellopy) === '1',
+            'Premium Service Manager: Main Gauche gone, 3 potions and the Jellopy left',
+            `gauche ${count(PREM_TEST.gauche)}, potions ${count(PREM_TEST.potion)}, jellopy ${count(PREM_TEST.jellopy)}`);
     }
     if (want('plagiarism') && e.thirdClass) checks.push(...plagiarism());
     if (want('smuggler')) {

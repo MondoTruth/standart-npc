@@ -118,7 +118,7 @@ really must go, say so in CHANGELOG.md.
 | Stylist | 169,180 | npc_off `stylist` |
 | Episode Valkyrie | 128,193 | npc_off `epvalk` |
 | Falcon Breeder | 128,211 | npc_off `falcon` |
-| Kafra Employee | 160,187 | npc_off `kafra` |
+| Premium Service Manager | 160,187 | npc_off `kafra` (was Kafra Employee) |
 | Weight Maxxer | 147,172 | npc_off `weightmax` |
 | Plagiarism Master | 171,182 | npc_off `plagiarism` |
 | Tool Dealer | 143,178 | npc_off `tooldealer` |
