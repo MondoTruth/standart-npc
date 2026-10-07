@@ -39,7 +39,7 @@ const ERAS = W.parseEras(args);
 // The parts of a run, each an NPC (or a few that belong together), in the
 // order they are played.
 const SECTIONS = ['buffer', 'bounty', 'dummies', 'tooldealer', 'nokzin', 'gatekeeper', 'valkyrie',
-    'welcome', 'enchanter', 'warper', 'smuggler', 'cardexchanger'];
+    'welcome', 'enchanter', 'warper', 'smuggler', 'cardexchanger', 'plagiarism'];
 const onlyArg = args.find(a => a.startsWith('--only='));
 const only = onlyArg ? new Set(onlyArg.slice(7).split(',').map(t => t.trim()).filter(Boolean)) : null;
 if (only) for (const name of only) if (!SECTIONS.includes(name)) W.die(`unknown section: ${name} (sections: ${SECTIONS.join(', ')})`);
@@ -58,6 +58,18 @@ const ENCH_TEST = { hat: 2220, shirt: 2301, jewel: 27422 };
 // asked for is a Red Potion. IDs from the fork's db/re and db/pre-re
 // item_db (Mr_Smile 2278 sits on Head_Low + Head_Mid: equip 1 | 512).
 const SMUG_TEST = { mask: 2278, gems: 730, gemsNeeded: 10, free: 501, worn: 513 };
+// Plagiarism Master (#74): the character is made a Shadow Chaser (4072) with
+// Plagiarism (225) and Reproduce (2285) Lv 10, then copies Bash (5, Lv 10)
+// and Comet (2213, max Lv 5). IDs from the fork's mmo.hpp and db/re/skill_db.
+// The server drops a skill on log-in unless the ones it needs (skill_tree)
+// are learned too, so `skills` is the whole chain: [id, level], with Basic
+// Skill 9. It also uses a lower class's tree until enough points went into
+// the classes before (pc_calc_skilltree_normalize_job): the job levels the
+// character changed class at are set to 1 so that check passes.
+const PLAG_TEST = { job: 4072, bash: 5, comet: 2213,
+    skills: [[1, 9], [225, 10], [2285, 10], [219, 5], [212, 4], [211, 4], [210, 4], [50, 5], [214, 5], [213, 2], [51, 1]],
+    regs: ['jobchange_level', 'jobchange_level_3rd'] };
+const PLAG_IDS = PLAG_TEST.skills.map(([id]) => id).join(', ');
 let charId = null;
 
 // Per era: the character, and what the NPCs should show.
@@ -73,6 +85,7 @@ const EXPECT = {
         jewel: true,               // headgear jewels exist (Enchanter check)
         warpFee: true,             // a Dragon Knight is 4th class: the Warper charges
         smugglerMarkup: 2,         // no cash-shop-extended in the test world
+        thirdClass: true,          // Shadow Chaser exists: Plagiarism Master's Reproduce check
     },
     'pre-renewal': {
         job: 4008, level: 99,    // Lord Knight
@@ -85,6 +98,7 @@ const EXPECT = {
         jewel: false,
         warpFee: false,            // a Lord Knight: no 3rd class here, no fee
         smugglerMarkup: 2,
+        thirdClass: false,
     },
 };
 
@@ -121,6 +135,10 @@ function setUpCharacter(era) {
         + ` UPDATE inventory SET equip=0 WHERE char_id=${id} AND (equip & (34 | 256 | 16)) <> 0;`
         + ` DELETE FROM inventory WHERE char_id=${id} AND nameid IN (${CARD_TEST.knife}, ${CARD_TEST.keep}, ${CARD_TEST.pull}, ${ENCH_TEST.hat}, ${ENCH_TEST.shirt}, ${ENCH_TEST.jewel}, ${SMUG_TEST.mask}, ${SMUG_TEST.gems}, ${SMUG_TEST.free});`
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` LIKE 'SNPC\\_Smuggler%';`
+        // Plagiarism Master's run leaves copied skills and a Shadow Chaser's skills.
+        + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` IN ('CLONE_SKILL', 'CLONE_SKILL_LV', 'REPRODUCE_SKILL', 'REPRODUCE_SKILL_LV');`
+        + ` DELETE FROM skill WHERE char_id=${id} AND id IN (${PLAG_IDS});`
+        + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` IN (${PLAG_TEST.regs.map(k => `'${k}'`).join(', ')});`
         + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify) VALUES (${id}, ${SMUG_TEST.mask}, 1, ${SMUG_TEST.worn}, 1), (${id}, ${SMUG_TEST.gems}, ${SMUG_TEST.gemsNeeded}, 0, 1);`
         + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify, refine, card0, card1)`
         + ` VALUES (${id}, ${CARD_TEST.knife}, 1, 2, 1, 5, ${CARD_TEST.keep}, ${CARD_TEST.pull});`
@@ -479,6 +497,7 @@ function runEra(era) {
             'Card Exchanger: Knife keeps its Poring Card and +5, slot 1 empty', JSON.stringify(knife));
         check(loose === '1', 'Card Exchanger: Fabre Card back in the inventory', `${loose} loose`);
     }
+    if (want('plagiarism') && e.thirdClass) checks.push(...plagiarism());
     if (want('smuggler')) {
         const reg = k => sqlOne(`SELECT COALESCE(SUM(value),0) FROM char_reg_num WHERE char_id=${charId} AND \`key\`='${k}'`);
         const count = (item, extra = '') => sqlOne(`SELECT COALESCE(SUM(amount),0) FROM inventory WHERE char_id=${charId} AND nameid=${item}${extra}`);
@@ -488,6 +507,49 @@ function runEra(era) {
             'Smuggler: diamonds taken, the bag mask back, the worn one untouched, one Red Potion',
             `diamonds ${count(SMUG_TEST.gems)}, masks ${count(SMUG_TEST.mask)} (worn ${count(SMUG_TEST.mask, ` AND equip=${SMUG_TEST.worn}`)}), potions ${count(SMUG_TEST.free)}`);
     }
+    return checks;
+}
+
+// Plagiarism Master (#74), last: it makes Tester a Shadow Chaser, which
+// takes its own log-in (setUpCharacter puts the class back next run).
+function plagiarism() {
+    const checks = [];
+    const check = (ok, text, detail = '') => checks.push({ ok: !!ok, text, detail });
+    const w = W.rotest('server', 'sql', '--write',
+        `UPDATE \`char\` SET class=${PLAG_TEST.job}, base_level=175, last_map='prontera', last_x=171, last_y=180 WHERE char_id=${charId};`
+        + ` DELETE FROM skill WHERE char_id=${charId} AND id IN (${PLAG_IDS});`
+        + ` INSERT INTO skill (char_id, id, lv, flag) VALUES ${PLAG_TEST.skills.map(([id, lv]) => `(${charId}, ${id}, ${lv}, 0)`).join(', ')};`
+        + ` DELETE FROM char_reg_num WHERE char_id=${charId} AND \`key\` IN (${PLAG_TEST.regs.map(k => `'${k}'`).join(', ')});`
+        + ` INSERT INTO char_reg_num (char_id, \`key\`, \`index\`, value) VALUES ${PLAG_TEST.regs.map(k => `(${charId}, '${k}', 0, 1)`).join(', ')};`);
+    check(w.ok, 'Plagiarism Master: character made a Shadow Chaser with Plagiarism and Reproduce Lv 10', w.ok ? '' : w.out.slice(-300));
+    const entered = enterGame();
+    check(entered.ok, 'Plagiarism Master: in game as Shadow Chaser', entered.detail);
+    if (!entered.ok) return checks;
+    // path: menu items to pick in order (Next pressed as needed); returns
+    // the first menu's items and the last window's text.
+    const talk = path => ev(`(async () => {
+        await snpc.talk('Plagiarism Master');
+        let first = null, v = snpc.view();
+        for (const want of ${JSON.stringify(path)}) {
+            for (let i = 0; i < 6 && !v.menu.length && v.next; i++) v = await snpc.next();
+            if (!first) first = v.menu.map(m => m.text);
+            v = await snpc.pick(want);
+        }
+        const text = v.text || '';
+        await snpc.close();
+        return { first, text };
+    })()`);
+    const plag = talk(['Plagiarism (', 'Swordsman', 'Bash']);
+    check(plag && Array.isArray(plag.first) && plag.first.join('|') === 'Plagiarism (1st and 2nd class skills)|Reproduce (3rd class skills)|Cancel',
+        'Plagiarism Master: a Shadow Chaser chooses the slot', JSON.stringify(plag && plag.first));
+    check(plag && String(plag.text).includes('learned Bash Lv 10'), 'Plagiarism Master: Bash into the Plagiarism slot', String(plag && plag.text).slice(-120));
+    const repro = talk(['Reproduce (', 'Warlock', 'Comet']);
+    check(repro && String(repro.text).includes('learned Comet Lv 5'), 'Plagiarism Master: Comet into the Reproduce slot, at its max Lv 5', String(repro && repro.text).slice(-120));
+    W.rotest('stop');
+    const reg = k => sqlOne(`SELECT COALESCE(SUM(value),0) FROM char_reg_num WHERE char_id=${charId} AND \`key\`='${k}'`);
+    const slots = { clone: reg('CLONE_SKILL'), cloneLv: reg('CLONE_SKILL_LV'), repro: reg('REPRODUCE_SKILL'), reproLv: reg('REPRODUCE_SKILL_LV') };
+    check(slots.clone === String(PLAG_TEST.bash) && slots.cloneLv === '10' && slots.repro === String(PLAG_TEST.comet) && slots.reproLv === '5',
+        'Plagiarism Master: both slots saved (Bash 10, Comet 5)', JSON.stringify(slots));
     return checks;
 }
 
