@@ -1,0 +1,187 @@
+//===== rAthena Script =======================================
+//= Premium Service Manager
+//===== By: MondoTruth, Claude =================================
+//===== Description: =========================================
+//= Save point + storage + identify, and a way to get rid of
+//= items that cannot be dropped, traded or sold (account-bound,
+//= trade-restricted, rental): pick one from the bag, confirm, and
+//= it is deleted. Was the Kafra Employee before 4.9.4 (#76).
+//= Teleport omitted on purpose -- this pack's Warper NPC already
+//= covers travel.
+//===== How to customize: ====================================
+//= - Save point location: the map/x/y in the savepoint line.
+//= - NPC location/sprite: the first line (map,x,y,dir / sprite).
+//= - Identify cost: currently free -- add a Zeny/item check at
+//=   the top of case 3 if you want one.
+//= - Discard: .page = items per page of the list (OnInit).
+//============================================================
+
+prontera,160,187,4	script	Premium Service Manager	4_M_GEF_SOLDIER,{
+	mes "[Premium Service Manager]";
+	mes "Welcome to Premium Service.";
+	mes "How may I serve you today?";
+	next;
+
+	switch(select("Save:Storage:Identify:Discard an item:Cancel")) {
+	case 1:
+		savepoint "prontera",156,191;
+		mes "[Premium Service Manager]";
+		mes "Your save point has been set here in Prontera.";
+		close;
+
+	case 2:
+		mes "[Premium Service Manager]";
+		mes "Here is your storage.";
+		close2;
+		openstorage;
+		end;
+
+	case 3:
+		identifyall;
+		mes "[Premium Service Manager]";
+		mes "All your items have been identified.";
+		close;
+
+	case 4:
+		callsub S_Discard;
+		close;
+
+	case 5:
+		mes "[Premium Service Manager]";
+		mes "Thank you for using Premium Service!";
+		close;
+	}
+
+// Lists the bag's bound items and those that cannot be traded
+// (trade-restricted, rental), equipped ones left out, and deletes the chosen
+// slot with delitemidx, so cards, refine and random options need not match.
+// Bound is checked on its own: for the app's default Admin account
+// (can_trade_bounded) @inventorylist_tradable says bound items are tradable.
+S_Discard:
+	getinventorylist;
+	.@n = 0;
+	for (.@i = 0; .@i < @inventorylist_count; .@i++) {
+		if (@inventorylist_equip[.@i] || (@inventorylist_tradable[.@i] && !@inventorylist_bound[.@i]))
+			continue;
+		.@pos[.@n] = .@i;
+		.@n++;
+	}
+	if (.@n == 0) {
+		mes "[Premium Service Manager]";
+		mes "You carry nothing that needs my help.";
+		mes "I only take items that cannot be dropped or traded.";
+		mes "Take them off, or out of your storage, first.";
+		return;
+	}
+	mes "[Premium Service Manager]";
+	mes "I can dispose of items that cannot be dropped or traded.";
+	mes "^FF0000A disposed item is gone for good.^000000";
+	mes "Items you wear or keep in storage are not listed.";
+	next;
+
+	.@first = 0;
+	while (1) {
+		.@last = min(.@first + .page, .@n);
+		.@menu$ = "";
+		for (.@k = .@first; .@k < .@last; .@k++)
+			.@menu$ += callsub(S_Label, .@pos[.@k]) + ":";
+		.@more = (.@last < .@n);
+		.@menu$ += (.@more ? "Next page" : "") + ":Cancel";
+		.@s = select(.@menu$) - 1;
+		.@count = .@last - .@first;
+		if (.@s < .@count)
+			break;
+		if (.@s == .@count && .@more) {
+			.@first = .@last;
+			continue;
+		}
+		mes "[Premium Service Manager]";
+		mes "As you wish.";
+		return;
+	}
+	.@i = .@pos[.@first + .@s];
+	.@idx = @inventorylist_idx[.@i];
+	.@id = @inventorylist_id[.@i];
+	.@have = @inventorylist_amount[.@i];
+	.@label$ = callsub(S_Label, .@i, 0);
+
+	.@amount = 1;
+	if (.@have > 1) {
+		mes "[Premium Service Manager]";
+		mes "How many of " + .@label$ + " (1-" + .@have + ")?";
+		next;
+		input .@amount;
+		if (.@amount < 1 || .@amount > .@have) {
+			mes "[Premium Service Manager]";
+			mes "Never mind, then.";
+			return;
+		}
+	}
+
+	mes "[Premium Service Manager]";
+	mes "Dispose of " + (.@have > 1 ? .@amount + " x " : "") + .@label$ + "?";
+	.@cards$ = callsub(S_Cards, .@i);
+	if (.@cards$ != "")
+		mes "Cards in it: " + .@cards$ + ".";
+	mes "^FF0000This cannot be undone.^000000";
+	next;
+	if (select("Dispose of it:Keep it") != 1) {
+		mes "[Premium Service Manager]";
+		mes "As you wish.";
+		return;
+	}
+
+	// The bag cannot change during the talk, but look again before deleting:
+	// delitemidx ends the script on an empty slot.
+	getinventorylist;
+	.@ok = 0;
+	for (.@j = 0; .@j < @inventorylist_count; .@j++) {
+		if (@inventorylist_idx[.@j] == .@idx && @inventorylist_id[.@j] == .@id && @inventorylist_amount[.@j] >= .@amount && !@inventorylist_equip[.@j]) {
+			.@ok = 1;
+			break;
+		}
+	}
+	if (!.@ok || !delitemidx(.@idx, .@amount)) {
+		mes "[Premium Service Manager]";
+		mes "That item is no longer in your bag.";
+		return;
+	}
+	mes "[Premium Service Manager]";
+	mes "Done. " + .@label$ + " is gone.";
+	return;
+
+// "+7 Item Name [3] x2" for line getarg(0) of the last getinventorylist;
+// getarg(1) = 0 leaves the amount out.
+// No ':' in a select() option, so it is taken out of the name.
+S_Label:
+	.@i = getarg(0);
+	.@id = @inventorylist_id[.@i];
+	.@name$ = replacestr(getitemname(.@id), ":", " ");
+	if (@inventorylist_refine[.@i] > 0)
+		.@name$ = "+" + @inventorylist_refine[.@i] + " " + .@name$;
+	if (getitemslots(.@id) > 0)
+		.@name$ += " [" + getitemslots(.@id) + "]";
+	if (getarg(1, 1) && @inventorylist_amount[.@i] > 1)
+		.@name$ += " x" + @inventorylist_amount[.@i];
+	return .@name$;
+
+// The card names in line getarg(0), comma-separated; "" for none. Forged,
+// named and egg items keep other data in the card slots: only IT_CARD counts.
+S_Cards:
+	.@i = getarg(0);
+	.@out$ = "";
+	setarray .@card[0], @inventorylist_card1[.@i], @inventorylist_card2[.@i], @inventorylist_card3[.@i], @inventorylist_card4[.@i];
+	for (.@c = 0; .@c < 4; .@c++) {
+		if (.@card[.@c] <= 0 || getitemname(.@card[.@c]) == "null")
+			continue;
+		if (getiteminfo(.@card[.@c], ITEMINFO_TYPE) != IT_CARD)
+			continue;
+		.@out$ += (.@out$ == "" ? "" : ", ") + getitemname(.@card[.@c]);
+	}
+	return .@out$;
+
+OnInit:
+	.page = 15;
+	if (callfunc("F_SNPC_Off", "kafra")) disablenpc strnpcinfo(0);	// switched off in the settings window
+	end;
+}
