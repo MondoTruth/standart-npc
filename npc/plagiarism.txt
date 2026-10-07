@@ -13,9 +13,14 @@
 //= otherwise). Removes the Preserve buff, which blocks copying.
 //= The list holds every skill with Plagiarism: true in skill_db
 //= (checked for Renewal and Pre-Renewal).
+//= Shadow Chaser and Abyss Chaser can also put a 3rd class skill
+//= into the Reproduce slot (only Reproduce can copy those), up to
+//= their Reproduce level. Renewal only: Pre-renewal has no 3rd
+//= classes, so the choice never shows there.
 //= Original: iguera's arpg-equipments mod, used with permission.
 //===== How to customize: ====================================
 //= - Skills: the menus below; .@sk = skill ID, .@lv = max level.
+//=   3rd class skills: the menus after L_Reproduce.
 //= - Location/sprite: the first line (map,x,y,dir / sprite).
 //============================================================
 
@@ -32,6 +37,19 @@ prontera,171,182,4	script	Plagiarism Master#snpc	4_F_ROGUE,{
 		mes "[Plagiarism Master]";
 		mes "You need to learn Plagiarism first.";
 		close;
+	}
+
+	// 3rd class skills can't be copied by Plagiarism, only by the Shadow
+	// Chaser's Reproduce, into a second slot of its own (#74).
+	.@repro = getskilllv("SC_REPRODUCE");
+	if (.@repro > 0) {
+		mes "[Plagiarism Master]";
+		mes "I can teach you a skill to copy.";
+		mes "1st and 2nd class skills go into your Plagiarism slot, 3rd class skills into your Reproduce slot.";
+		next;
+		.@slot = select("Plagiarism (1st and 2nd class skills):Reproduce (3rd class skills):Cancel");
+		if (.@slot == 3) close;
+		if (.@slot == 2) goto L_Reproduce;
 	}
 
 	mes "[Plagiarism Master]";
@@ -175,6 +193,167 @@ prontera,171,182,4	script	Plagiarism Master#snpc	4_F_ROGUE,{
 	sc_end SC_PRESERVE;
 
 	.@ok = plagiarizeskill(.@sk, .@lv);
+
+	mes "[Plagiarism Master]";
+	if (.@ok) {
+		mes "Success! You have learned " + .@name$ + " Lv " + .@lv + ".";
+	} else {
+		mes "The copy failed for skill ID " + .@sk + ".";
+	}
+	close;
+
+L_Reproduce:
+	mes "[Plagiarism Master]";
+	mes "Its level will be up to your Reproduce level (^0055FF" + .@repro + "^000000).";
+	mes "It will replace your current Reproduce skill.";
+	mes "^FF0000Your Reproduce status will end.^000000";
+	next;
+
+	// Every 3rd class skill with Reproduce: true (and not Plagiarism: true)
+	// in db/re/skill_db.yml that is in a job's skill tree. Shadow Chaser
+	// skills are left out: the engine won't copy a skill you already have.
+	.@cat = select("Rune Knight:Warlock:Guillotine Cross:Arch Bishop:Ranger:Mechanic:Royal Guard:Sura:Minstrel / Wanderer:Sorcerer:Genetic:Cancel");
+	if (.@cat == 12) close;
+
+	// ---- Rune Knight ----
+	if (.@cat == 1) {
+		.@c = select("Sonic Wave:Wind Cutter:Ignition Break:Cancel");
+		if (.@c == 4) close;
+		if (.@c == 1) { .@sk = 2002; .@lv = 10; .@name$ = "Sonic Wave"; } // RK_SONICWAVE
+		if (.@c == 2) { .@sk = 2005; .@lv = 5; .@name$ = "Wind Cutter"; } // RK_WINDCUTTER
+		if (.@c == 3) { .@sk = 2006; .@lv = 5; .@name$ = "Ignition Break"; } // RK_IGNITIONBREAK
+	}
+
+	// ---- Warlock ----
+	if (.@cat == 2) {
+		.@c = select("Soul Expansion:Frost Misty:Jack Frost:Drain Life:Crimson Rock:Hell Inferno:Comet:Chain Lightning:Earth Strain:Tetra Vortex:Summon Fire Ball:Summon Lightning Ball:Summon Water Ball:Summon Stone:Cancel");
+		if (.@c == 15) close;
+		if (.@c == 1) { .@sk = 2202; .@lv = 5; .@name$ = "Soul Expansion"; } // WL_SOULEXPANSION
+		if (.@c == 2) { .@sk = 2203; .@lv = 5; .@name$ = "Frost Misty"; } // WL_FROSTMISTY
+		if (.@c == 3) { .@sk = 2204; .@lv = 5; .@name$ = "Jack Frost"; } // WL_JACKFROST
+		if (.@c == 4) { .@sk = 2210; .@lv = 5; .@name$ = "Drain Life"; } // WL_DRAINLIFE
+		if (.@c == 5) { .@sk = 2211; .@lv = 5; .@name$ = "Crimson Rock"; } // WL_CRIMSONROCK
+		if (.@c == 6) { .@sk = 2212; .@lv = 5; .@name$ = "Hell Inferno"; } // WL_HELLINFERNO
+		if (.@c == 7) { .@sk = 2213; .@lv = 5; .@name$ = "Comet"; } // WL_COMET
+		if (.@c == 8) { .@sk = 2214; .@lv = 5; .@name$ = "Chain Lightning"; } // WL_CHAINLIGHTNING
+		if (.@c == 9) { .@sk = 2216; .@lv = 5; .@name$ = "Earth Strain"; } // WL_EARTHSTRAIN
+		if (.@c == 10) { .@sk = 2217; .@lv = 10; .@name$ = "Tetra Vortex"; } // WL_TETRAVORTEX
+		if (.@c == 11) { .@sk = 2222; .@lv = 2; .@name$ = "Summon Fire Ball"; } // WL_SUMMONFB
+		if (.@c == 12) { .@sk = 2223; .@lv = 2; .@name$ = "Summon Lightning Ball"; } // WL_SUMMONBL
+		if (.@c == 13) { .@sk = 2224; .@lv = 2; .@name$ = "Summon Water Ball"; } // WL_SUMMONWB
+		if (.@c == 14) { .@sk = 2229; .@lv = 2; .@name$ = "Summon Stone"; } // WL_SUMMONSTONE
+	}
+
+	// ---- Guillotine Cross ----
+	if (.@cat == 3) {
+		.@c = select("Cross Impact:Dark Illusion:Phantom Menace:Dark Claw:Cancel");
+		if (.@c == 5) close;
+		if (.@c == 1) { .@sk = 2022; .@lv = 5; .@name$ = "Cross Impact"; } // GC_CROSSIMPACT
+		if (.@c == 2) { .@sk = 2023; .@lv = 5; .@name$ = "Dark Illusion"; } // GC_DARKILLUSION
+		if (.@c == 3) { .@sk = 2034; .@lv = 1; .@name$ = "Phantom Menace"; } // GC_PHANTOMMENACE
+		if (.@c == 4) { .@sk = 5001; .@lv = 5; .@name$ = "Dark Claw"; } // GC_DARKCROW
+	}
+
+	// ---- Arch Bishop ----
+	if (.@cat == 4) {
+		.@c = select("Judex:Adoramus:Renovatio:Highness Heal:Duple Light:Cancel");
+		if (.@c == 6) close;
+		if (.@c == 1) { .@sk = 2038; .@lv = 10; .@name$ = "Judex"; } // AB_JUDEX
+		if (.@c == 2) { .@sk = 2040; .@lv = 10; .@name$ = "Adoramus"; } // AB_ADORAMUS
+		if (.@c == 3) { .@sk = 2050; .@lv = 4; .@name$ = "Renovatio"; } // AB_RENOVATIO
+		if (.@c == 4) { .@sk = 2051; .@lv = 5; .@name$ = "Highness Heal"; } // AB_HIGHNESSHEAL
+		if (.@c == 5) { .@sk = 2054; .@lv = 10; .@name$ = "Duple Light"; } // AB_DUPLELIGHT
+	}
+
+	// ---- Ranger ----
+	if (.@cat == 5) {
+		.@c = select("Arrow Storm:Aimed Bolt:Cluster Bomb:Firing Trap:Icebound Trap:Cancel");
+		if (.@c == 6) close;
+		if (.@c == 1) { .@sk = 2233; .@lv = 10; .@name$ = "Arrow Storm"; } // RA_ARROWSTORM
+		if (.@c == 2) { .@sk = 2236; .@lv = 10; .@name$ = "Aimed Bolt"; } // RA_AIMEDBOLT
+		if (.@c == 3) { .@sk = 2239; .@lv = 5; .@name$ = "Cluster Bomb"; } // RA_CLUSTERBOMB
+		if (.@c == 4) { .@sk = 2253; .@lv = 5; .@name$ = "Firing Trap"; } // RA_FIRINGTRAP
+		if (.@c == 5) { .@sk = 2254; .@lv = 5; .@name$ = "Icebound Trap"; } // RA_ICEBOUNDTRAP
+	}
+
+	// ---- Mechanic ----
+	if (.@cat == 6) {
+		.@c = select("Magma Eruption:Cancel");
+		if (.@c == 2) close;
+		if (.@c == 1) { .@sk = 5006; .@lv = 5; .@name$ = "Magma Eruption"; } // NC_MAGMA_ERUPTION
+	}
+
+	// ---- Royal Guard ----
+	if (.@cat == 7) {
+		.@c = select("Shield Press:Exceed Break:Moon Slasher:Earth Drive:Cancel");
+		if (.@c == 5) close;
+		if (.@c == 1) { .@sk = 2310; .@lv = 10; .@name$ = "Shield Press"; } // LG_SHIELDPRESS
+		if (.@c == 2) { .@sk = 2316; .@lv = 5; .@name$ = "Exceed Break"; } // LG_EXEEDBREAK
+		if (.@c == 3) { .@sk = 2320; .@lv = 5; .@name$ = "Moon Slasher"; } // LG_MOONSLASHER
+		if (.@c == 4) { .@sk = 2323; .@lv = 5; .@name$ = "Earth Drive"; } // LG_EARTHDRIVE
+	}
+
+	// ---- Sura ----
+	if (.@cat == 8) {
+		.@c = select("Dragon Combo:Sky Net Blow:Earth Shaker:Tiger Cannon:Rampage Blaster:Knuckle Arrow:Windmill:Gate of Hell:Gentle Touch - Quiet:Howling of Lion:Ride In Lightning:Cancel");
+		if (.@c == 12) close;
+		if (.@c == 1) { .@sk = 2326; .@lv = 10; .@name$ = "Dragon Combo"; } // SR_DRAGONCOMBO
+		if (.@c == 2) { .@sk = 2327; .@lv = 5; .@name$ = "Sky Net Blow"; } // SR_SKYNETBLOW
+		if (.@c == 3) { .@sk = 2328; .@lv = 5; .@name$ = "Earth Shaker"; } // SR_EARTHSHAKER
+		if (.@c == 4) { .@sk = 2330; .@lv = 10; .@name$ = "Tiger Cannon"; } // SR_TIGERCANNON
+		if (.@c == 5) { .@sk = 2332; .@lv = 5; .@name$ = "Rampage Blaster"; } // SR_RAMPAGEBLASTER
+		if (.@c == 6) { .@sk = 2336; .@lv = 10; .@name$ = "Knuckle Arrow"; } // SR_KNUCKLEARROW
+		if (.@c == 7) { .@sk = 2337; .@lv = 1; .@name$ = "Windmill"; } // SR_WINDMILL
+		if (.@c == 8) { .@sk = 2343; .@lv = 10; .@name$ = "Gate of Hell"; } // SR_GATEOFHELL
+		if (.@c == 9) { .@sk = 2344; .@lv = 5; .@name$ = "Gentle Touch - Quiet"; } // SR_GENTLETOUCH_QUIET
+		if (.@c == 10) { .@sk = 2517; .@lv = 5; .@name$ = "Howling of Lion"; } // SR_HOWLINGOFLION
+		if (.@c == 11) { .@sk = 2518; .@lv = 5; .@name$ = "Ride In Lightning"; } // SR_RIDEINLIGHTNING
+	}
+
+	// ---- Minstrel / Wanderer ----
+	if (.@cat == 9) {
+		.@c = select("Metallic Sound:Reverberation:Severe Rainstorm:Cancel");
+		if (.@c == 4) close;
+		if (.@c == 1) { .@sk = 2413; .@lv = 10; .@name$ = "Metallic Sound"; } // WM_METALICSOUND
+		if (.@c == 2) { .@sk = 2414; .@lv = 5; .@name$ = "Reverberation"; } // WM_REVERBERATION
+		if (.@c == 3) { .@sk = 2418; .@lv = 5; .@name$ = "Severe Rainstorm"; } // WM_SEVERE_RAINSTORM
+	}
+
+	// ---- Sorcerer ----
+	if (.@cat == 10) {
+		.@c = select("Fire Walk:Electric Walk:Earth Grave:Diamond Dust:Poison Buster:Psychic Wave:Cloud Kill:Varetyr Spear:Cancel");
+		if (.@c == 9) close;
+		if (.@c == 1) { .@sk = 2443; .@lv = 5; .@name$ = "Fire Walk"; } // SO_FIREWALK
+		if (.@c == 2) { .@sk = 2444; .@lv = 5; .@name$ = "Electric Walk"; } // SO_ELECTRICWALK
+		if (.@c == 3) { .@sk = 2446; .@lv = 5; .@name$ = "Earth Grave"; } // SO_EARTHGRAVE
+		if (.@c == 4) { .@sk = 2447; .@lv = 5; .@name$ = "Diamond Dust"; } // SO_DIAMONDDUST
+		if (.@c == 5) { .@sk = 2448; .@lv = 5; .@name$ = "Poison Buster"; } // SO_POISON_BUSTER
+		if (.@c == 6) { .@sk = 2449; .@lv = 5; .@name$ = "Psychic Wave"; } // SO_PSYCHIC_WAVE
+		if (.@c == 7) { .@sk = 2450; .@lv = 5; .@name$ = "Cloud Kill"; } // SO_CLOUD_KILL
+		if (.@c == 8) { .@sk = 2454; .@lv = 10; .@name$ = "Varetyr Spear"; } // SO_VARETYR_SPEAR
+	}
+
+	// ---- Genetic ----
+	if (.@cat == 11) {
+		.@c = select("Thorn Trap:Blood Sucker:Spore Explosion:Wall of Thorns:Crazy Weed:Hell's Plant:Illusion Doping:Cancel");
+		if (.@c == 8) close;
+		if (.@c == 1) { .@sk = 2479; .@lv = 5; .@name$ = "Thorn Trap"; } // GN_THORNS_TRAP
+		if (.@c == 2) { .@sk = 2480; .@lv = 5; .@name$ = "Blood Sucker"; } // GN_BLOOD_SUCKER
+		if (.@c == 3) { .@sk = 2481; .@lv = 10; .@name$ = "Spore Explosion"; } // GN_SPORE_EXPLOSION
+		if (.@c == 4) { .@sk = 2482; .@lv = 5; .@name$ = "Wall of Thorns"; } // GN_WALLOFTHORN
+		if (.@c == 5) { .@sk = 2483; .@lv = 10; .@name$ = "Crazy Weed"; } // GN_CRAZYWEED
+		if (.@c == 6) { .@sk = 2490; .@lv = 5; .@name$ = "Hell's Plant"; } // GN_HELLS_PLANT
+		if (.@c == 7) { .@sk = 5003; .@lv = 5; .@name$ = "Illusion Doping"; } // GN_ILLUSIONDOPING
+	}
+
+	// The copied level can't be higher than the Reproduce level.
+	.@lv = min(.@lv, .@repro);
+
+	// The engine copies into the Reproduce slot only while the Reproduce
+	// status is on, so it is on just for the copy.
+	sc_start SC__REPRODUCE, 1000, .@repro, 10000, SCSTART_NOAVOID | SCSTART_NOICON;
+	.@ok = plagiarizeskill(.@sk, .@lv);
+	sc_end SC__REPRODUCE;
 
 	mes "[Plagiarism Master]";
 	if (.@ok) {

@@ -63,7 +63,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | 🔄 | **Reset Girl** | Resets skills, stats, or both, for Zeny. | Prontera (154, 195) |
 | 💇 | **Stylist** | Hair style, hair color, cloth color changer. | Prontera (169, 180) |
 | 🛡️ | **Episode Valkyrie** | Redeems Episode Clear Tickets (Episodes 13-20) for EXP. Tickets 16-18 are sold by [cash-shop-extended](https://github.com/LilArt420/cashshopmod)'s Cash Shop. Renewal only. | Prontera (128, 193) |
-| 🎭 | **Plagiarism Master** | Rogue, Stalker, Shadow Chaser and Abyss Chaser copy any skill Plagiarism can copy. The level goes up to your Plagiarism level. | Prontera (171, 182) |
+| 🎭 | **Plagiarism Master** | Rogue, Stalker, Shadow Chaser and Abyss Chaser copy any skill Plagiarism can copy. The level goes up to your Plagiarism level. Shadow Chaser and Abyss Chaser can also put a 3rd class skill into their Reproduce slot (Renewal). | Prontera (171, 182) |
 
 #### 🛒 Shops & cards
 
