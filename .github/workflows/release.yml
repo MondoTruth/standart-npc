@@ -1,92 +1,29 @@
-# Builds standart-npc-<version>.zip (files inside a standart-npc/ folder).
-# - Release published: tag must be v<version> from mod.json, zip is attached to the release.
-# - Manual run (Actions tab -> Build release zip -> Run workflow): zip is only uploaded as an artifact.
-# - CHANGELOG.md must have a '## <version>' section (a warning on a manual run).
-
-name: Build release zip
+name: Release
 
 on:
-  release:
-    types: [published]
-  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Read version from mod.json
-        id: version
-        run: |
-          version=$(jq -r '.version // empty' mod.json)
-          if [ -z "$version" ]; then
-            echo "::error file=mod.json::No \"version\" field found in mod.json."
-            exit 1
-          fi
-          echo "Version in mod.json: $version"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "zip=standart-npc-$version.zip" >> "$GITHUB_OUTPUT"
+      - name: Get version
+        id: get_version
+        uses: battila7/get-version-action@v2
 
-      - name: Check release tag matches version
-        if: github.event_name == 'release'
+      - name: Create Release
         env:
-          TAG: ${{ github.event.release.tag_name }}
-          VERSION: ${{ steps.version.outputs.version }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
         run: |
-          if [ "$TAG" != "v$VERSION" ]; then
-            echo "::error::Release tag is '$TAG', but mod.json version is '$VERSION'. The tag must be 'v$VERSION'. Nothing was attached to the release."
-            exit 1
-          fi
-          echo "Tag $TAG matches mod.json version $VERSION."
-
-      # The app shows players the CHANGELOG.md section of every version an
-      # update skips, found by its "## <version>" heading.
-      - name: Check CHANGELOG.md has a section for this version
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-          LEVEL: ${{ github.event_name == 'release' && 'error' || 'warning' }}
-        run: |
-          if ! grep -qxF "## $VERSION" CHANGELOG.md; then
-            echo "::$LEVEL file=CHANGELOG.md::No '## $VERSION' section in CHANGELOG.md."
-            [ "$LEVEL" = warning ] || exit 1
-          else
-            echo "CHANGELOG.md has a '## $VERSION' section."
-          fi
-
-      - name: Build zip
-        env:
-          ZIP: ${{ steps.version.outputs.zip }}
-        run: |
-          git archive --format=zip --prefix=standart-npc/ -o "$ZIP" HEAD -- . \
-            ':(exclude)README.md' \
-            ':(exclude)assets' \
-            ':(exclude)CLAUDE.md' \
-            ':(exclude).github' \
-            ':(exclude).gitattributes' \
-            ':(exclude)tests'
-          unzip -l "$ZIP"
-          if unzip -Z1 "$ZIP" | grep -E '^standart-npc/(README\.md|assets/|CLAUDE\.md|\.git/|\.github/|\.gitattributes|tests/)'; then
-            echo "::error::The zip contains files that must not be in the release (listed above)."
-            exit 1
-          fi
-
-      - name: Attach zip to release
-        if: github.event_name == 'release'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.event.release.tag_name }}
-          ZIP: ${{ steps.version.outputs.zip }}
-        run: gh release upload "$TAG" "$ZIP" --clobber
-
-      - name: Upload zip as artifact
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
-        with:
-          name: standart-npc-${{ steps.version.outputs.version }}
-          path: ${{ steps.version.outputs.zip }}
-          if-no-files-found: error
+          gh release create "$tag" \
+            --repo="$GITHUB_REPOSITORY" \
+            --title="${{ steps.get_version.outputs.version }}" \
+            --generate-notes <<< "standart-npc/${{ steps.get_version.outputs.version-with-v }}.zip"

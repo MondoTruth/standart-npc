@@ -1,0 +1,15 @@
+// Kill monster trigger - uses mod store variables
+OnPCDeadEvent:
+	// Old man quest
+	if (getcharvariable("killrats_quest") == 1) {
+		if (getcharvariable("killrats_count") < 20) {
+			setcharvariable "killrats_count", getcharvariable("killrats_count") + 1;
+			if (getcharvariable("killrats_count") >= 20) {
+				setcharvariable "killrats_quest",0;
+				setcharvariable "killrats_count",0;
+				getitem 512,5;
+				mes "Thank you! Here's your reward!";
+			}
+		}
+	}
+end;
