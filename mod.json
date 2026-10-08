@@ -7,7 +7,7 @@
   "prerenewalFolder": "pre-renewal",
   "default": "off",
   "requires": {
-    "app": ">=1.4.8",
+    "app": ">=1.5.5",
     "era": "any"
   },
   "settings": [

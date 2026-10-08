@@ -5,7 +5,7 @@
 <p align="center">
   <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/MondoTruth/standart-npc?style=for-the-badge&label=latest&color=d9a233" alt="Latest release"></a>
   <a href="../../releases"><img src="https://img.shields.io/github/downloads/MondoTruth/standart-npc/total?style=for-the-badge&color=5da9e0" alt="Downloads"></a>
-  <a href="https://github.com/Flux159/ragnarokoffline.app"><img src="https://img.shields.io/badge/Ragnarok%20Offline-%E2%89%A5%201.4.8-c8503f?style=for-the-badge" alt="Requires Ragnarok Offline 1.4.8 or newer"></a>
+  <a href="https://github.com/Flux159/ragnarokoffline.app"><img src="https://img.shields.io/badge/Ragnarok%20Offline-%E2%89%A5%201.5.5-c8503f?style=for-the-badge" alt="Requires Ragnarok Offline 1.5.5 or newer"></a>
 </p>
 
 <p align="center">
@@ -28,7 +28,7 @@
 3. **Settings → Mods** → tick **standart-npc** → **Apply**. This turns on every NPC in the pack.
 
 > [!IMPORTANT]
-> Requires app version **1.4.8 or newer** — the settings window, the per-NPC switches, Bounty Hunter credit for party bot kills, the separate Pre-renewal spawn files and the Card Exchanger pulling one card depend on it.
+> Requires app version **1.5.5 or newer** — the Attendance Check needs its server (rewards that start over after day 20), and the settings window, the per-NPC switches, Bounty Hunter credit for party bot kills, the separate Pre-renewal spawn files and the Card Exchanger pulling one card need 1.4.8.
 
 ---
 
