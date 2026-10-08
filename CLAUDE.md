@@ -366,7 +366,7 @@ check it especially carefully.
 6. Before tagging: `node tests/play.cjs` passes in both eras (it makes the
    smoke checks too), tabs check,
    same version everywhere, README coordinates, credits.
-7. Publish a GitHub release with tag `v<version>` and the CHANGELOG.md section
+7. Publish a GitHub release with tag and title `v<version>` (e.g. `v4.9.5`) and the CHANGELOG.md section
    as description. Don't attach the zip by hand: the workflow builds it and
    attaches it to the release. If the tag is not `v<version>` from mod.json,
    the workflow fails and attaches nothing.
