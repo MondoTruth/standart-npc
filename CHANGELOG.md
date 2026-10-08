@@ -245,3 +245,12 @@ Warper, on by default (switch each off in Settings..., "Options..." next to the 
 ### Renewal only
 - Plagiarism Master: Shadow Chaser and Abyss Chaser can now copy a 3rd class skill into the Reproduce slot (65 skills), up to their Reproduce level. 1st and 2nd class skills still go into the Plagiarism slot.
 - Known issue: the skill window lets you put skill points into a copied skill. They are not lost: Apply gives them back. Fixed in the game client, coming with an app update.
+
+## 4.9.5
+
+Needs Ragnarok Offline 1.5.5 or newer.
+
+### Renewal and Pre-renewal
+- Daily Rewards NPC replaced by the game's own Attendance Check window. It opens after you log in; click the day's item to claim it, and it comes by mail (RODEX). 20 days, then the rewards start again from day 1. A missed day does not reset your progress, and progress is per account. Rewards are Lil Art's, picked and adjusted by MondoTruth; Renewal and Pre-renewal have their own sets. Switch it off with the new "Attendance Check" setting.
+- Progress from the old Daily Rewards NPC is not carried over: everyone starts at day 1.
+- "Daily Rewards" is gone from the Settings… window; if you had switched it off, nothing else changes.

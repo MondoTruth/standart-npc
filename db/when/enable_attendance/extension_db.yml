@@ -1,0 +1,11 @@
+# standart-npc: turns on the fork's attendance_repeat extension, so the
+# 20 Attendance Check rewards start over after day 20 (Flux159/rathena#29,
+# needs an app whose pinned rathena has it). @extensioninfo attendance_repeat
+
+Header:
+  Type: EXTENSION_DB
+  Version: 1
+
+Body:
+  - Id: attendance_repeat
+    Enabled: true

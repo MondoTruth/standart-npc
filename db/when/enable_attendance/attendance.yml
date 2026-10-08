@@ -1,0 +1,79 @@
+# standart-npc: Attendance Check rewards (Renewal), by MondoTruth and Lil Art.
+# rAthena's own attendance: the Attendance Check window, one reward a
+# calendar day, sent by mail (RODEX). Progress is account-wide and a missed
+# day does not reset it. One long period; with the attendance_repeat
+# extension (extension_db.yml next to this file) the 20 days start over
+# after day 20.
+# The client shows the rewards from System/CheckAttendance.lub: keep both
+# files the same. The Pre-renewal copy is in pre-renewal/db/when/enable_attendance/.
+# Every day 1-20 must be here with an existing ItemId: one bad day drops the
+# whole period (IDs checked against Flux159/rathena 5209ce0).
+
+Header:
+  Type: ATTENDANCE_DB
+  Version: 1
+
+Body:
+  - Start: 20260101
+    End: 20991231
+    Rewards:
+      - Day: 1    # E_All_In_One_Buff
+        ItemId: 100906
+        Amount: 15
+      - Day: 2    # Gold
+        ItemId: 969
+        Amount: 7
+      - Day: 3    # Battle_Manual_X3
+        ItemId: 14545
+        Amount: 3
+      - Day: 4    # HE_Bubble_Gum
+        ItemId: 12412
+        Amount: 5
+      - Day: 5    # Guarantee_Armor_9Up
+        ItemId: 6232
+        Amount: 1
+      - Day: 6    # Battle_Manual_X3
+        ItemId: 14545
+        Amount: 5
+      - Day: 7    # Up_Hero_Weapon_Box
+        ItemId: 100742
+        Amount: 5
+      - Day: 8    # Guarantee_Weapon_11Up
+        ItemId: 6238
+        Amount: 1
+      - Day: 9    # Guarantee_Armor_12Up
+        ItemId: 6585
+        Amount: 1
+      - Day: 10    # Blacksmith_Blessing
+        ItemId: 6635
+        Amount: 15
+      - Day: 11    # Blessed_Etel_Dust
+        ItemId: 1000337
+        Amount: 50
+      - Day: 12    # Guarantee_Armor_15Up
+        ItemId: 6878
+        Amount: 1
+      - Day: 13    # Blacksmith_Blessing
+        ItemId: 6635
+        Amount: 25
+      - Day: 14    # Viva_Adul_Hat_Box_11
+        ItemId: 101653
+        Amount: 5
+      - Day: 15    # Amulet_of_GenesisStone
+        ItemId: 490337
+        Amount: 1
+      - Day: 16    # Justice_Weapon_Box
+        ItemId: 102070
+        Amount: 5
+      - Day: 17    # GoodnEvil_Helm_Box
+        ItemId: 102074
+        Amount: 5
+      - Day: 18    # Guarantee_Weapon_15Up
+        ItemId: 6872
+        Amount: 1
+      - Day: 19    # Injustice_Weapon_Box
+        ItemId: 102071
+        Amount: 5
+      - Day: 20    # Sealed_Card
+        ItemId: 22829
+        Amount: 1

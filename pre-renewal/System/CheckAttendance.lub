@@ -1,0 +1,42 @@
+-- standart-npc: Attendance Check rewards (Pre-renewal) for the client's window.
+-- Must match the server's db/when/enable_attendance/attendance.yml
+-- (pre-renewal/... for Pre-renewal). Replaces the client's own copy.
+Config = {
+	StartDate = 20260101,
+	EndDate = 20991231
+}
+Reward = {
+	{ 1, 969, 2 }, -- Gold
+	{ 2, 14545, 3 }, -- Battle_Manual_X3
+	{ 3, 12412, 5 }, -- HE_Bubble_Gum
+	{ 4, 12016, 10 }, -- Speed_Up_Potion
+	{ 5, 7620, 10 }, -- Enriched_Oridecon
+	{ 6, 6232, 1 }, -- Guarantee_Armor_9Up
+	{ 7, 617, 3 }, -- Old_Violet_Box
+	{ 8, 617, 5 }, -- Old_Violet_Box
+	{ 9, 12411, 10 }, -- HE_Battle_Manual
+	{ 10, 616, 1 }, -- Old_Card_Album
+	{ 11, 6238, 1 }, -- Guarantee_Weapon_11Up
+	{ 12, 6239, 1 }, -- Guarantee_Armor_11Up
+	{ 13, 7619, 10 }, -- Enriched_Elunium
+	{ 14, 607, 30 }, -- Yggdrasilberry
+	{ 15, 608, 50 }, -- Seed_Of_Yggdrasil
+	{ 16, 6239, 1 }, -- Guarantee_Armor_11Up
+	{ 17, 7620, 20 }, -- Enriched_Oridecon
+	{ 18, 644, 5 }, -- Gift_Box
+	{ 19, 603, 20 }, -- Old_Blue_Box
+	{ 20, 616, 3 } -- Old_Card_Album
+}
+function main()
+	result, msg = InsertCheckAttendanceConfig(Config.EvendOnOff, Config.StartDate, Config.EndDate)
+	if not result then
+		return false, msg
+	end
+	for k, rewardtbl in pairs(Reward) do
+		result, msg = InsertCheckAttendanceReward(rewardtbl[1], rewardtbl[2], rewardtbl[3])
+		if not result then
+			return false, msg
+		end
+	end
+	return true, "good"
+end

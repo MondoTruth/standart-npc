@@ -52,6 +52,10 @@ CHANGELOG.md             -- full history, one ## <version> section per release
                             update skips)
 settings/index.html      -- the mod's own settings window
 db/when/enable_dummies/  -- mob_db.yml, mob_avail.yml: the Training Dummy (Normal, Boss)
+db/when/enable_attendance/ -- attendance.yml (Renewal rewards) and extension_db.yml
+                            (attendance_repeat): rAthena's Attendance Check
+System/CheckAttendance.lub -- the client's copy of the rewards (always shipped;
+                            does nothing while the server has no period)
 npc/
   custom/snpc_settings.txt  -- F_SNPC_Off: switch for always-loaded NPCs
   *.txt                     -- always-loaded NPCs (Warper, Buffer, Job Master, ...)
@@ -59,7 +63,9 @@ npc/
                               (Bounty Hunter, MVP dungeon, Training Dummies)
     */*_era.txt            -- Renewal-only spawns
 pre-renewal/npc/when/...   -- Pre-renewal copies of the *_era.txt files
-pre-renewal/db/when/...    -- Pre-renewal copy of the dummies' mob_db.yml
+pre-renewal/db/when/...    -- Pre-renewal copies of the dummies' mob_db.yml and of
+                            attendance.yml
+pre-renewal/System/        -- Pre-renewal CheckAttendance.lub
                               ("prerenewalFolder" in mod.json, app 1.4.3+)
 README.md, assets/, CLAUDE.md, tests/  -- repo only, never in the release zip
 ```
@@ -72,7 +78,8 @@ README.md, assets/, CLAUDE.md, tests/  -- repo only, never in the release zip
   start-up and hide themselves if listed in the string setting `npc_off`
   (comma list: `warper, buffer, jobmaster, reset, stylist, epvalk, falcon,
   kafra, weightmax, plagiarism, tooldealer, smuggler, cardexchanger, refiner,
-  grade, enchanter, nokzin, daily, welcome`; empty = all on).
+  grade, enchanter, nokzin, welcome`; empty = all on; `daily` was
+  Daily Rewards, removed in 4.9.5).
 - Buffer: the chosen buffs are two string settings, `buffer_set` (1st-3rd
   class) and `buffer_set4` (4th class), comma lists of codes; a string
   holds at most 200 characters, so a new class group may need its own key. A `shop` has no OnInit, so
@@ -90,7 +97,7 @@ README.md, assets/, CLAUDE.md, tests/  -- repo only, never in the release zip
   `db/import-tmpl`). Any other name lands in `db/import/` and is never read
   (see #25).
 
-### Settings — 8 of max 20 used
+### Settings — 9 of max 20 used
 
 App limits: `type` is `boolean`, `number` or `string`; max 20 settings;
 `label` up to 120 and `description` up to **400 bytes** (UTF-8; over that
@@ -107,7 +114,7 @@ the mod folder; on update the app treats a renamed key as one option removed
 and another added, so every player silently loses that choice. If a key
 really must go, say so in CHANGELOG.md.
 
-## NPCs in Prontera (grepped from files, 4.9.2)
+## NPCs in Prontera (grepped from files, 4.9.5)
 
 | NPC | x,y | File / toggle |
 |---|---|---|
@@ -130,7 +137,6 @@ really must go, say so in CHANGELOG.md.
 | Grade Refiner | 164,166 | npc_off `grade` (Renewal only) |
 | Universal Enchanter | 164,169 | npc_off `enchanter` |
 | Master Nokzin | 144,229 | npc_off `nokzin` |
-| Daily Rewards | 147,166 | npc_off `daily` |
 | Training Dummy / Dummy Master | 156,225 / 150,225 | enable_dummies |
 
 Before placing a new NPC, grep all `prontera,` lines to avoid collisions.
