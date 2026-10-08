@@ -97,9 +97,9 @@ README.md, assets/, CLAUDE.md, tests/  -- repo only, never in the release zip
   `db/import-tmpl`). Any other name lands in `db/import/` and is never read
   (see #25).
 
-### Settings — 9 of max 20 used
+### Settings — 9 of max 40 used
 
-App limits: `type` is `boolean`, `number` or `string`; max 20 settings;
+App limits: `type` is `boolean`, `number` or `string`; max 40 settings (20 before app 1.5.5);
 `label` up to 120 and `description` up to **400 bytes** (UTF-8; over that
 the whole mod is refused: "setting ... has an over-long label or
 description", `stack/src/mods.rs`); `key` up to 40 characters, a string
@@ -215,7 +215,7 @@ Other things in Prontera since app 1.4.6:
   `F_SNPC_Off`, an entry in `ALWAYS_LOADED` and a group in
   `settings/index.html`. Only NPCs with `monster`/`mapflag` lines or `db/`
   tables need a folder `npc/when/<new_key>/` + boolean in `mod.json` (mind
-  the 20-settings cap).
+  the 40-settings cap; over 20 needs `requires.app >= 1.5.5`).
 - Bounty Hunter: all contracts are in `bounty_contracts.txt`, one line each;
   keep the first lines of each type in their old order (progress migration
   depends on it); new hunting monsters also need spawn lines in
@@ -366,7 +366,7 @@ check it especially carefully.
 6. Before tagging: `node tests/play.cjs` passes in both eras (it makes the
    smoke checks too), tabs check,
    same version everywhere, README coordinates, credits.
-7. Publish a GitHub release with tag `v<version>` and the CHANGELOG.md section
+7. Publish a GitHub release with tag and title `v<version>` (e.g. `v4.9.5`) and the CHANGELOG.md section
    as description. Don't attach the zip by hand: the workflow builds it and
    attaches it to the release. If the tag is not `v<version>` from mod.json,
    the workflow fails and attaches nothing.
