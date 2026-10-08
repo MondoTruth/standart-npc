@@ -134,7 +134,7 @@ function serverChecks(era, up) {
 
     // Problems this mod has caused before (#22, #24, #25) or could.
     const bad = log.filter(l => !APP_OWN.some(re => re.test(l)) && (
-        /script error|npc_parse|buildin_|Unknown mob ID|Invalid sell item|does not exists? in the item_db|parse_simpleexpr|Invalid NPC constant|was not applied/i.test(l)
+        /script error|npc_parse|buildin_|pc_attendance_load|Unknown mob ID|Invalid sell item|does not exists? in the item_db|parse_simpleexpr|Invalid NPC constant|was not applied/i.test(l)
         || (l.includes(MOD) && /\[(Error|Warning)\]/.test(l))));
     check(bad.length === 0, 'no script errors, unknown IDs or NPC parse problems', bad.slice(0, 15).join('\n'));
 
@@ -142,6 +142,15 @@ function serverChecks(era, up) {
     for (const table of ['mob_db', 'mob_avail']) {
         const m = log.map(l => l.match(new RegExp(`Done reading '(\\d+)' entries in 'db/import/${table}\\.yml'`))).find(Boolean);
         check(m && Number(m[1]) >= 2, `db/import/${table}.yml read`, m ? `${m[1]} entries` : 'not in the log');
+    }
+
+    // Attendance Check: one 20-day period, and attendance_repeat turned on.
+    // A bad day drops the whole period with only a warning, so also count it.
+    const attendance = log.find(l => /attendance\.yml/.test(l) && /\[(Error|Warning)\]/.test(l));
+    check(!attendance, 'db/import/attendance.yml without warnings', attendance || '');
+    for (const table of ['attendance', 'extension_db']) {
+        const m = log.map(l => l.match(new RegExp(`Done reading '(\\d+)' entries in 'db/import/${table}\\.yml'`))).find(Boolean);
+        check(m && Number(m[1]) >= 1, `db/import/${table}.yml read`, m ? `${m[1]} entries` : 'not in the log');
     }
 
     // The mod's own start-up lines.

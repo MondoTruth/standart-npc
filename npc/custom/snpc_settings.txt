@@ -11,7 +11,7 @@
 //= list of names (warper, buffer, jobmaster, reset, stylist,
 //= epvalk, falcon, kafra, weightmax, plagiarism, tooldealer,
 //= smuggler, cardexchanger, refiner, grade, enchanter, nokzin,
-//= daily).
+//= welcome). "daily" (Daily Rewards, removed in 4.9.5) does nothing.
 //= Empty = everything on.
 //===== How to customize: ====================================
 //= - Nothing to edit here: tick/untick the NPCs in

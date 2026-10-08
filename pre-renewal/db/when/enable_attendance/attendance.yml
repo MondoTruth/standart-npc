@@ -1,0 +1,79 @@
+# standart-npc: Attendance Check rewards (Pre-renewal), by MondoTruth and Lil Art.
+# rAthena's own attendance: the Attendance Check window, one reward a
+# calendar day, sent by mail (RODEX). Progress is account-wide and a missed
+# day does not reset it. One long period; with the attendance_repeat
+# extension (extension_db.yml next to this file) the 20 days start over
+# after day 20.
+# The client shows the rewards from System/CheckAttendance.lub: keep both
+# files the same. The Renewal copy is in db/when/enable_attendance/.
+# Every day 1-20 must be here with an existing ItemId: one bad day drops the
+# whole period (IDs checked against Flux159/rathena 5209ce0).
+
+Header:
+  Type: ATTENDANCE_DB
+  Version: 1
+
+Body:
+  - Start: 20260101
+    End: 20991231
+    Rewards:
+      - Day: 1    # Gold
+        ItemId: 969
+        Amount: 2
+      - Day: 2    # Battle_Manual_X3
+        ItemId: 14545
+        Amount: 3
+      - Day: 3    # HE_Bubble_Gum
+        ItemId: 12412
+        Amount: 5
+      - Day: 4    # Speed_Up_Potion
+        ItemId: 12016
+        Amount: 10
+      - Day: 5    # Enriched_Oridecon
+        ItemId: 7620
+        Amount: 10
+      - Day: 6    # Guarantee_Armor_9Up
+        ItemId: 6232
+        Amount: 1
+      - Day: 7    # Old_Violet_Box
+        ItemId: 617
+        Amount: 3
+      - Day: 8    # Old_Violet_Box
+        ItemId: 617
+        Amount: 5
+      - Day: 9    # HE_Battle_Manual
+        ItemId: 12411
+        Amount: 10
+      - Day: 10    # Old_Card_Album
+        ItemId: 616
+        Amount: 1
+      - Day: 11    # Guarantee_Weapon_11Up
+        ItemId: 6238
+        Amount: 1
+      - Day: 12    # Guarantee_Armor_11Up
+        ItemId: 6239
+        Amount: 1
+      - Day: 13    # Enriched_Elunium
+        ItemId: 7619
+        Amount: 10
+      - Day: 14    # Yggdrasilberry
+        ItemId: 607
+        Amount: 30
+      - Day: 15    # Seed_Of_Yggdrasil
+        ItemId: 608
+        Amount: 50
+      - Day: 16    # Guarantee_Armor_11Up
+        ItemId: 6239
+        Amount: 1
+      - Day: 17    # Enriched_Oridecon
+        ItemId: 7620
+        Amount: 20
+      - Day: 18    # Gift_Box
+        ItemId: 644
+        Amount: 5
+      - Day: 19    # Old_Blue_Box
+        ItemId: 603
+        Amount: 20
+      - Day: 20    # Old_Card_Album
+        ItemId: 616
+        Amount: 3
