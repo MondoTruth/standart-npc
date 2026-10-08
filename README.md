@@ -54,6 +54,7 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 | ✨ | **Buffer** | Free instant buffs + full heal on click, no dialog window. You choose the buffs (see below). Duplicated in every major town. | Every major town |
 | 📦 | **Premium Service Manager** | Save point, storage, free identify-all, and disposing of items that cannot be dropped or traded (account-bound and the like). | Prontera (160, 187) |
 | 🏋️ | **Weight Maxxer** | Trades a Gym Pass for +1 permanent carry capacity, up to 10 times. Gym Pass: the Cash Shop with cash-shop-extended, the Tool Dealer (100,000 Zeny) without it. | Prontera (147, 172) |
+| 📅 | **Attendance Check** | The game's own attendance window after login: one reward a day by mail, 20 days that start over. Own rewards per era. Setting "Attendance Check". | Window, no NPC |
 
 #### 🎓 Character
 
@@ -100,7 +101,6 @@ Everything is on by default. Any NPC can be switched off in the settings window.
 
 | | NPC | What it does | Location |
 |:-:|---|---|---|
-| 📅 | **Attendance Check** | The game's own attendance window after login: one reward a day by mail, 20 days that start over. Own rewards per era. Setting "Attendance Check". | Window, no NPC |
 | 👼 | **Welcoming** | A one-time starter gift for every new character: 150,000 Zeny, a Premium Booster Box and two costumes. Renewal only. | Izlude (189, 209) |
 
 > [!NOTE]
