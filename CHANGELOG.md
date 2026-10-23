@@ -325,3 +325,8 @@ Needs Ragnarok Offline 1.6.0 or newer.
 
 ### Renewal only
 - Episode Valkyrie: Episodes 20 and 21. An Episode 20 Clear Ticket (8,000,000 Zeny) skips Episode 20's main story, The Undying One, and opens its dailies. An Episode 21 Clear Ticket (9,000,000 Zeny) skips Age of Heroes and opens its dailies and memorial dungeons; it needs Episode 20 finished and base level 230, as Voglinde does. Both stories come with the [World Sync Extras](https://github.com/LilArt420/world-sync-extras) mod (2.0.0 and later). Without it the Valkyrie says the episode isn't on the server yet, and neither takes nor sells the tickets. No EXP or quest rewards. By Lil Art.
+
+## Next version
+
+### Renewal only
+- Grade Refiner: a third choice, "Refine with a ticket". The +5 to +19 Weapon and Armor Certificates refine weapons of levels 1 to 4 and level 1 armor, and the [ROS] Refine Tickets (+13 to +15) refine level 5 weapons and level 2 armor, up to the ticket's level and with no chance of failure. The server ships rAthena's own ticket refiner switched off, so these tickets did nothing until now. Equipment Grading and Equipment Refinement work as before. By Lil Art.
