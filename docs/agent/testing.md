@@ -75,7 +75,7 @@ outputs `world prepare` takes: `bin/robrowser-remoteclient.exe`,
 `vendor/roBrowserLegacy/dist/Web`, `vendor/ROenglishRE/Translation` and
 `dist/images.tar.gz` (a stale one in the clone wins over the runtime's).
 `tests/world.cjs` then sees `runtime/APP_VERSION` differ and makes the
-world again. Before 1.5.1 the world kept running 1.4.8's server.
+world again.
 
 ## Someone else's mod in the test world
 

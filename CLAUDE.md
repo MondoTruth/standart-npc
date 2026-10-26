@@ -12,6 +12,7 @@ Read when needed (`docs/agent/`, repo only):
 - `outside-repos.md` — work in the app/rathena/roBrowserLegacy, fork sync, building on Windows.
 - `reviewing.md` — reviewing or committing someone else's work.
 - `features.md` — Bounty Hunter contracts, mod store, server extensions.
+- `prontera.md` — our NPCs' coordinates, other mods' NPCs in Prontera.
 
 Scripts (`tools/`, Git Bash): `upstream.sh` — new app releases, VENDOR_PINS
 changes, fork sync, open upstream PRs, Prontera collisions from new registry
@@ -103,9 +104,7 @@ README.md, assets/, CLAUDE.md, docs/, tools/, tests/  -- repo only, never in the
   1.4.3 the `when/<key>/` switch also works for `db/when/<key>/`,
   `lua/when/<key>/` and `conf/when/<key>/` (`groups.yml`/`atcommands.yml`).
   We require app 1.6.5 (Episode 19's quests for Episode Valkyrie,
-  Flux159/rathena#53; `stylist_script_costs` came in 1.6.3,
-  Flux159/rathena#47;
-  `attendance_script_rewards` came in 1.6.0, `attendance_repeat` in 1.5.5).
+  Flux159/rathena#53).
 - A `db/` file only loads if its name is a table rAthena imports
   (`mob_db.yml`, `item_db.yml`, ... — the stubs in rAthena's
   `db/import-tmpl`). Any other name lands in `db/import/` and is never read
@@ -127,45 +126,10 @@ the mod folder; a renamed key is one option removed and another added, so
 every player silently loses that choice. If a key really must go, say so in
 CHANGELOG.md.
 
-## NPCs in Prontera (grepped from files, 4.9.5)
+## NPCs in Prontera
 
-| NPC | x,y | File / toggle |
-|---|---|---|
-| Warper | 160,192 + duplicates in towns | npc/warper.txt, npc_off `warper` |
-| Buffer | 163,192 + duplicates in towns | npc_off `buffer` |
-| Job Master | 157,195 | npc_off `jobmaster` |
-| Reset Girl | 154,195 | npc_off `reset` |
-| Stylist | 169,180 | npc_off `stylist` |
-| Episode Valkyrie | 128,193 | npc_off `epvalk` |
-| Falcon Breeder | 128,211 | npc_off `falcon` |
-| Premium Service Manager | 160,187 | npc_off `kafra` (was Kafra Employee) |
-| Weight Maxxer | 147,172 | npc_off `weightmax` |
-| Plagiarism Master | 171,182 | npc_off `plagiarism` |
-| Tool Dealer | 143,178 | npc_off `tooldealer` |
-| Smuggler | 187,194 | npc_off `smuggler` |
-| Card Exchanger | 151,187 | npc_off `cardexchanger` |
-| Bounty Hunter | 147,169 | enable_bounties |
-| Cheffenia Gatekeeper | 140,180 | enable_mvp |
-| Safe Refiner | 164,172 | npc_off `refiner` |
-| Grade Refiner | 164,166 | npc_off `grade` (Renewal only) |
-| Universal Enchanter | 164,169 | npc_off `enchanter` |
-| Elemental Endower | 147,166 | npc_off `nokzin` |
-| Training Dummy / Dummy Master | 156,225 / 150,225 | enable_dummies |
-| Medium Dummy / MVP Dummy | 153,163 / 158,163 | enable_dummies + dummy_pair (off by default) |
-
+Our NPCs' coordinates and the other mods' NPCs there: `docs/agent/prontera.md`.
 Before placing a new NPC, grep all `prontera,` lines to avoid collisions.
-Others in Prontera (app 1.4.6+):
-
-- **prontera-vendors** (BlaXun): random stalls in columns x=147 and x=164
-  (y 52-111, ~135-173), buyers at x=140 and x=171 (y 136-172) and rows
-  y=110 / y=125 (x 104-135). From app 1.4.8 stalls keep 3 cells from any
-  NPC; on older apps a stall can land on one of ours.
-- **Companion Recruiter** (app): two cells east of each town's healer
-  (`prontera,164,193`, next to our Buffer), only when Companions are
-  "Hired from a Companion Recruiter".
-- **card-remover** (BlaXun, app 1.4.8): `prontera,182,216`, also geffen
-  115,73, alberta 104,61, morocc 155,64, payon 166,99, izlude 119,157,
-  aldebaran 160,100. Overlaps our Card Exchanger's extraction (#41).
 
 ## Script conventions
 
