@@ -331,3 +331,8 @@ Needs Ragnarok Offline 1.6.0 or newer.
 ### Renewal and Pre-renewal
 - Grade Refiner: a new choice, "Refine with a ticket". On Renewal, the +5 to +19 Weapon and Armor Certificates refine weapons of levels 1 to 4 and level 1 armor, and the [ROS] Refine Tickets (+13 to +15) refine level 5 weapons and level 2 armor, up to the ticket's level and with no chance of failure. The server ships rAthena's own ticket refiner switched off, so the [ROS] tickets and the +5, +6 and +16 to +19 certificates did nothing until now. Equipment Grading and Equipment Refinement work as before. By Lil Art.
 - The Safe Refiner (Prontera 164,172) is gone: the Grade Refiner now takes the same certificates. On Pre-renewal the Grade Refiner is back, with "Refine with a ticket" only (+5 to +9 and +11; grading doesn't exist there). Its tick in the settings window is gone too: if you had unticked the Safe Refiner, untick the Grade Refiner instead.
+
+## Next version
+
+### Renewal and Pre-renewal
+- Premium Service Manager: "Discard an item" now has a "Show all items" choice that lists everything in your bag but what you wear. Some items cannot be dropped or sold but can still be traded, such as the costumes Adventurer's Chronicle gives; they were missing from the list and could not be got rid of.
