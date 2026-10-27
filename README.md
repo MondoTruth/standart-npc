@@ -62,7 +62,7 @@ Everything is on after install. To change it: **Settings → Mods → standart-n
 |:-:|---|---|---|
 | 🌀 | **Warper** | Menu-based travel — towns, fields, dungeons, guild castles, instances. 3rd/4th classes pay 5,000 Zeny (15,000 for dungeons and instances); some dungeons need their quest first. Both can be switched off. On Renewal it also reaches the maps app 1.6.6 filled with monsters (Dimensional Biosphere, Jormungand Cult Temple, Zerocell Sector, Yongjirak and more). | Every major town |
 | ✨ | **Buffer** | Free instant buffs + full heal on click, no dialog window. You choose the buffs ([list](#-buffer)). | Every major town |
-| 📦 | **Premium Service Manager** | Save point, storage, free identify-all, and disposing of items that cannot be dropped or traded (account-bound and the like). | Prontera (160, 187) |
+| 📦 | **Premium Service Manager** | Save point, storage, free identify-all, and disposing of items that cannot be dropped or traded (account-bound and the like), or of anything else in the bag. | Prontera (160, 187) |
 | 🏋️ | **Weight Maxxer** | Trades a Gym Pass for +1 permanent carry capacity, up to 10 times. Gym Pass: the Cash Shop with cash-shop-extended, the Tool Dealer (100,000 Zeny) without it. | Prontera (147, 172) |
 | 📅 | **Attendance Check** | The game's own attendance window after login: one reward a day by mail, 20 days that start over. Rewards can be changed in the settings. | Window, no NPC |
 

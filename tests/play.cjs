@@ -52,8 +52,8 @@ const CHAR = 'Tester';
 // db/re and db/pre-re item_db (Knife_ 1202 has 4 slots in both eras).
 const CARD_TEST = { knife: 1202, keep: 4001, pull: 4002 };   // Knife [4], Poring Card, Fabre Card
 // Premium Service Manager (#76): an account-bound +3 Main Gauche and five
-// bound Yellow Potions to dispose of, and a plain Jellopy that must not be
-// offered. IDs from the fork's db/re and db/pre-re item_db.
+// bound Yellow Potions to dispose of, and a plain Jellopy that is only
+// offered under "Show all items". IDs from the fork's db/re and db/pre-re item_db.
 const PREM_TEST = { gauche: 1207, potion: 503, jellopy: 909 };
 // Universal Enchanter (#46): a slotless Hat on the head, a slotless Cotton
 // Shirt on the body, a Shard of Agility Jewel in the bag (Renewal only;
@@ -818,7 +818,8 @@ function runEra(era) {
     }
     if (want('premium')) {
         // Premium Service Manager: the bound Main Gauche goes whole, two of
-        // the five bound potions go, the tradable Jellopy is not offered.
+        // the five bound potions go, the tradable Jellopy is offered only
+        // under "Show all items", and goes from there.
         gm('@warp prontera 160 185');
         const talk = ev(`(async () => {
             const said = [];
@@ -842,16 +843,35 @@ function runEra(era) {
             v = await snpc.go('Dispose of it');
             said.push(v.text);
             await snpc.close();
-            return { said, menu };
+            await snpc.talk('Premium Service Manager');
+            await snpc.go('Discard an item');
+            await snpc.next();
+            v = await snpc.pick('Show all items');
+            const all = [];
+            for (let p = 0; p < 8; p++) {
+                all.push(...v.menu.map(i => i.text));
+                if (v.menu.some(i => i.text === 'Jellopy') || !v.menu.some(i => i.text === 'Next page')) break;
+                v = await snpc.pick('Next page');
+            }
+            v = await snpc.pick('Jellopy');
+            said.push(v.text);
+            v = await snpc.go('Dispose of it');
+            said.push(v.text);
+            await snpc.close();
+            return { said, menu, all };
         })()`);
         const said = talk && talk.said ? talk.said.join(' / ') : JSON.stringify(talk);
         const menu = talk && talk.menu ? talk.menu : [];
+        const all = talk && talk.all ? talk.all : [];
         check(menu.some(t => t.startsWith('+3 Main Gauche')) && menu.includes('Yellow Potion x5'),
             'Premium Service Manager: lists the bound Main Gauche and potions', JSON.stringify(menu));
-        check(!menu.some(t => t.startsWith('Jellopy')), 'Premium Service Manager: a tradable Jellopy is not listed', JSON.stringify(menu));
+        check(!menu.some(t => t.startsWith('Jellopy')) && menu.includes('Show all items'),
+            'Premium Service Manager: a tradable Jellopy is not listed, "Show all items" is', JSON.stringify(menu));
+        check(all.includes('Jellopy') && all.includes('Yellow Potion x3') && !all.includes('Show all items'),
+            'Premium Service Manager: "Show all items" lists the Jellopy and the bound potions', JSON.stringify(all));
         check(said.includes('Dispose of +3 Main Gauche') && said.includes('Dispose of 2 x Yellow Potion'),
             'Premium Service Manager: asks before disposing', said.slice(-400));
-        check((said.match(/is gone\./g) || []).length === 2, 'Premium Service Manager: disposes of both', said.slice(-400));
+        check((said.match(/is gone\./g) || []).length === 3, 'Premium Service Manager: disposes of all three', said.slice(-400));
     }
     if (want('stylist')) {
         // Stylist: the styling window, then the 3rd class alternative outfit
@@ -1031,8 +1051,8 @@ function runEra(era) {
     }
     if (want('premium')) {
         const count = nameid => sqlOne(`SELECT COALESCE(SUM(amount),0) FROM inventory WHERE char_id=${charId} AND nameid=${nameid}`);
-        check(count(PREM_TEST.gauche) === '0' && count(PREM_TEST.potion) === '3' && count(PREM_TEST.jellopy) === '1',
-            'Premium Service Manager: Main Gauche gone, 3 potions and the Jellopy left',
+        check(count(PREM_TEST.gauche) === '0' && count(PREM_TEST.potion) === '3' && count(PREM_TEST.jellopy) === '0',
+            'Premium Service Manager: Main Gauche and Jellopy gone, 3 potions left',
             `gauche ${count(PREM_TEST.gauche)}, potions ${count(PREM_TEST.potion)}, jellopy ${count(PREM_TEST.jellopy)}`);
     }
     if (want('plagiarism') && e.thirdClass) checks.push(...plagiarism());

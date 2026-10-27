@@ -5,7 +5,9 @@
 //= Save point + storage + identify, and a way to get rid of
 //= items that cannot be dropped, traded or sold (account-bound,
 //= trade-restricted, rental): pick one from the bag, confirm, and
-//= it is deleted. Was the Kafra Employee before 4.9.4 (#76).
+//= it is deleted. "Show all items" lists everything in the bag,
+//= for items that can be traded but not dropped or sold.
+//= Was the Kafra Employee before 4.9.4 (#76).
 //= Teleport omitted on purpose -- this pack's Warper NPC already
 //= covers travel.
 //===== How to customize: ====================================
@@ -57,19 +59,27 @@ prontera,160,187,4	script	Premium Service Manager	4_M_GEF_SOLDIER,{
 // slot with delitemidx, so cards, refine and random options need not match.
 // Bound is checked on its own: for the app's default Admin account
 // (can_trade_bounded) @inventorylist_tradable says bound items are tradable.
+// "Show all items" lists every unequipped item instead: some can be traded
+// but not dropped or sold (NoDrop without NoTrade, e.g. other mods' quest
+// costumes), and a script cannot read NoDrop.
 S_Discard:
 	getinventorylist;
 	.@n = 0;
+	.@na = 0;
 	for (.@i = 0; .@i < @inventorylist_count; .@i++) {
-		if (@inventorylist_equip[.@i] || (@inventorylist_tradable[.@i] && !@inventorylist_bound[.@i]))
+		if (@inventorylist_equip[.@i])
+			continue;
+		.@all[.@na] = .@i;
+		.@na++;
+		if (@inventorylist_tradable[.@i] && !@inventorylist_bound[.@i])
 			continue;
 		.@pos[.@n] = .@i;
 		.@n++;
 	}
-	if (.@n == 0) {
+	if (.@na == 0) {
 		mes "[Premium Service Manager]";
-		mes "You carry nothing that needs my help.";
-		mes "I only take items that cannot be dropped or traded.";
+		mes "You carry nothing I could take.";
+		mes "Items you wear or keep in storage are not listed.";
 		mes "Take them off, or out of your storage, first.";
 		return;
 	}
@@ -77,6 +87,12 @@ S_Discard:
 	mes "I can dispose of items that cannot be dropped or traded.";
 	mes "^FF0000A disposed item is gone for good.^000000";
 	mes "Items you wear or keep in storage are not listed.";
+	if (.@n == 0) {
+		mes "Nothing in your bag is trade-restricted, so here is all of it.";
+		copyarray .@pos[0], .@all[0], .@na;
+		.@n = .@na;
+	} else if (.@na > .@n)
+		mes "Not listed? Pick ^0055FFShow all items^000000.";
 	next;
 
 	.@first = 0;
@@ -86,13 +102,20 @@ S_Discard:
 		for (.@k = .@first; .@k < .@last; .@k++)
 			.@menu$ += callsub(S_Label, .@pos[.@k]) + ":";
 		.@more = (.@last < .@n);
-		.@menu$ += (.@more ? "Next page" : "") + ":Cancel";
+		.@showall = (.@na > .@n);
+		.@menu$ += (.@more ? "Next page" : "") + ":" + (.@showall ? "^0055FFShow all items^000000" : "") + ":Cancel";
 		.@s = select(.@menu$) - 1;
 		.@count = .@last - .@first;
 		if (.@s < .@count)
 			break;
 		if (.@s == .@count && .@more) {
 			.@first = .@last;
+			continue;
+		}
+		if (.@s == .@count + 1 && .@showall) {
+			copyarray .@pos[0], .@all[0], .@na;
+			.@n = .@na;
+			.@first = 0;
 			continue;
 		}
 		mes "[Premium Service Manager]";
