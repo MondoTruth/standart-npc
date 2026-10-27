@@ -2,17 +2,15 @@
 //= Grade Refiner
 //===== By: Lil Art ===========================================
 //===== Description: =========================================
-//= Opens the game's own equipment grading UI and refining UI
-//= from one NPC in central Prontera, and refines with refine
-//= tickets: the +5 to +19 Weapon/Armor Certificates (weapon
-//= levels 1-4, armor level 1) and the [ROS] Refine Guarantee
-//= Tickets (+13 to +15, level 5 weapons and level 2 armor),
-//= with no chance of failure. A ticket never refines past its
-//= own level.
-//= Renewal only: grading does not exist on Pre-renewal, and the
-//= Safe Refiner covers refining there. The settings window
-//= hides it on Pre-renewal, and the NPC hides itself there at
-//= start-up.
+//= Refines with refine tickets: the +5 to +19 Weapon/Armor
+//= Certificates (weapon levels 1-4, armor level 1) and the [ROS]
+//= Refine Guarantee Tickets (+13 to +15, level 5 weapons and
+//= level 2 armor), with no chance of failure. A ticket never
+//= refines past its own level.
+//= Renewal: also opens the game's own equipment grading UI and
+//= refining UI.
+//= Pre-renewal: tickets only, the ones that exist there (+5 to
+//= +9 and +11, no [ROS]); grading does not exist there.
 //===== How to customize: ====================================
 //= - Location/sprite: the first line (map,x,y,dir / sprite).
 //= - Tickets: the arrays at the top of S_Ticket.
@@ -23,7 +21,14 @@ prontera,164,166,4	script	Grade Refiner#prontera	864,{
 	mes "Hello! What service would you like to access today?";
 	next;
 
-	switch(select("Equipment Grading:Equipment Refinement:Refine with a ticket:Cancel")) {
+	// checkre(0): 1 = Renewal, 0 = Pre-renewal. Pre-renewal gets only the
+	// tickets; no empty choices, roBrowser numbers the shown ones only.
+	if (checkre(0))
+		.@menu$ = "Equipment Grading:Equipment Refinement:";
+	.@choice = select(.@menu$ + "Refine with a ticket:Cancel");
+	if (!checkre(0))
+		.@choice += 2;
+	switch(.@choice) {
 	case 1:
 		close2;
 		enchantgradeui;
@@ -46,7 +51,7 @@ prontera,164,166,4	script	Grade Refiner#prontera	864,{
 // tickets its "// TODO" left out.
 S_Ticket:
 	disable_items;
-	setarray .@cert_weapon[0],
+	setarray .@cw[0],
 		6864,	// Guarantee_Weapon_19Up
 		6875,	// Guarantee_Weapon_18Up
 		6874,	// Guarantee_Weapon_17Up
@@ -62,7 +67,7 @@ S_Ticket:
 		6230,	// Guarantee_Weapon_7Up
 		6231,	// Guarantee_Weapon_6Up
 		6456;	// Guarantee_Weapon_5Up
-	setarray .@cert_armor[0],
+	setarray .@ca[0],
 		6865,	// Guarantee_Armor_19Up
 		6881,	// Guarantee_Armor_18Up
 		6880,	// Guarantee_Armor_17Up
@@ -78,18 +83,35 @@ S_Ticket:
 		6234,	// Guarantee_Armor_7Up
 		6235,	// Guarantee_Armor_6Up
 		6457;	// Guarantee_Armor_5Up
-	setarray .@cert_level[0],19,18,17,16,15,14,13,12,11,10,9,8,7,6,5;
-	.@size_cert = getarraysize(.@cert_weapon);
-	setarray .@ros_weapon[0],
+	setarray .@cl[0],19,18,17,16,15,14,13,12,11,10,9,8,7,6,5;
+	setarray .@rw[0],
 		1002191,	// Gu_5LvWeapon_15Up_ROS
 		1002189,	// Gu_5LvWeapon_14Up_ROS
 		1002187;	// Gu_5LvWeapon_13Up_ROS
-	setarray .@ros_armor[0],
+	setarray .@ra[0],
 		1002192,	// Gu_2LvArmor_15Up_ROS
 		1002190,	// Gu_2LvArmor_14Up_ROS
 		1002188;	// Gu_2LvArmor_13Up_ROS
-	setarray .@ros_level[0],15,14,13;
-	.@size_ros = getarraysize(.@ros_weapon);
+	setarray .@rl[0],15,14,13;
+	// Only the tickets this era's item database has (Pre-renewal: +5 to +9
+	// and +11, no [ROS]; weapon and armor tickets come in pairs).
+	// getitemname() says "null" for an unknown item.
+	for (.@i = 0; .@i < getarraysize(.@cw); ++.@i) {
+		if (getitemname(.@cw[.@i]) == "null" || getitemname(.@ca[.@i]) == "null")
+			continue;
+		.@cert_weapon[.@size_cert] = .@cw[.@i];
+		.@cert_armor[.@size_cert] = .@ca[.@i];
+		.@cert_level[.@size_cert] = .@cl[.@i];
+		++.@size_cert;
+	}
+	for (.@i = 0; .@i < getarraysize(.@rw); ++.@i) {
+		if (getitemname(.@rw[.@i]) == "null" || getitemname(.@ra[.@i]) == "null")
+			continue;
+		.@ros_weapon[.@size_ros] = .@rw[.@i];
+		.@ros_armor[.@size_ros] = .@ra[.@i];
+		.@ros_level[.@size_ros] = .@rl[.@i];
+		++.@size_ros;
+	}
 
 	for (.@i = 0; .@i < .@size_cert; ++.@i)
 		if (countitem(.@cert_weapon[.@i]) || countitem(.@cert_armor[.@i]))
@@ -100,7 +122,7 @@ S_Ticket:
 	if (!.@check) {
 		mes "[Grade Refiner]";
 		mes "You don't have a ^006400refine ticket^000000.";
-		mes "With a Weapon or Armor Certificate, or a [ROS] Refine Ticket, I refine your gear up to the ticket's level with no chance of failure.";
+		mes "With a refine ticket for weapons or armor, I refine your gear up to the ticket's level with no chance of failure.";
 		close;
 	}
 	mes "[Grade Refiner]";
@@ -133,7 +155,7 @@ S_Ticket:
 		copyarray .@levels[0], .@cert_level[0], .@size_cert;
 		.@size = .@size_cert;
 		.@type$ = "Weapon Certificate";
-	} else if (.@itemtype == IT_WEAPON && getequipweaponlv(.@part) == 5) {
+	} else if (.@itemtype == IT_WEAPON && getequipweaponlv(.@part) == 5 && .@size_ros) {
 		copyarray .@tickets[0], .@ros_weapon[0], .@size_ros;
 		copyarray .@levels[0], .@ros_level[0], .@size_ros;
 		.@size = .@size_ros;
@@ -143,7 +165,7 @@ S_Ticket:
 		copyarray .@levels[0], .@cert_level[0], .@size_cert;
 		.@size = .@size_cert;
 		.@type$ = "Armor Certificate";
-	} else if (.@itemtype == IT_ARMOR && getequiparmorlv(.@part) == 2) {
+	} else if (.@itemtype == IT_ARMOR && getequiparmorlv(.@part) == 2 && .@size_ros) {
 		copyarray .@tickets[0], .@ros_armor[0], .@size_ros;
 		copyarray .@levels[0], .@ros_level[0], .@size_ros;
 		.@size = .@size_ros;
@@ -213,9 +235,8 @@ S_Ticket:
 	close;
 
 OnInit:
-	// Off on Pre-renewal (checkre(0): 1 = Renewal, 0 = Pre-renewal),
-	// or switched off in the settings window
-	if (!checkre(0) || callfunc("F_SNPC_Off", "grade"))
+	// Switched off in the settings window
+	if (callfunc("F_SNPC_Off", "grade"))
 		disablenpc strnpcinfo(0);
 	end;
 }
