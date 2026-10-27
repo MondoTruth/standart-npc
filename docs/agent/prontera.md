@@ -24,8 +24,7 @@ placing anything.
 | Card Exchanger | 151,187 | npc_off `cardexchanger` |
 | Bounty Hunter | 147,169 | enable_bounties |
 | Cheffenia Gatekeeper | 140,180 | enable_mvp |
-| Safe Refiner | 164,172 | npc_off `refiner` |
-| Grade Refiner | 164,166 | npc_off `grade` (Renewal only) |
+| Grade Refiner | 164,166 | npc_off `grade` |
 | Universal Enchanter | 164,169 | npc_off `enchanter` |
 | Elemental Endower | 147,166 | npc_off `nokzin` |
 | Training Dummy / Dummy Master | 156,225 / 150,225 | enable_dummies |

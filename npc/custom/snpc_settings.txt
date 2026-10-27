@@ -10,8 +10,9 @@
 //= The answer comes from the "npc_off" setting: a comma-separated
 //= list of names (warper, buffer, jobmaster, reset, stylist,
 //= epvalk, falcon, kafra, weightmax, plagiarism, tooldealer,
-//= smuggler, cardexchanger, refiner, grade, enchanter, nokzin,
-//= welcome). "daily" (Daily Rewards, removed in 4.9.5) does nothing.
+//= smuggler, cardexchanger, grade, enchanter, nokzin, welcome).
+//= "daily" (Daily Rewards, removed in 4.9.5) and "refiner" (Safe
+//= Refiner, merged into the Grade Refiner) do nothing.
 //= Empty = everything on.
 //===== How to customize: ====================================
 //= - Nothing to edit here: tick/untick the NPCs in

@@ -89,9 +89,10 @@ README.md, assets/, CLAUDE.md, docs/, tools/, tests/  -- repo only, never in the
 - **Always-loaded NPCs** in `npc/` call `callfunc("F_SNPC_Off", "<name>")` at
   start-up and hide themselves if listed in the string setting `npc_off`
   (comma list: `warper, buffer, jobmaster, reset, stylist, epvalk, falcon,
-  kafra, weightmax, plagiarism, tooldealer, smuggler, cardexchanger, refiner,
+  kafra, weightmax, plagiarism, tooldealer, smuggler, cardexchanger,
   grade, enchanter, nokzin, welcome`; empty = all on; `daily` was
-  Daily Rewards, removed in 4.9.5).
+  Daily Rewards, removed in 4.9.5; `refiner` was the Safe Refiner, merged
+  into the Grade Refiner).
 - Buffer: the chosen buffs are two string settings, `buffer_set` (1st-3rd
   class) and `buffer_set4` (4th class), comma lists of codes; a string
   holds at most 200 characters, so a new class group may need its own key.

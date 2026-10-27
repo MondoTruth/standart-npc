@@ -41,7 +41,7 @@ const ERAS = W.parseEras(args);
 // The parts of a run, each an NPC (or a few that belong together), in the
 // order they are played.
 const SECTIONS = ['buffer', 'bounty', 'dummies', 'tooldealer', 'nokzin', 'gatekeeper', 'valkyrie',
-    'attendance', 'welcome', 'enchanter', 'warper', 'smuggler', 'cardexchanger', 'plagiarism', 'premium', 'stylist'];
+    'attendance', 'welcome', 'enchanter', 'grade', 'warper', 'smuggler', 'cardexchanger', 'plagiarism', 'premium', 'stylist'];
 const onlyArg = args.find(a => a.startsWith('--only='));
 const only = onlyArg ? new Set(onlyArg.slice(7).split(',').map(t => t.trim()).filter(Boolean)) : null;
 if (only) for (const name of only) if (!SECTIONS.includes(name)) W.die(`unknown section: ${name} (sections: ${SECTIONS.join(', ')})`);
@@ -63,6 +63,12 @@ const ENCH_TEST = { hat: 2220, shirt: 2301, jewel: 27422, stone: 953 };  // ston
 // Mantle (2307 -> slotted Mantle 2308, on the slot list) in the bag; both
 // IDs in the fork's re/pre-re item_db.
 const SLOT_TEST = { coupon: 6188, mantle: 2307 };
+// Grade Refiner's "Refine with a ticket" (#120), both eras: a +6 Armor
+// Refine Ticket takes the worn Hat (armor level 1) from +0 to +6; a +5
+// Weapon Refine Ticket is refused for the +5 Knife and kept. IDs from the
+// fork's db/re and db/pre-re item_db_etc.yml (Guarantee_Armor_6Up,
+// Guarantee_Weapon_5Up).
+const GRADE_TEST = { armor6: 6235, weapon5: 6456 };
 // Episode Valkyrie (#51), Renewal: with the way to the New World open
 // (ep13_ryu 100, which 16.1 asks for) and an Eden Group Mark (which 15.1
 // asks for), the character stands in the middle of 13.1, 13.2, 13.3, 14.1,
@@ -175,6 +181,7 @@ const EXPECT = {
         welcome: true,             // Welcoming in Izlude: Renewal only
         valkyrie: true,            // Episode Valkyrie: Renewal only
         jewel: true,               // headgear jewels exist (Enchanter check)
+        gradeUi: true,             // Grade Refiner's grading and refine windows: Renewal only
         warpFee: true,             // a Dragon Knight is 4th class: the Warper charges
         smugglerMarkup: 2,         // no cash-shop-extended in the test world
         thirdClass: true,          // Shadow Chaser exists: Plagiarism Master's Reproduce check
@@ -193,6 +200,7 @@ const EXPECT = {
         welcome: false,
         valkyrie: false,
         jewel: false,
+        gradeUi: false,
         warpFee: false,            // a Lord Knight: no 3rd class here, no fee
         smugglerMarkup: 2,
         thirdClass: false,
@@ -238,7 +246,7 @@ function setUpCharacter(era) {
         + ` DELETE FROM char_reg_str WHERE char_id=${id} AND \`key\` LIKE 'BB\\_%';`
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\`='SNPC_WelcomeGift';`
         + ` UPDATE inventory SET equip=0 WHERE char_id=${id} AND (equip & (34 | 256 | 16)) <> 0;`
-        + ` DELETE FROM inventory WHERE char_id=${id} AND nameid IN (${CARD_TEST.knife}, ${CARD_TEST.keep}, ${CARD_TEST.pull}, ${ENCH_TEST.hat}, ${ENCH_TEST.shirt}, ${ENCH_TEST.jewel}, ${ENCH_TEST.stone}, ${SLOT_TEST.coupon}, ${SLOT_TEST.mantle}, ${SMUG_TEST.mask}, ${SMUG_TEST.gems}, ${SMUG_TEST.free}, ${PREM_TEST.gauche}, ${PREM_TEST.potion}, ${PREM_TEST.jellopy});`
+        + ` DELETE FROM inventory WHERE char_id=${id} AND nameid IN (${CARD_TEST.knife}, ${CARD_TEST.keep}, ${CARD_TEST.pull}, ${ENCH_TEST.hat}, ${ENCH_TEST.shirt}, ${ENCH_TEST.jewel}, ${ENCH_TEST.stone}, ${SLOT_TEST.coupon}, ${SLOT_TEST.mantle}, ${SMUG_TEST.mask}, ${SMUG_TEST.gems}, ${SMUG_TEST.free}, ${PREM_TEST.gauche}, ${PREM_TEST.potion}, ${PREM_TEST.jellopy}, ${GRADE_TEST.armor6}, ${GRADE_TEST.weapon5});`
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` LIKE 'SNPC\\_Smuggler%';`
         // Plagiarism Master's run leaves copied skills and a Shadow Chaser's skills.
         + ` DELETE FROM char_reg_num WHERE char_id=${id} AND \`key\` IN ('CLONE_SKILL', 'CLONE_SKILL_LV', 'REPRODUCE_SKILL', 'REPRODUCE_SKILL_LV');`
@@ -252,7 +260,8 @@ function setUpCharacter(era) {
         + ` (${id}, ${PREM_TEST.potion}, 5, 0, 1, 0, 1), (${id}, ${PREM_TEST.jellopy}, 1, 0, 1, 0, 0);`
         + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify) VALUES (${id}, ${ENCH_TEST.stone}, 1, 0, 1),`
         + ` (${id}, ${SLOT_TEST.coupon}, 1, 0, 1), (${id}, ${SLOT_TEST.mantle}, 1, 0, 1);`
-        + (e.jewel ? ` INSERT INTO inventory (char_id, nameid, amount, equip, identify) VALUES (${id}, ${ENCH_TEST.jewel}, 1, 0, 1);` : ''));
+        + (e.jewel ? ` INSERT INTO inventory (char_id, nameid, amount, equip, identify) VALUES (${id}, ${ENCH_TEST.jewel}, 1, 0, 1);` : '')
+        + ` INSERT INTO inventory (char_id, nameid, amount, equip, identify) VALUES (${id}, ${GRADE_TEST.armor6}, 1, 0, 1), (${id}, ${GRADE_TEST.weapon5}, 1, 0, 1);`);
     checks.push({ ok: w.ok, text: `character set to job ${e.job}, Lv ${e.level}, no Bounty progress, carded Knife, Hat and Cotton Shirt equipped`, detail: w.ok ? '' : w.out.slice(-300) });
     return checks;
 }
@@ -562,6 +571,32 @@ function runEra(era) {
             check(Array.isArray(first) && first.includes('Regular Gear') && !first.some(t => t.includes('Add a slot')),
                 'Universal Enchanter: no Add a slot without cash-shop-extended', JSON.stringify(first).slice(-200));
         }
+    }
+    if (want('grade')) {
+        // Grade Refiner (#120): a ticket refines worn gear up to its level;
+        // one at or below the item's refine is refused and kept.
+        gm('@warp prontera 164 167');
+        const refine = (part, ticket, confirm) => ev(`(async () => {
+            const sleep = ms => new Promise(r => setTimeout(r, ms));
+            await snpc.talk('Grade Refiner');
+            let v = snpc.view();
+            for (let i = 0; i < 6 && !v.menu.length && v.next; i++) v = await snpc.next();
+            const first = v.menu.map(m => m.text);
+            const steps = [await snpc.go('Refine with a ticket'), await snpc.go('${part}'), await snpc.go('${ticket}')];
+            if (${confirm}) steps.push(await snpc.go('Yes'));
+            v = snpc.view();
+            for (let i = 0; i < 10 && v.next; i++) v = await snpc.next();
+            await sleep(300);
+            const said = snpc.view().text;
+            await snpc.close();
+            return { first, said, errors: steps.filter(s => s && s.error).map(s => s.error) };
+        })()`);
+        const knife = refine('Knife', '+5 Weapon', false);
+        check(knife && !knife.errors.length && /already at \+5/.test(knife.said), 'Grade Refiner: a +5 ticket is refused for a +5 Knife', JSON.stringify(knife).slice(-200));
+        const hat = refine('Hat', '+6 Armor', true);
+        check(hat && !hat.errors.length && /now \+6/.test(hat.said), 'Grade Refiner: a +6 Armor ticket refines the Hat to +6', JSON.stringify(hat).slice(-200));
+        const ui = knife && Array.isArray(knife.first) && knife.first.includes('Equipment Grading');
+        check(ui === e.gradeUi, `Grade Refiner: grading window ${e.gradeUi ? 'offered' : 'not offered on Pre-renewal'}`, JSON.stringify(knife && knife.first));
     }
     if (want('warper')) {
         // Warper (#36), with warp_fee and warp_quests on for this run (see the
@@ -986,6 +1021,13 @@ function runEra(era) {
         check(tickets === '0', 'Episode Valkyrie: the tickets are used up', `${tickets} left`);
         const ring = sqlOne(`SELECT COALESCE(SUM(amount),0) FROM inventory WHERE char_id=${charId} AND nameid=${VALK_TEST.ring}`);
         check(ring === '1', 'Episode Valkyrie: 13.2 gives the Ring of the Ancient Wise King', `${ring} rings`);
+    }
+    if (want('grade')) {
+        const count = nameid => sqlOne(`SELECT COALESCE(SUM(amount),0) FROM inventory WHERE char_id=${charId} AND nameid=${nameid}`);
+        const hat = sqlOne(`SELECT refine FROM inventory WHERE char_id=${charId} AND nameid=${ENCH_TEST.hat}`);
+        check(hat === '6' && count(GRADE_TEST.armor6) === '0' && count(GRADE_TEST.weapon5) === '1',
+            'Grade Refiner: Hat saved at +6, the +6 ticket used, the +5 ticket kept',
+            `hat +${hat}, armor6 ${count(GRADE_TEST.armor6)}, weapon5 ${count(GRADE_TEST.weapon5)}`);
     }
     if (want('premium')) {
         const count = nameid => sqlOne(`SELECT COALESCE(SUM(amount),0) FROM inventory WHERE char_id=${charId} AND nameid=${nameid}`);
