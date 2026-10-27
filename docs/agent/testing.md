@@ -63,8 +63,10 @@ worktree need `SNPC_APP` pointing at the app clone.
   lands in their area; an open NPC input box swallows chat (`@` commands).
   Last full run 2026-10-06: every quest-start NPC present and talking; one
   real bug, `Training Instructor#1a` (`npc/re/jobs/novice/academy.txt`)
-  warps to `iz_int 98,88`, an invalid cell; rAthena has no quests for 4th
-  jobs, Star Emperor, Soul Reaper (Job Master only).
+  warps to `iz_int 98,88`, an invalid cell; no quests then for 4th jobs,
+  Star Emperor, Soul Reaper (Job Master only). Since then the fork got the
+  Dragon Knight, Imperial Guard and Shadow Cross quests (apps 1.6.7, 1.7.0,
+  1.7.3, `npc/re/jobs/4-1|4-2/`), not yet covered by a run.
 
 ## After the installed app is updated
 
