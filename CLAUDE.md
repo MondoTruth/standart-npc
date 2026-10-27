@@ -115,8 +115,10 @@ README.md, assets/, CLAUDE.md, docs/, tools/, tests/  -- repo only, never in the
 App limits: `type` is `boolean`, `number` or `string`; max 40 settings (20
 before app 1.5.5); `label` up to 120 and `description` up to **400 bytes**
 (UTF-8; over that the whole mod is refused: "setting ... has an over-long
-label or description", `stack/src/mods.rs`); `key` up to 40 characters, a
-string value up to 200; `requires.mods` gates the whole mod only. Settings
+label or description", `stack/src/mods.rs`; `enable_bounties` is at 396
+and `npc_off` at 379 bytes, so count bytes after any edit); `key` up to
+40 characters, a string value up to 200; `requires.mods` gates the whole
+mod only. Settings
 window groups (`settings/index.html`, const `GROUPS`): Travel and services,
 Character, Shops, Hunting quests, Dungeons, Equipment, Training, Other (keys
 not in a group land in Other).

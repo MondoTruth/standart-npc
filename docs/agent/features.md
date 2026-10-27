@@ -17,7 +17,9 @@ character variables, or needing server behaviour a script cannot do.
 
 ## Mod store
 
-App 1.5.2, experimental until 1.6 (Flux159/ragnarokoffline.app#440).
+App 1.5.2 (Flux159/ragnarokoffline.app#440, closed). The app's
+`docs/MOD_STORE.md` still calls it experimental at 1.7.4 ("may still change
+before 1.6", never updated); data stored now is kept across API changes.
 
 - The mod's own key/value data, `global` / `account` / `char` (deleted
   with the character), via `modstore_get/set/inc/...` in scripts, `store.*`
