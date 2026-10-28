@@ -15,6 +15,7 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
+const vm = require('node:vm');
 const { spawnSync } = require('node:child_process');
 
 const REPO = path.resolve(__dirname, '..');
@@ -194,6 +195,17 @@ function serverChecks(era, up) {
         smug ? smug[0] : (log.find(l => l.includes('Smuggler: banned')) || 'no "Smuggler: banned" line'));
     const dummies = log.find(l => /Training Dummies:.*(no dummies spawned|did not spawn)/.test(l));
     check(!dummies, 'Training Dummies spawned', dummies || '');
+
+    // Not the server's, but checked on every run: one stray quote in the
+    // settings page stops its whole script and the window hangs on "Loading…".
+    const page = fs.readFileSync(path.join(REPO, 'settings', 'index.html'), 'utf8');
+    const scripts = [...page.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
+    let pageError = scripts.length ? '' : 'no <script> in settings/index.html';
+    for (const code of scripts) {
+        try { new vm.Script(code, { filename: 'settings/index.html' }); }
+        catch (e) { pageError = pageError || e.message; }
+    }
+    check(!pageError, 'settings page script parses', pageError);
 
     const notes = log.filter(l => /\[(Error|Warning)\]/.test(l) && !bad.includes(l));
     return { checks, notes };
