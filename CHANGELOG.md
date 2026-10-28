@@ -336,3 +336,8 @@ Needs Ragnarok Offline 1.6.0 or newer.
 
 ### Renewal and Pre-renewal
 - Premium Service Manager: "Discard an item" now has a "Show all items" choice that lists everything in your bag but what you wear. Some items cannot be dropped or sold but can still be traded, such as the costumes Adventurer's Chronicle gives; they were missing from the list and could not be got rid of.
+
+## 5.0.6
+
+### Renewal and Pre-renewal
+- The settings window (Settings… in the Mods tab) hung on "Loading…" since 5.0.4: one description in it had a stray quote that stopped the whole window. It opens again.
