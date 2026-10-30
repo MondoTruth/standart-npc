@@ -1,9 +1,11 @@
 # standart-npc Changelog
 
-## Next version
+## 5.0.7
+
+Needs Ragnarok Offline 1.7.0 or newer.
 
 ### Renewal only
-- Job Master: Druid, Baby Druid, Karnos and Alitea appear only when the server has the jobs and the host has kRO art in its main client or fallback GRF. Requires Ragnarok Offline 1.7.0 or newer.
+- Job Master: Druid, Baby Druid, Karnos and Alitea appear only when the server has the jobs and the host has kRO art in its main client or fallback GRF.
 
 ## 1.0.0
 Initial release.
