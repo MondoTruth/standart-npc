@@ -613,7 +613,10 @@ OnInit:
 	.SkillPointCheck = true;			// Force player to use up all skill points?
 	.Platinum = true;					// Get platinum skills automatically?
 	.GetJobEquip = true;				// Get job equipment (mostly weapons) on job change?
-	.DruidClass = (eaclass(4351) != -1 && checkre(0));	// Druid line (Druid, Karnos, Alitea): on when the server has those jobs, Renewal only
+	.@client$ = callfunc("F_ClientInfo", "client");
+	.@fallback$ = callfunc("F_ClientInfo", "fallback");
+	.DruidClass = (eaclass(4351) != -1 && checkre(0) &&
+		(.@client$ == "kRO" || .@fallback$ == "kRO"));	// Druid line: server jobs plus kRO art, Renewal only
 
 	// Level Requirements
 	setarray .Req_First[0],1,10; 		// Minimum base level, job level to turn into 1st class
