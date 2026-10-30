@@ -5,7 +5,7 @@
 <p align="center">
   <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/MondoTruth/standart-npc?style=for-the-badge&label=latest&color=d9a233" alt="Latest release"></a>
   <a href="../../releases"><img src="https://img.shields.io/github/downloads/MondoTruth/standart-npc/total?style=for-the-badge&color=5da9e0" alt="Downloads"></a>
-  <a href="https://github.com/Flux159/ragnarokoffline.app"><img src="https://img.shields.io/badge/Ragnarok%20Offline-%E2%89%A5%201.6.5-c8503f?style=for-the-badge" alt="Requires Ragnarok Offline 1.6.5 or newer"></a>
+  <a href="https://github.com/Flux159/ragnarokoffline.app"><img src="https://img.shields.io/badge/Ragnarok%20Offline-%E2%89%A5%201.7.0-c8503f?style=for-the-badge" alt="Requires Ragnarok Offline 1.7.0 or newer"></a>
 </p>
 
 <p align="center">
@@ -29,7 +29,7 @@ In Ragnarok Offline: **Settings → Mods → Find Mods** → install **standart-
 Or by hand: download the zip from the [latest release](../../releases/latest), then **Settings → Mods → Add mod from folder…** and pick the zip.
 
 > [!IMPORTANT]
-> Needs Ragnarok Offline **1.6.5 or newer**; the Warper's newest maps need **1.6.6**. On an older app you keep the version you have until you update the app.
+> Needs Ragnarok Offline **1.7.0 or newer**. On an older app you keep the version you have until you update the app.
 
 ---
 
