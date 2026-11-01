@@ -1,0 +1,6 @@
+# Local analysis outputs and downloaded media
+artifacts/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
