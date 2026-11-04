@@ -42,6 +42,9 @@ asked, PRs only after a yes, never merge.
   `gh api -X PATCH repos/MondoTruth/<repo>/git/refs/heads/ragnarokoffline -f sha=<upstream sha> -F force=false`.
   If the fork is ahead, ask before touching it.
 - `MondoTruth/cashshopmod` `main` ← `LilArt420/cashshopmod` `main`.
+- `MondoTruth/adventurers-chronicle` `main` ← `AlwaysGH/adventurers-chronicle` `main`.
+- `MondoTruth/world-sync-extras` `main` ← `LilArt420/world-sync-extras` `main`.
+- `MondoTruth/ragassets` `main` ← `adsonpleal/ragassets` `main`.
 
 Fork workflows: on `MondoTruth/ragnarokoffline.app` the push-triggered
 `Test`, `images` and `Deploy Documentation` are disabled (each sync started

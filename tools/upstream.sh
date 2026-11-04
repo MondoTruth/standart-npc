@@ -69,6 +69,9 @@ fork Flux159/rathena rathena ragnarokoffline
 fork Flux159/roBrowserLegacy roBrowserLegacy ragnarokoffline
 fork Flux159/roBrowserLegacy-RemoteClient-Rust roBrowserLegacy-RemoteClient-Rust main
 fork LilArt420/cashshopmod cashshopmod main
+fork AlwaysGH/adventurers-chronicle adventurers-chronicle main
+fork LilArt420/world-sync-extras world-sync-extras main
+fork adsonpleal/ragassets ragassets main
 
 echo
 echo "== Open PRs"
