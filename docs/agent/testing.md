@@ -87,3 +87,8 @@ boot, and take it out again afterwards so our tests stay ours.
 A mod's `System/` files are only served after a forced relink of the test
 world's assets (a wrong `port:` in `state/assets/Config.local.js` showed
 it).
+
+For hands-on rotest NPC and quest checks, read
+[playtesting-rotest.md](playtesting-rotest.md). It records the verified client
+controls, dialogue handling, job IDs, relative GM level commands, instance-map
+pitfalls and combat-test commands.
